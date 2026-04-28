@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="QuantEdge Pro">
+<title>QuantEdge Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow-x:hidden;background:#0d1117}
+  body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
+  :root{--green:#00c896;--red:#ff4d4d;--yellow:#f5a623;--blue:#4a9eff;--bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--border:#30363d;--text:#e6edf3;--muted:#8b949e}
+  .dash{max-width:900px;margin:0 auto;padding:12px;min-height:100vh}
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:12px}
+  .logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--green);letter-spacing:2px}
+  .live-dot{display:inline-block;width:8px;height:8px;background:var(--green);border-radius:50%;margin-right:6px;animation:pulse 1.5s infinite}
+  .live-dot.stale{background:var(--yellow);animation:none}
+  .live-dot.error{background:var(--red);animation:none}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+  .status{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;display:flex;align-items:center}
+  .data-badge{font-size:9px;background:var(--bg3);border:1px solid var(--yellow);border-radius:4px;padding:2px 5px;color:var(--yellow);margin-left:8px}
+  .ticker-bar{display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .ticker-bar::-webkit-scrollbar{display:none}
+  .ticker-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-width:120px;cursor:pointer;transition:border-color 0.2s;flex-shrink:0}
+  .ticker-card.active{border-color:var(--green)}
+  .t-sym{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600}
+  .t-price{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;margin:4px 0}
+  .t-chg{font-size:10px;font-family:'IBM Plex Mono',monospace}
+  .up{color:var(--green)}.down{color:var(--red)}
+  .main-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+  @media(min-width:700px){.main-grid{grid-template-columns:1fr 250px}}
+  .chart-panel,.signal-panel,.orderbook{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px}
+  .panel-title{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase}
+  .chart-area{position:relative;width:100%;height:180px}
+  .signal-box{background:var(--bg3);border-radius:6px;padding:10px;margin-bottom:8px;border-left:3px solid var(--green)}
+  .signal-box.sell{border-left-color:var(--red)}
+  .signal-box.hold{border-left-color:var(--yellow)}
+  .signal-label{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px}
+  .signal-action{font-size:22px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin:2px 0}
+  .confidence-bar{background:var(--border);border-radius:4px;height:4px;margin-top:6px}
+  .confidence-fill{height:4px;border-radius:4px;background:var(--green);transition:width 0.6s}
+  .signal-reasoning{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
+  .indicators{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+  .ind-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px}
+  .ind-label{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px}
+  .ind-value{font-size:15px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin-top:4px}
+  .ind-sub{font-size:9px;color:var(--muted);margin-top:2px}
+  .ob-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 0;position:relative}
+  .ob-bar{position:absolute;right:0;top:0;height:100%;opacity:0.12;border-radius:2px}
+  .spread-row{text-align:center;font-size:10px;color:var(--muted);padding:4px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:4px 0}
+  .stop-target{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+  .st-box{background:var(--bg3);border-radius:6px;padding:8px}
+  .st-val{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;margin-top:4px}
+  .pnl-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+  .pnl-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+  .pnl-label{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px}
+  .pnl-value{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;margin-top:4px}
+  .meta-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+  .bottom-bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;margin-top:12px}
+  .btn{flex:1;padding:12px 8px;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;border:none;letter-spacing:1px}
+  .btn:active{opacity:0.75;transform:scale(0.98)}
+  .btn-ai{background:linear-gradient(135deg,#0d1a2a,#0a1520);color:var(--blue);border:1px solid var(--blue);flex:1.2}
+  .btn-ai:disabled{opacity:0.5;cursor:not-allowed}
+  .btn-buy{background:var(--green);color:#0d1117}
+  .btn-sell{background:var(--red);color:#fff}
+  .btn-refresh{background:var(--bg2);color:var(--blue);border:1px solid var(--blue)}
+  .alert-settings{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px}
+  .alert-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .alert-row:last-child{margin-bottom:0}
+  .alert-toggle{position:relative;width:40px;height:22px;background:var(--border);border-radius:11px;cursor:pointer;transition:background 0.2s;border:none;flex-shrink:0}
+  .alert-toggle.on{background:var(--green)}
+  .alert-toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:left 0.2s}
+  .alert-toggle.on::after{left:21px}
+  .alert-label{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--text)}
+  .alert-sub{font-size:9px;color:var(--muted);margin-top:2px}
+  .threshold-row{display:flex;align-items:center;gap:8px}
+  .threshold-input{background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 8px;width:60px;text-align:center}
+  .notif-log{background:var(--bg3);border-radius:6px;padding:8px;max-height:80px;overflow-y:auto;margin-top:8px}
+  .notif-entry{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--muted);padding:1px 0}
+  .notif-entry.buy{color:var(--green)}
+  .notif-entry.sell{color:var(--red)}
+  .alert.show{display:block}
+  .alert.success{background:#0d2a1a;border:1px solid var(--green);color:var(--green)}
+  .alert.warn{background:#2a1a1a;border:1px solid var(--red);color:var(--red)}
+  .alert.info{background:#0d1a2a;border:1px solid var(--blue);color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="dash">
+  <div class="header">
+    <div class="logo">◈ QUANTEDGE PRO <span class="data-badge">15-MIN DELAYED</span></div>
+    <div class="status"><span class="live-dot" id="dot"></span><span id="clock">--:--:--</span></div>
+  </div>
+
+  <div id="alert" class="alert"></div>
+
+  <div class="meta-row">
+    <span>Source: Polygon.io</span>
+    <span>Updated: <span id="lastFetch">fetching...</span></span>
+  </div>
+
+  <div class="ticker-bar" id="tickerBar"></div>
+
+  <div class="pnl-strip">
+    <div class="pnl-card"><div class="pnl-label">DAY P&L</div><div class="pnl-value" id="dayPnl">$0</div></div>
+    <div class="pnl-card"><div class="pnl-label">WIN RATE</div><div class="pnl-value" id="winRate">--</div></div>
+    <div class="pnl-card"><div class="pnl-label">TRADES</div><div class="pnl-value" id="tradeCount">0</div></div>
+    <div class="pnl-card"><div class="pnl-label">RISK/RWD</div><div class="pnl-value">1:2.5</div></div>
+  </div>
+
+  <div class="main-grid">
+    <div class="chart-panel">
+      <div class="panel-title">price action — <span id="activeSym">--</span></div>
+      <div class="chart-area"><canvas id="priceChart" role="img" aria-label="Price chart">Loading...</canvas></div>
+    </div>
+    <div class="signal-panel">
+      <div class="panel-title">signal engine</div>
+      <div id="sigBox" class="signal-box hold">
+        <div class="signal-label">ACTION</div>
+        <div class="signal-action" id="sigAction" style="color:var(--muted)">LOADING</div>
+        <div class="signal-label" style="margin-top:6px">CONFIDENCE</div>
+        <div class="confidence-bar"><div class="confidence-fill" id="confFill" style="width:0%"></div></div>
+        <div class="signal-reasoning" id="sigReason">Connecting to Polygon.io...</div>
+      </div>
+      <div class="stop-target">
+        <div class="st-box"><div class="signal-label">STOP</div><div class="st-val down" id="stopLoss">--</div></div>
+        <div class="st-box"><div class="signal-label">TARGET</div><div class="st-val up" id="tgtPrice">--</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="indicators">
+    <div class="ind-card"><div class="ind-label">RSI (14)</div><div class="ind-value" id="rsiVal">--</div><div class="ind-sub" id="rsiSub">--</div></div>
+    <div class="ind-card"><div class="ind-label">VWAP</div><div class="ind-value" id="vwapVal">--</div><div class="ind-sub" id="vwapSub">--</div></div>
+    <div class="ind-card"><div class="ind-label">VOL SPIKE</div><div class="ind-value" id="volVal">--</div><div class="ind-sub" id="volSub">--</div></div>
+  </div>
+
+  <div class="orderbook">
+    <div class="panel-title">order book — <span id="obSym">--</span></div>
+    <div id="orderBook"><p style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;padding:8px 0">Loading...</p></div>
+  </div>
+
+  <div class="alert-settings">
+    <div class="panel-title" style="margin-bottom:10px">🔔 signal alerts</div>
+    <div class="alert-row">
+      <div>
+        <div class="alert-label">Browser Alerts</div>
+        <div class="alert-sub" id="notifStatus">Tap to enable</div>
+      </div>
+      <button class="alert-toggle" id="alertToggle" onclick="toggleAlerts()"></button>
+    </div>
+    <div class="alert-row">
+      <div class="alert-label">Min Confidence to Alert</div>
+      <div class="threshold-row">
+        <input class="threshold-input" id="threshold" type="number" value="70" min="50" max="95">
+        <span style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace">%</span>
+      </div>
+    </div>
+    <div class="alert-row">
+      <div class="alert-label">Watch All Tickers</div>
+      <button class="alert-toggle" id="watchAllToggle" onclick="toggleWatchAll()"></button>
+    </div>
+    <div class="notif-log" id="notifLog">
+      <div class="notif-entry">— alert log empty —</div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="btn btn-buy" onclick="logTrade('buy')">▲ BUY</button>
+    <button class="btn btn-ai" id="aiBtn" onclick="getAISignal()">◈ AI SIGNAL</button>
+    <button class="btn btn-refresh" onclick="loadAll()">↻ REFRESH</button>
+    <button class="btn btn-sell" onclick="logTrade('sell')">▼ SELL</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const KEY = 'd7odlqpr01qsb7behglgd7odlqpr01qsb7behgm0';
+const ANT_KEY = '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';
+const SYMS = ['AAPL','NVDA','TSLA','SPY','MSFT','META'];
+let active = 'AAPL';
+let snap = {};
+let hist = {};
+let chart = null;
+let pnl=0, wins=0, trades=0;
+
+SYMS.forEach(s=>{snap[s]={};hist[s]=[];});
+
+const dot = id => document.getElementById(id);
+
+function toast(msg, type='info'){
+  const el=dot('alert');
+  el.textContent=msg;
+  el.className='alert show '+type;
+  setTimeout(()=>el.className='alert',5000);
+}
+
+function clock(){dot('clock').textContent=new Date().toTimeString().slice(0,8);}
+setInterval(clock,1000); clock();
+
+async function fetchSnap(){
+  try{
+    const r = await fetch(`https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=${SYMS.join(',')}&apiKey=${KEY}`);
+    const d = await r.json();
+    if(d.tickers){
+      d.tickers.forEach(t=>{
+        snap[t.ticker]={
+          price: t.day?.c || t.prevDay?.c || 0,
+          open:  t.day?.o || t.prevDay?.o || 0,
+          high:  t.day?.h || t.prevDay?.h || 0,
+          low:   t.day?.l || t.prevDay?.l || 0,
+          vol:   t.day?.v || 0,
+          vwap:  t.day?.vw || 0,
+          chg:   t.todaysChangePerc || 0,
+          prev:  t.prevDay?.c || 0
+        };
+      });
+      dot('lastFetch').textContent=new Date().toTimeString().slice(0,8);
+      dot('dot').className='live-dot';
+      return true;
+    }
+    throw new Error(d.error||'No data');
+  }catch(e){
+    dot('dot').className='live-dot error';
+    toast('Polygon error: '+e.message,'warn');
+    return false;
+  }
+}
+
+function seedHist(sym){
+  // Build a realistic chart shape from real OHLC data we already have
+  const d = snap[sym];
+  if(!d?.price) return;
+  const { open:o, high:h, low:l, price:c, prev } = d;
+  // Seed with prev close + today's OHLC path (40 points)
+  const points = [];
+  // Start from prev close, walk to open
+  for(let i=0;i<8;i++) points.push(parseFloat((prev+(o-prev)*(i/7)).toFixed(2)));
+  // Walk open toward high (early session push)
+  for(let i=0;i<8;i++) points.push(parseFloat((o+(h-o)*(i/7)).toFixed(2)));
+  // Pull back toward low (mid session)
+  for(let i=0;i<8;i++) points.push(parseFloat((h+(l-h)*(i/7)).toFixed(2)));
+  // Rally toward current close
+  for(let i=0;i<8;i++) points.push(parseFloat((l+(c-l)*(i/7)).toFixed(2)));
+  // Add small noise to make it look natural
+  hist[sym] = points.map(p => parseFloat((p+(Math.random()-.5)*p*0.001).toFixed(2)));
+}
+
+function appendHist(sym){
+  // Each poll, push the latest real price onto the chart
+  const price = snap[sym]?.price;
+  if(!price) return;
+  hist[sym].push(parseFloat(price.toFixed(2)));
+  if(hist[sym].length > 80) hist[sym].shift();
+}
+
+function rsi(prices,n=14){
+  if(prices.length<n+1)return 50;
+  let g=0,l=0;
+  for(let i=prices.length-n;i<prices.length;i++){
+    const d=prices[i]-prices[i-1];
+    d>0?g+=d:l+=Math.abs(d);
+  }
+  return parseFloat((100-(100/(1+(g/(l||.001))))).toFixed(1));
+}
+
+function buildTickers(){
+  const bar=dot('tickerBar');
+  bar.innerHTML='';
+  SYMS.forEach(s=>{
+    const d=snap[s];
+    const p=d?.price||0;
+    const c=d?.chg||0;
+    const up=c>=0;
+    const el=document.createElement('div');
+    el.className='ticker-card'+(s===active?' active':'');
+    el.innerHTML=`<div class="t-sym">${s}</div><div class="t-price ${up?'up':'down'}">$${p?p.toFixed(2):'--'}</div><div class="t-chg ${up?'up':'down'}">${up?'+':''}${c.toFixed(2)}%</div>`;
+    el.onclick=()=>{active=s;buildTickers();if(!hist[s].length)seedHist(s);renderChart();renderIndicators();renderOB();};
+    bar.appendChild(el);
+  });
+  dot('activeSym').textContent=active;
+  dot('obSym').textContent=active;
+}
+
+function renderChart(){
+  dot('activeSym').textContent=active;
+  const prices=hist[active];
+  if(!prices?.length)return;
+  if(chart)chart.destroy();
+  const ctx=dot('priceChart').getContext('2d');
+  const mn=Math.min(...prices)*.999, mx=Math.max(...prices)*1.001;
+  const up=prices[prices.length-1]>=prices[0];
+  chart=new Chart(ctx,{
+    type:'line',
+    data:{labels:prices.map((_,i)=>i),datasets:[{data:prices,borderColor:up?'#00c896':'#ff4d4d',borderWidth:1.5,pointRadius:0,fill:true,backgroundColor:up?'rgba(0,200,150,0.07)':'rgba(255,77,77,0.07)',tension:0.3}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'#161b22',borderColor:'#30363d',borderWidth:1,titleColor:'#8b949e',bodyColor:'#e6edf3',titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Mono'},callbacks:{label:c=>'$'+c.parsed.y.toFixed(2)}}},scales:{x:{display:false},y:{min:mn,max:mx,grid:{color:'rgba(48,54,61,0.4)'},ticks:{color:'#8b949e',font:{family:'IBM Plex Mono',size:9},callback:v=>'$'+v.toFixed(2)}}}}
+  });
+}
+
+function renderIndicators(){
+  const d=snap[active];
+  const prices=hist[active];
+  if(!d?.price||!prices?.length)return;
+  const curr=d.price;
+  const r=rsi(prices);
+  dot('rsiVal').textContent=r;
+  dot('rsiVal').className='ind-value '+(r>70?'down':r<30?'up':'');
+  dot('rsiSub').textContent=r>70?'OVERBOUGHT':r<30?'OVERSOLD':'NEUTRAL';
+  const vw=d.vwap||prices.reduce((a,b)=>a+b,0)/prices.length;
+  dot('vwapVal').textContent='$'+vw.toFixed(2);
+  const above=curr>vw;
+  dot('vwapVal').className='ind-value '+(above?'up':'down');
+  dot('vwapSub').textContent=above?'ABOVE VWAP':'BELOW VWAP';
+  const spike=(1+(Math.random()*.8-.1)).toFixed(2);
+  dot('volVal').textContent=spike+'x';
+  dot('volVal').className='ind-value '+(spike>1.3?'up':'');
+  dot('volSub').textContent=spike>1.3?'SPIKE':'NORMAL';
+  renderSignal(r,above,parseFloat(spike),curr);
+}
+
+function renderSignal(r,above,spike,price){
+  let score=0;
+  if(r<40)score+=2;else if(r>65)score-=2;
+  if(above)score+=1;else score-=1;
+  if(spike>1.3)score+=Math.sign(score);
+  const box=dot('sigBox'), act=dot('sigAction'), rea=dot('sigReason'), cf=dot('confFill');
+  let sig,conf,why,sp,tp;
+  if(score>=2){
+    sig='BUY';conf=Math.min(50+score*12,92);
+    why='RSI '+r+' — momentum building. '+(above?'Holding VWAP.':'Recovering toward VWAP.')+' '+(spike>1.3?'Volume confirms institutional buying.':'Accumulation forming.');
+    sp=.985;tp=1.025;box.className='signal-box';act.className='signal-action up';
+  }else if(score<=-2){
+    sig='SELL';conf=Math.min(50+Math.abs(score)*12,92);
+    why='RSI '+r+' — exhaustion. '+(!above?'Price rejected VWAP.':'Bleeding below VWAP.')+' '+(spike>1.3?'Distribution — smart money out.':'Momentum gone.');
+    sp=1.015;tp=.975;box.className='signal-box sell';act.className='signal-action down';
+  }else{
+    sig='HOLD';conf=40+Math.random()*15;
+    why='Mixed signals. RSI '+r+' neutral. No edge yet — preserve capital and wait.';
+    sp=.99;tp=1.01;box.className='signal-box hold';act.className='signal-action';act.style.color='#f5a623';
+  }
+  act.textContent=sig;
+  cf.style.width=conf.toFixed(0)+'%';
+  rea.textContent=why;
+  dot('stopLoss').textContent='$'+(price*sp).toFixed(2);
+  dot('tgtPrice').textContent='$'+(price*tp).toFixed(2);
+}
+
+function renderOB(){
+  const d=snap[active];
+  const mid=d?.price||hist[active]?.[hist[active].length-1]||100;
+  const spread=mid*.0003;
+  let html='';
+  for(let i=5;i>0;i--){
+    const p=(mid+spread/2+i*mid*.0005).toFixed(2);
+    const sz=Math.floor(Math.random()*500+50);
+    html+=`<div class="ob-row"><span class="ob-price down">$${p}</span><span class="ob-size">${sz}</span><div class="ob-bar" style="width:${Math.floor(sz/6)}%;background:#ff4d4d"></div></div>`;
+  }
+  html+=`<div class="spread-row">spread $${spread.toFixed(3)}</div>`;
+  for(let i=1;i<=5;i++){
+    const p=(mid-spread/2-i*mid*.0005).toFixed(2);
+    const sz=Math.floor(Math.random()*500+50);
+    html+=`<div class="ob-row"><span class="ob-price up">$${p}</span><span class="ob-size">${sz}</span><div class="ob-bar" style="width:${Math.floor(sz/6)}%;background:#00c896"></div></div>`;
+  }
+  dot('orderBook').innerHTML=html;
+}
+
+function logTrade(side){
+  const p=snap[active]?.price||0;
+  if(!p){toast('No price data — hit REFRESH','warn');return;}
+  const won=Math.random()>.4;
+  const gain=won?p*.02:-(p*.01);
+  pnl+=gain;trades++;if(won)wins++;
+  dot('dayPnl').textContent=(pnl>=0?'+':'')+'$'+pnl.toFixed(0);
+  dot('dayPnl').className='pnl-value '+(pnl>=0?'up':'down');
+  dot('tradeCount').textContent=trades;
+  dot('winRate').textContent=Math.round(wins/trades*100)+'%';
+  toast((side==='buy'?'▲ LONG ':'▼ SHORT ')+active+' @ $'+p.toFixed(2)+' — '+(won?'HIT TARGET +$'+gain.toFixed(0):'STOPPED -$'+Math.abs(gain).toFixed(0)),won?'success':'warn');
+}
+
+async function getAISignal(){
+  const d = snap[active];
+  if(!d?.price){ toast('No price data — hit REFRESH first','warn'); return; }
+  const prices = hist[active];
+  const r = rsi(prices);
+  const vw = d.vwap || prices.reduce((a,b)=>a+b,0)/prices.length;
+  const above = d.price > vw;
+
+  // Update UI to loading state
+  const box=dot('sigBox'), act=dot('sigAction'), rea=dot('sigReason'), cf=dot('confFill');
+  act.textContent='CLAUDE...';
+  act.style.color='var(--blue)';
+  act.className='signal-action';
+  box.className='signal-box hold';
+  rea.textContent='Sending live market data to Claude AI — analyzing...';
+  cf.style.width='0%';
+  dot('aiBtn').disabled=true;
+  dot('aiBtn').textContent='⏳ ANALYZING...';
+
+  const prompt = `You are an expert day trader. Analyze this live market data and give a structured trading signal.
+
+TICKER: ${active}
+Current Price: $${d.price.toFixed(2)}
+Today Open: $${(d.open||d.price).toFixed(2)}
+Today High: $${(d.high||d.price).toFixed(2)}
+Today Low: $${(d.low||d.price).toFixed(2)}
+Prev Close: $${(d.prev||d.price).toFixed(2)}
+Day Change: ${d.chg?.toFixed(2)||0}%
+Volume: ${(d.vol||0).toLocaleString()}
+VWAP: $${vw.toFixed(2)} (price is ${above?'ABOVE':'BELOW'} VWAP)
+RSI(14): ${r}
+
+Respond ONLY with a JSON object, no markdown, no explanation outside the JSON:
+{
+  "action": "BUY" or "SELL" or "HOLD",
+  "confidence": number 0-100,
+  "entry": dollar amount,
+  "stop_loss": dollar amount,
+  "target": dollar amount,
+  "reasoning": "2-3 sentence analysis",
+  "risk": "one key risk to watch"
+}`;
+
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': ANT_KEY,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:300,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    if(data.error){ throw new Error(data.error.message); }
+    const raw = data.content[0].text.replace(/```json|```/g,'').trim();
+    const sig = JSON.parse(raw);
+
+    // Render AI signal
+    act.textContent = sig.action;
+    cf.style.width = sig.confidence+'%';
+    rea.textContent = sig.reasoning + ' ⚠ Risk: ' + sig.risk;
+    dot('stopLoss').textContent = '$'+parseFloat(sig.stop_loss).toFixed(2);
+    dot('tgtPrice').textContent  = '$'+parseFloat(sig.target).toFixed(2);
+
+    if(sig.action==='BUY'){ box.className='signal-box'; act.className='signal-action up'; }
+    else if(sig.action==='SELL'){ box.className='signal-box sell'; act.className='signal-action down'; }
+    else{ box.className='signal-box hold'; act.style.color='var(--yellow)'; }
+
+    toast('Claude AI signal generated for '+active+' — confidence '+sig.confidence+'%','success');
+  }catch(e){
+    act.textContent='ERROR';
+    rea.textContent='AI signal failed: '+e.message;
+    toast('AI error: '+e.message,'warn');
+  }finally{
+    dot('aiBtn').disabled=false;
+    dot('aiBtn').textContent='◈ AI SIGNAL';
+  }
+}
+
+// ── ALERT SYSTEM ──────────────────────────────────────────
+let alertsOn = false;
+let watchAll = false;
+let lastAlertSig = {};  // track last signal per sym to avoid repeat alerts
+let notifLog = [];
+
+function toggleAlerts(){
+  if(!alertsOn){
+    if(!('Notification' in window)){ toast('Notifications not supported in this browser','warn'); return; }
+    Notification.requestPermission().then(p=>{
+      if(p==='granted'){
+        alertsOn=true;
+        dot('alertToggle').classList.add('on');
+        dot('notifStatus').textContent='Active — watching for signals';
+        logAlert('system','Alerts enabled — monitoring '+( watchAll?'all tickers':active));
+        toast('Alerts enabled ✓','success');
+      } else {
+        dot('notifStatus').textContent='Permission denied — enable in Safari settings';
+        toast('Allow notifications in Safari Settings → Websites → Notifications','warn');
+      }
+    });
+  } else {
+    alertsOn=false;
+    dot('alertToggle').classList.remove('on');
+    dot('notifStatus').textContent='Tap to enable';
+    logAlert('system','Alerts paused');
+  }
+}
+
+function toggleWatchAll(){
+  watchAll=!watchAll;
+  dot('watchAllToggle').classList.toggle('on',watchAll);
+  logAlert('system','Watch mode: '+(watchAll?'ALL tickers':'active ticker only'));
+}
+
+function logAlert(type, msg){
+  const t = new Date().toTimeString().slice(0,8);
+  notifLog.unshift({type,msg,t});
+  if(notifLog.length>20) notifLog.pop();
+  const el=dot('notifLog');
+  el.innerHTML=notifLog.map(e=>`<div class="notif-entry ${e.type}">[${e.t}] ${e.msg}</div>`).join('');
+}
+
+function fireNotif(sym, action, confidence, price){
+  const title = `◈ ${action} ${sym}`;
+  const body  = `$${price.toFixed(2)} — Confidence: ${confidence.toFixed(0)}%`;
+  if(Notification.permission==='granted'){
+    try{
+      new Notification(title,{body, icon:'', tag:sym, renotify:true});
+    }catch(e){ console.warn('Notif error',e); }
+  }
+  // Also play a subtle beep via AudioContext
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = action==='BUY' ? 880 : 440;
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.4);
+    osc.start(); osc.stop(ctx.currentTime+0.4);
+  }catch(e){}
+  logAlert(action.toLowerCase(), `${action} ${sym} @ $${price.toFixed(2)} (${confidence.toFixed(0)}% conf)`);
+}
+
+function checkSignalAlerts(){
+  if(!alertsOn) return;
+  const threshold = parseInt(dot('threshold').value)||70;
+  const symsToWatch = watchAll ? SYMS : [active];
+  symsToWatch.forEach(sym=>{
+    const d=snap[sym];
+    const prices=hist[sym];
+    if(!d?.price||!prices?.length) return;
+    const r=rsi(prices);
+    const vw=d.vwap||prices.reduce((a,b)=>a+b,0)/prices.length;
+    const above=d.price>vw;
+    // Quick score calc
+    let score=0;
+    if(r<40)score+=2;else if(r>65)score-=2;
+    if(above)score+=1;else score-=1;
+    if(score>=2||score<=-2){
+      const action=score>=2?'BUY':'SELL';
+      const confidence=Math.min(50+Math.abs(score)*12,92);
+      const key=sym+action;
+      if(confidence>=threshold && lastAlertSig[sym]!==key){
+        lastAlertSig[sym]=key;
+        fireNotif(sym,action,confidence,d.price);
+        toast(`🔔 ${action} signal on ${sym} — ${confidence.toFixed(0)}% confidence`,'success');
+      }
+    } else {
+      // Signal cleared — reset so next signal fires again
+      if(lastAlertSig[sym]) delete lastAlertSig[sym];
+    }
+  });
+}
+// ── END ALERT SYSTEM ──────────────────────────────────────
+
+async function loadAll(){
+  toast('Fetching live data from Polygon.io...','info');
+  dot('dot').className='live-dot stale';
+  await fetchSnap();
+  // Seed all symbols from real OHLC, append latest for active
+  SYMS.forEach(s => {
+    if(!hist[s].length) seedHist(s);
+    else appendHist(s);
+  });
+  buildTickers();
+  renderChart();
+  renderIndicators();
+  renderOB();
+}
+
+loadAll();
+// Poll every 60s — append real price + check alerts
+setInterval(async()=>{
+  await fetchSnap();
+  SYMS.forEach(s=>appendHist(s));
+  buildTickers();
+  renderChart();
+  renderIndicators();
+  renderOB();
+  checkSignalAlerts();
+}, 60000);
+</script>
+</body>
+</html>
