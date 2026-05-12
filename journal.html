@@ -5,1141 +5,598 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="QE Journal">
-<title>QuantEdge — Trade Journal & Backtester</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-title" content="QuantEdge Journal">
+<link rel="manifest" href="/quantedge-pro/manifest.json">
+<meta name="theme-color" content="#00c896">
+<title>QuantEdge Pro — Journal</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:#080b0f;color:#e2e8f0;font-family:'IBM Plex Sans',sans-serif;overflow-x:hidden}
-:root{
-  --green:#00e5a0;--red:#ff4560;--yellow:#fbbf24;--blue:#38bdf8;--purple:#a78bfa;
-  --bg:#080b0f;--bg2:#0f1318;--bg3:#161c24;--bg4:#1e2733;
-  --border:#1e2d3d;--text:#e2e8f0;--muted:#64748b;--accent:#00e5a0
-}
+html,body{height:100%;overflow-x:hidden;background:#0d1117}
+body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
+:root{--green:#00c896;--red:#ff4d4d;--yellow:#f5a623;--blue:#4a9eff;--purple:#a371f7;--bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--border:#30363d;--text:#e6edf3;--muted:#8b949e}
+.dash{max-width:960px;margin:0 auto;padding:12px;min-height:100vh}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:12px}
+.logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--green);letter-spacing:2px}
+.live-dot{display:inline-block;width:8px;height:8px;background:var(--green);border-radius:50%;margin-right:6px;animation:pulse 1.5s infinite}
+.live-dot.stale{background:var(--yellow);animation:none}
+.live-dot.error{background:var(--red);animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.status{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:8px}
+.data-badge{font-size:9px;background:var(--bg3);border:1px solid var(--yellow);border-radius:4px;padding:2px 5px;color:var(--yellow)}
 
-/* NAV */
-.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:100}
-.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--green);letter-spacing:2px}
-.nav-back{font-size:11px;color:var(--blue);font-family:'IBM Plex Mono',monospace;text-decoration:none;border:1px solid var(--blue);padding:4px 10px;border-radius:4px}
-.tab-bar{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg2);overflow-x:auto;scrollbar-width:none}
-.tab-bar::-webkit-scrollbar{display:none}
-.tab{padding:12px 16px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:1px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.2s}
-.tab.active{color:var(--green);border-bottom-color:var(--green)}
-.tab-content{display:none;padding:14px}
-.tab-content.active{display:block}
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:14px;background:var(--bg2);padding:4px;border-radius:10px;border:1px solid var(--border)}
+.tab{flex:1;padding:8px 4px;background:none;border:none;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;border-radius:7px;letter-spacing:.5px;transition:all 0.2s}
+.tab.active{background:var(--bg3);color:var(--green);border:1px solid var(--border)}
+.tab-panel{display:none}.tab-panel.active{display:block}
 
-/* READINESS SCORE */
-.readiness-card{background:linear-gradient(135deg,#0a1628,#0d1f1a);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden}
-.readiness-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(0,229,160,0.04) 0%,transparent 70%);pointer-events:none}
-.readiness-score{font-family:'IBM Plex Mono',monospace;font-size:64px;font-weight:700;line-height:1;margin:8px 0}
-.readiness-label{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:2px;text-transform:uppercase}
-.readiness-bar{background:var(--border);border-radius:8px;height:8px;margin:12px 0 8px}
-.readiness-fill{height:8px;border-radius:8px;background:linear-gradient(90deg,var(--red),var(--yellow),var(--green));transition:width 1s ease}
-.readiness-sub{font-size:11px;color:var(--muted)}
-.real-money-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:1px;margin-top:8px}
-.badge-not-ready{background:#2a1018;border:1px solid var(--red);color:var(--red)}
-.badge-almost{background:#2a2010;border:1px solid var(--yellow);color:var(--yellow)}
-.badge-ready{background:#0a2018;border:1px solid var(--green);color:var(--green)}
+/* STATS STRIP */
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.stat-label{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px}
+.stat-value{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;margin-top:4px}
+@media(max-width:480px){.stats-strip{grid-template-columns:repeat(2,1fr)}}
 
-/* STATS GRID */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.stats-grid.four{grid-template-columns:1fr 1fr 1fr 1fr}
-.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px}
-.stat-label{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase}
-.stat-value{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;margin-top:4px}
-.stat-sub{font-size:9px;color:var(--muted);margin-top:2px}
-.up{color:var(--green)}.down{color:var(--red)}.neutral{color:var(--yellow)}
+/* FILTER BAR */
+.filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.filter-btn{background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:5px 10px;cursor:pointer;transition:all 0.2s}
+.filter-btn.active{background:var(--bg3);color:var(--green);border-color:var(--green)}
+.filter-btn.sell-filter.active{color:var(--red);border-color:var(--red)}
+.search-input{background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 10px;flex:1;min-width:120px;outline:none}
+.search-input:focus{border-color:var(--blue)}
+.sort-select{background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:5px 8px;cursor:pointer;outline:none}
 
-/* CHECKLIST */
-.checklist{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px}
-.checklist-title{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-.check-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
-.check-item:last-child{border-bottom:none}
-.check-box{width:20px;height:20px;border:1px solid var(--border);border-radius:4px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.2s;margin-top:1px}
-.check-box.done{background:var(--green);border-color:var(--green);color:#080b0f}
-.check-text{font-size:12px;color:var(--text);line-height:1.4}
-.check-sub{font-size:10px;color:var(--muted);margin-top:2px}
-.checklist-progress{font-size:10px;color:var(--green);font-family:'IBM Plex Mono',monospace}
+/* TRADE ENTRIES */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px}
+.panel-title{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.trade-entry{background:var(--bg3);border-radius:6px;padding:10px;margin-bottom:8px;border-left:3px solid var(--green);cursor:pointer;transition:opacity 0.2s}
+.trade-entry:hover{opacity:0.85}
+.trade-entry.sell{border-left-color:var(--red)}
+.trade-entry.auto{border-left-color:var(--purple)}
+.trade-entry.manual{border-left-color:var(--blue)}
+.trade-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.trade-sym{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600}
+.trade-time{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.trade-detail{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:6px}
+.trade-badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:9px;padding:2px 6px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-weight:600}
+.badge-auto{background:#1a0d2a;color:var(--purple);border:1px solid var(--purple)}
+.badge-manual{background:#0d1a2a;color:var(--blue);border:1px solid var(--blue)}
+.badge-buy{background:#0d2a1a;color:var(--green);border:1px solid var(--green)}
+.badge-sell{background:#2a0d0d;color:var(--red);border:1px solid var(--red)}
+.badge-conf{background:var(--bg);color:var(--yellow);border:1px solid var(--yellow)}
+.badge-win{background:#0d2a1a;color:var(--green);border:1px solid var(--green)}
+.badge-loss{background:#2a0d0d;color:var(--red);border:1px solid var(--red)}
+.badge-open{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.pnl-inline{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600}
+.up{color:var(--green)}.down{color:var(--red)}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:12px;font-family:'IBM Plex Mono',monospace}
 
-/* SIGNAL LOG */
-.signal-log-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px}
-.sig-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.sig-sym{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700}
-.sig-action{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px}
-.sig-action.buy{background:#0a2018;color:var(--green);border:1px solid var(--green)}
-.sig-action.sell{background:#2a1018;color:var(--red);border:1px solid var(--red)}
-.sig-action.hold{background:#2a2010;color:var(--yellow);border:1px solid var(--yellow)}
-.sig-row{display:flex;gap:12px;font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px}
-.sig-outcome{display:flex;gap:6px;margin-top:8px}
-.outcome-btn{flex:1;padding:6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;border:none;letter-spacing:1px;transition:all 0.2s}
-.outcome-btn:active{opacity:0.75}
-.btn-win{background:#0a2018;color:var(--green);border:1px solid var(--green)}
-.btn-loss{background:#2a1018;color:var(--red);border:1px solid var(--red)}
-.btn-scratch{background:var(--bg3);color:var(--muted);border:1px solid var(--border)}
-.outcome-btn.selected-win{background:var(--green);color:#080b0f}
-.outcome-btn.selected-loss{background:var(--red);color:#fff}
-.outcome-btn.selected-scratch{background:var(--muted);color:#080b0f}
+/* BRIEFING PANELS */
+.brief-card{background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:12px}
+.brief-bias{font-size:16px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin-bottom:8px}
+.brief-summary{font-size:12px;color:var(--text);line-height:1.6;margin-bottom:10px}
+.brief-pick{padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;display:flex;gap:8px;align-items:baseline}
+.brief-pick:last-child{border-bottom:none}
+.brief-ticker{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--green);min-width:50px}
+.brief-dir{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--yellow)}
+.brief-reason{color:var(--muted)}
+.brief-mantra{margin-top:12px;color:var(--purple);font-style:italic;font-size:12px;line-height:1.6}
+.grade-badge{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;margin-bottom:8px}
 
-/* JOURNAL FORM */
-.form-group{margin-bottom:12px}
-.form-label{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;display:block}
-.form-input,.form-select,.form-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:8px 10px;outline:none;transition:border-color 0.2s}
-.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--green)}
-.form-textarea{min-height:70px;resize:vertical}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.form-row.three{grid-template-columns:1fr 1fr 1fr}
-.btn-primary{background:var(--green);color:#080b0f;border:none;border-radius:6px;padding:10px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;width:100%;transition:opacity 0.2s}
-.btn-primary:active{opacity:0.75}
-.btn-secondary{background:var(--bg3);color:var(--blue);border:1px solid var(--blue);border-radius:6px;padding:8px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;transition:opacity 0.2s}
+/* SIGNALS TAB */
+.signal-entry{background:var(--bg3);border-radius:6px;padding:10px;margin-bottom:8px;border-left:3px solid var(--blue)}
+.signal-entry.BUY{border-left-color:var(--green)}
+.signal-entry.SELL{border-left-color:var(--red)}
+.signal-entry.HOLD{border-left-color:var(--yellow)}
+.signal-action-label{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600}
 
-/* BACKTESTER */
-.backtest-result{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
-.backtest-title{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
-.bt-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.bt-stat{text-align:center;padding:8px;background:var(--bg3);border-radius:6px}
-.bt-val{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700}
-.bt-label{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin-top:2px}
-.equity-chart{width:100%;height:120px;position:relative;margin:10px 0}
-.trade-list{max-height:200px;overflow-y:auto}
-.trade-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 0;border-bottom:1px solid var(--border)}
-.trade-row:last-child{border-bottom:none}
+/* CHART */
+.equity-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px;font-family:'IBM Plex Mono',monospace}
+.equity-fill{height:8px;border-radius:4px;min-width:4px;transition:width 0.4s}
 
-/* WEEKLY REVIEW */
-.review-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
-.review-title{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
-.rating-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.rating-label{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--text)}
-.stars{display:flex;gap:4px}
-.star{font-size:16px;cursor:pointer;opacity:0.3;transition:opacity 0.2s}
-.star.on{opacity:1}
-
-/* MISC */
-.section-title{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-.empty-state{text-align:center;padding:30px;color:var(--muted);font-size:12px;font-family:'IBM Plex Mono',monospace}
-.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:1px}
-.pill-green{background:#0a2018;border:1px solid var(--green);color:var(--green)}
-.pill-red{background:#2a1018;border:1px solid var(--red);color:var(--red)}
-.pill-yellow{background:#2a2010;border:1px solid var(--yellow);color:var(--yellow)}
-.alert{display:none;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;font-family:'IBM Plex Mono',monospace}
+/* ALERT */
+.alert{display:none;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;font-family:'IBM Plex Mono',monospace}
 .alert.show{display:block}
-.alert.success{background:#0a2018;border:1px solid var(--green);color:var(--green)}
-.alert.warn{background:#2a1018;border:1px solid var(--red);color:var(--red)}
-.alert.info{background:#0a1628;border:1px solid var(--blue);color:var(--blue)}
-.divider{height:1px;background:var(--border);margin:12px 0}
+.alert.success{background:#0d2a1a;border:1px solid var(--green);color:var(--green)}
+.alert.warn{background:#2a1a1a;border:1px solid var(--red);color:var(--red)}
+.alert.info{background:#0d1a2a;border:1px solid var(--blue);color:var(--blue)}
+
+/* SPINNER */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* BOTTOM NAV */
+.bottom-bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;margin-top:12px}
+.btn{flex:1;padding:12px 8px;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;border:none;letter-spacing:1px}
+.btn:active{opacity:0.75;transform:scale(0.98)}
+.btn-refresh{background:var(--bg2);color:var(--blue);border:1px solid var(--blue)}
+.btn-home{background:var(--bg2);color:var(--green);border:1px solid var(--green)}
+.btn-export{background:var(--bg2);color:var(--muted);border:1px solid var(--border)}
+
+/* PAGINATION */
+.pagination{display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.page-btn{background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer}
+.page-btn.active{background:var(--bg3);color:var(--green);border-color:var(--green)}
+.page-btn:disabled{opacity:0.4;cursor:not-allowed}
 </style>
 </head>
 <body>
-
-<div class="nav">
-  <div class="nav-logo">◈ QE JOURNAL</div>
-  <a class="nav-back" href="https://glosamabinladen.github.io/quantedge-pro">← TERMINAL</a>
-</div>
-
-<div class="tab-bar">
-  <div class="tab active" onclick="switchTab('dashboard')">DASHBOARD</div>
-  <div class="tab" onclick="switchTab('routine')">DAILY ROUTINE</div>
-  <div class="tab" onclick="switchTab('signals')">SIGNAL LOG</div>
-  <div class="tab" onclick="switchTab('journal')">TRADE JOURNAL</div>
-  <div class="tab" onclick="switchTab('backtest')">BACKTESTER</div>
-  <div class="tab" onclick="switchTab('review')">WEEKLY REVIEW</div>
-</div>
-
-<div id="alert" class="alert"></div>
-
-<!-- DASHBOARD TAB -->
-<div id="tab-dashboard" class="tab-content active">
-
-  <div class="readiness-card">
-    <div class="readiness-label">Real Money Readiness Score</div>
-    <div class="readiness-score up" id="readinessScore">0</div>
-    <div class="readiness-bar"><div class="readiness-fill" id="readinessFill" style="width:0%"></div></div>
-    <div class="readiness-sub" id="readinessSub">Complete your daily routine and log trades to build your score</div>
-    <div class="real-money-badge badge-not-ready" id="readinessBadge">NOT READY FOR REAL MONEY</div>
-  </div>
-
-  <div class="stats-grid four">
-    <div class="stat-card">
-      <div class="stat-label">Win Rate</div>
-      <div class="stat-value" id="dashWinRate">--%</div>
-      <div class="stat-sub">Need >55%</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Avg R:R</div>
-      <div class="stat-value" id="dashRR">--</div>
-      <div class="stat-sub">Need >2:1</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Days Logged</div>
-      <div class="stat-value" id="dashDays">0</div>
-      <div class="stat-sub">Need 30</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Signals Logged</div>
-      <div class="stat-value" id="dashSignals">0</div>
-      <div class="stat-sub">Total</div>
+<div class="dash">
+  <div class="header">
+    <div class="logo">◈ QUANTEDGE PRO <span class="data-badge">JOURNAL</span></div>
+    <div class="status">
+      <span class="live-dot stale" id="dot"></span>
+      <span id="clock">--:--:--</span>
+      <a href="/quantedge-pro/index.html" style="color:var(--muted);text-decoration:none;font-size:10px">← TERMINAL</a>
     </div>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-label">Total Paper P&L</div>
-      <div class="stat-value up" id="dashPnl">$0</div>
-      <div class="stat-sub">Cumulative</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Best Ticker</div>
-      <div class="stat-value up" id="dashBestTicker">--</div>
-      <div class="stat-sub">Most accurate</div>
-    </div>
+  <div id="alert" class="alert"></div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('trades')">TRADES</button>
+    <button class="tab" onclick="switchTab('signals')">SIGNALS</button>
+    <button class="tab" onclick="switchTab('briefings')">BRIEFINGS</button>
+    <button class="tab" onclick="switchTab('analytics')">ANALYTICS</button>
   </div>
 
-  <div class="checklist">
-    <div class="checklist-title">
-      <span>TODAY'S ROUTINE</span>
-      <span class="checklist-progress" id="todayProgress">0/7 complete</span>
+  <!-- ═══ TRADES TAB ═══ -->
+  <div class="tab-panel active" id="tab-trades">
+    <div class="stats-strip" id="tradeStats">
+      <div class="stat-card"><div class="stat-label">TOTAL TRADES</div><div class="stat-value" id="statTotal">--</div></div>
+      <div class="stat-card"><div class="stat-label">WIN RATE</div><div class="stat-value up" id="statWinRate">--</div></div>
+      <div class="stat-card"><div class="stat-label">TOTAL P&L</div><div class="stat-value" id="statPnl">--</div></div>
+      <div class="stat-card"><div class="stat-label">AUTO TRADES</div><div class="stat-value" style="color:var(--purple)" id="statAuto">--</div></div>
     </div>
-    <div id="todayChecklist"></div>
-  </div>
 
-  <div class="section-title">RECENT SIGNALS</div>
-  <div id="recentSignals"></div>
-
-</div>
-
-<!-- DAILY ROUTINE TAB -->
-<div id="tab-routine" class="tab-content">
-
-  <div class="checklist">
-    <div class="checklist-title">
-      <span>🌅 PRE-MARKET (9:00–9:30 AM EST)</span>
-      <span class="checklist-progress" id="preProgress">0/4</span>
-    </div>
-    <div id="preChecklist"></div>
-  </div>
-
-  <div class="checklist">
-    <div class="checklist-title">
-      <span>📈 MARKET OPEN (9:30–10:30 AM EST)</span>
-      <span class="checklist-progress" id="openProgress">0/3</span>
-    </div>
-    <div id="openChecklist"></div>
-  </div>
-
-  <div class="checklist">
-    <div class="checklist-title">
-      <span>🎯 MID-DAY CHECK (12:00 PM EST)</span>
-      <span class="checklist-progress" id="midProgress">0/3</span>
-    </div>
-    <div id="midChecklist"></div>
-  </div>
-
-  <div class="checklist">
-    <div class="checklist-title">
-      <span>🔔 POWER HOUR (3:00–3:45 PM EST)</span>
-      <span class="checklist-progress" id="powerProgress">0/3</span>
-    </div>
-    <div id="powerChecklist"></div>
-  </div>
-
-  <div class="checklist">
-    <div class="checklist-title">
-      <span>🌆 END OF DAY (4:00–4:30 PM EST)</span>
-      <span class="checklist-progress" id="eodProgress">0/3</span>
-    </div>
-    <div id="eodChecklist"></div>
-  </div>
-
-  <div class="form-group">
-    <label class="form-label">Today's Trading Intention</label>
-    <textarea class="form-textarea" id="intentionText" placeholder="Today I will only take signals with confidence above 70%. My max loss today is $____. I will close all positions by 3:45 PM..."></textarea>
-  </div>
-  <button class="btn-primary" onclick="saveRoutine()">SAVE TODAY'S ROUTINE</button>
-
-</div>
-
-<!-- SIGNAL LOG TAB -->
-<div id="tab-signals" class="tab-content">
-
-  <div class="section-title">LOG A SIGNAL</div>
-  <div class="form-row">
-    <div class="form-group">
-      <label class="form-label">Ticker</label>
-      <select class="form-select" id="sigTicker">
-        <option>AAPL</option><option>NVDA</option><option>TSLA</option>
-        <option>SPY</option><option>MSFT</option><option>META</option>
+    <div class="filter-bar">
+      <button class="filter-btn active" id="fAll" onclick="setFilter('all')">ALL</button>
+      <button class="filter-btn" id="fBuy" onclick="setFilter('buy')">BUY</button>
+      <button class="filter-btn sell-filter" id="fSell" onclick="setFilter('sell')">SELL</button>
+      <button class="filter-btn" id="fAuto" onclick="setFilter('auto')">AUTO</button>
+      <button class="filter-btn" id="fOpen" onclick="setFilter('open')">OPEN</button>
+      <input class="search-input" id="searchInput" placeholder="Search ticker..." oninput="renderTradesPage()">
+      <select class="sort-select" id="sortSelect" onchange="renderTradesPage()">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="pnl_desc">P&L ↓</option>
+        <option value="pnl_asc">P&L ↑</option>
+        <option value="conf">Confidence</option>
       </select>
     </div>
-    <div class="form-group">
-      <label class="form-label">Signal</label>
-      <select class="form-select" id="sigAction">
-        <option>BUY</option><option>SELL</option><option>HOLD</option>
-      </select>
-    </div>
-  </div>
-  <div class="form-row three">
-    <div class="form-group">
-      <label class="form-label">Price</label>
-      <input class="form-input" type="number" id="sigPrice" placeholder="213.50" step="0.01">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Confidence %</label>
-      <input class="form-input" type="number" id="sigConf" placeholder="75" min="0" max="100">
-    </div>
-    <div class="form-group">
-      <label class="form-label">RSI</label>
-      <input class="form-input" type="number" id="sigRsi" placeholder="42" min="0" max="100">
-    </div>
-  </div>
-  <div class="form-row">
-    <div class="form-group">
-      <label class="form-label">Stop Loss $</label>
-      <input class="form-input" type="number" id="sigStop" placeholder="210.00" step="0.01">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Target $</label>
-      <input class="form-input" type="number" id="sigTarget" placeholder="219.00" step="0.01">
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="form-label">Time of Day</label>
-    <select class="form-select" id="sigTime">
-      <option>Pre-Market</option>
-      <option>Open (9:30-10:30)</option>
-      <option>Mid-Day (10:30-2:00)</option>
-      <option>Power Hour (3:00-4:00)</option>
-    </select>
-  </div>
-  <button class="btn-primary" onclick="logSignal()" style="margin-bottom:16px">LOG SIGNAL</button>
 
-  <div class="section-title">SIGNAL HISTORY — <span id="signalCount">0 logged</span></div>
-  <div id="signalHistory"></div>
+    <div class="panel">
+      <div class="panel-title">
+        <span>Trade History</span>
+        <span id="tradeCountLabel" style="color:var(--muted)">Loading...</span>
+      </div>
+      <div id="tradeLog"><div class="empty-state"><span class="spinner"></span>Loading trades...</div></div>
+      <div class="pagination" id="tradePagination"></div>
+    </div>
+  </div>
 
+  <!-- ═══ SIGNALS TAB ═══ -->
+  <div class="tab-panel" id="tab-signals">
+    <div class="panel">
+      <div class="panel-title">
+        <span>Claude AI Signals</span>
+        <span id="signalCountLabel" style="color:var(--muted)">Loading...</span>
+      </div>
+      <div id="signalLog"><div class="empty-state"><span class="spinner"></span>Loading signals...</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ BRIEFINGS TAB ═══ -->
+  <div class="tab-panel" id="tab-briefings">
+    <div style="margin-bottom:10px;font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace">Generated at 9AM (morning) and 4PM (EOD) EST on market days</div>
+
+    <div class="panel">
+      <div class="panel-title">☀️ Morning Briefing</div>
+      <div id="morningBriefing"><div class="empty-state"><span class="spinner"></span>Loading briefing...</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">🌙 EOD Debrief</div>
+      <div id="eodDebrief"><div class="empty-state"><span class="spinner"></span>Loading debrief...</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ ANALYTICS TAB ═══ -->
+  <div class="tab-panel" id="tab-analytics">
+    <div class="panel">
+      <div class="panel-title">P&L by Ticker</div>
+      <div id="pnlByTicker"><div class="empty-state">No closed trades yet</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Confidence vs Outcome</div>
+      <div id="confAnalysis"><div class="empty-state">No data yet</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Setup Type Breakdown</div>
+      <div id="setupBreakdown"><div class="empty-state">No data yet</div></div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="btn btn-home" onclick="window.location='/quantedge-pro/index.html'">◈ TERMINAL</button>
+    <button class="btn btn-refresh" id="refreshBtn" onclick="loadAll()">⟳ REFRESH</button>
+    <button class="btn btn-export" onclick="exportCSV()">↓ CSV</button>
+  </div>
 </div>
 
-<!-- TRADE JOURNAL TAB -->
-<div id="tab-journal" class="tab-content">
-
-  <div class="section-title">LOG A TRADE</div>
-  <div class="form-row">
-    <div class="form-group">
-      <label class="form-label">Ticker</label>
-      <select class="form-select" id="jTicker">
-        <option>AAPL</option><option>NVDA</option><option>TSLA</option>
-        <option>SPY</option><option>MSFT</option><option>META</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Direction</label>
-      <select class="form-select" id="jSide">
-        <option>LONG</option><option>SHORT</option>
-      </select>
-    </div>
-  </div>
-  <div class="form-row three">
-    <div class="form-group">
-      <label class="form-label">Entry $</label>
-      <input class="form-input" type="number" id="jEntry" placeholder="213.50" step="0.01">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Exit $</label>
-      <input class="form-input" type="number" id="jExit" placeholder="219.00" step="0.01">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Shares</label>
-      <input class="form-input" type="number" id="jQty" placeholder="10" min="1">
-    </div>
-  </div>
-  <div class="form-row">
-    <div class="form-group">
-      <label class="form-label">Outcome</label>
-      <select class="form-select" id="jOutcome">
-        <option>WIN — Hit Target</option>
-        <option>LOSS — Hit Stop</option>
-        <option>SCRATCH — Broke Even</option>
-        <option>LOSS — Rule Violation</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Followed Rules?</label>
-      <select class="form-select" id="jRules">
-        <option>Yes — followed all rules</option>
-        <option>No — sized too big</option>
-        <option>No — held past stop</option>
-        <option>No — chased entry</option>
-        <option>No — traded first 15min</option>
-      </select>
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="form-label">What I Did Well</label>
-    <textarea class="form-textarea" id="jGood" placeholder="Waited for my entry, respected stop loss..." style="min-height:50px"></textarea>
-  </div>
-  <div class="form-group">
-    <label class="form-label">What I'll Improve</label>
-    <textarea class="form-textarea" id="jImprove" placeholder="Took profit too early, should have held to target..." style="min-height:50px"></textarea>
-  </div>
-  <button class="btn-primary" onclick="logTrade()" style="margin-bottom:16px">LOG TRADE</button>
-
-  <div class="section-title">TRADE HISTORY — <span id="tradeCount">0 trades</span></div>
-  <div id="tradeHistory"></div>
-
-</div>
-
-<!-- BACKTESTER TAB -->
-<div id="tab-backtest" class="tab-content">
-
-  <div class="section-title">STRATEGY BACKTESTER</div>
-
-  <div class="checklist" style="margin-bottom:12px">
-    <div class="checklist-title"><span>CONFIGURE STRATEGY</span></div>
-    <div class="form-row" style="margin-top:8px">
-      <div class="form-group">
-        <label class="form-label">Ticker</label>
-        <select class="form-select" id="btTicker">
-          <option>AAPL</option><option>NVDA</option><option>TSLA</option>
-          <option>SPY</option><option>MSFT</option><option>META</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Period</label>
-        <select class="form-select" id="btPeriod">
-          <option>30 days</option>
-          <option>60 days</option>
-          <option>90 days</option>
-          <option>180 days</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row three">
-      <div class="form-group">
-        <label class="form-label">RSI Buy Below</label>
-        <input class="form-input" type="number" id="btRsiBuy" value="40" min="20" max="50">
-      </div>
-      <div class="form-group">
-        <label class="form-label">RSI Sell Above</label>
-        <input class="form-input" type="number" id="btRsiSell" value="65" min="55" max="85">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Min Confidence</label>
-        <input class="form-input" type="number" id="btConf" value="70" min="50" max="95">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Stop Loss %</label>
-        <input class="form-input" type="number" id="btStop" value="1.5" step="0.1">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Target %</label>
-        <input class="form-input" type="number" id="btTarget" value="3.0" step="0.1">
-      </div>
-    </div>
-    <button class="btn-primary" onclick="runBacktest()">▶ RUN BACKTEST</button>
-  </div>
-
-  <div id="btResults" style="display:none">
-    <div class="backtest-result">
-      <div class="backtest-title">BACKTEST RESULTS — <span id="btResultTitle"></span></div>
-      <div class="bt-grid">
-        <div class="bt-stat">
-          <div class="bt-val up" id="btWinRate">--%</div>
-          <div class="bt-label">WIN RATE</div>
-        </div>
-        <div class="bt-stat">
-          <div class="bt-val" id="btTotalReturn">--</div>
-          <div class="bt-label">TOTAL RETURN</div>
-        </div>
-        <div class="bt-stat">
-          <div class="bt-val" id="btTrades">--</div>
-          <div class="bt-label">TRADES</div>
-        </div>
-        <div class="bt-stat">
-          <div class="bt-val" id="btAvgWin">--</div>
-          <div class="bt-label">AVG WIN</div>
-        </div>
-        <div class="bt-stat">
-          <div class="bt-val" id="btAvgLoss">--</div>
-          <div class="bt-label">AVG LOSS</div>
-        </div>
-        <div class="bt-stat">
-          <div class="bt-val" id="btMaxDD">--</div>
-          <div class="bt-label">MAX DRAWDOWN</div>
-        </div>
-      </div>
-      <div class="equity-chart">
-        <canvas id="equityChart" role="img" aria-label="Equity curve chart"></canvas>
-      </div>
-      <div class="section-title" style="margin-top:10px">TRADE LOG</div>
-      <div class="trade-list" id="btTradeList"></div>
-    </div>
-    <div class="backtest-result">
-      <div class="backtest-title">STRATEGY VERDICT</div>
-      <div id="btVerdict" style="font-size:12px;line-height:1.7;color:var(--text)"></div>
-    </div>
-  </div>
-
-</div>
-
-<!-- WEEKLY REVIEW TAB -->
-<div id="tab-review" class="tab-content">
-
-  <div class="section-title">WEEKLY PERFORMANCE REVIEW</div>
-
-  <div class="review-card">
-    <div class="review-title">THIS WEEK'S NUMBERS</div>
-    <div class="stats-grid four">
-      <div class="stat-card">
-        <div class="stat-label">Signals</div>
-        <div class="stat-value" id="wkSignals">--</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Win Rate</div>
-        <div class="stat-value" id="wkWinRate">--%</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">P&L</div>
-        <div class="stat-value" id="wkPnl">$0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Best Day</div>
-        <div class="stat-value up" id="wkBestDay">--</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="review-card">
-    <div class="review-title">RATE YOUR WEEK</div>
-    <div class="rating-row">
-      <div class="rating-label">Rule Discipline</div>
-      <div class="stars" id="stars-discipline"></div>
-    </div>
-    <div class="rating-row">
-      <div class="rating-label">Signal Quality</div>
-      <div class="stars" id="stars-quality"></div>
-    </div>
-    <div class="rating-row">
-      <div class="rating-label">Risk Management</div>
-      <div class="stars" id="stars-risk"></div>
-    </div>
-    <div class="rating-row">
-      <div class="rating-label">Emotional Control</div>
-      <div class="stars" id="stars-emotion"></div>
-    </div>
-  </div>
-
-  <div class="form-group">
-    <label class="form-label">What worked this week?</label>
-    <textarea class="form-textarea" id="wkWorked" placeholder="Signals that performed well, good entries..."></textarea>
-  </div>
-  <div class="form-group">
-    <label class="form-label">What needs improvement?</label>
-    <textarea class="form-textarea" id="wkImprove" placeholder="Rule violations, sizing issues, emotional trades..."></textarea>
-  </div>
-  <div class="form-group">
-    <label class="form-label">Next week's focus</label>
-    <textarea class="form-textarea" id="wkFocus" placeholder="I will focus on... Only trading... Avoiding..."></textarea>
-  </div>
-  <button class="btn-primary" onclick="saveWeeklyReview()">SAVE WEEKLY REVIEW</button>
-
-  <div class="divider"></div>
-  <div class="section-title">REVIEW HISTORY</div>
-  <div id="reviewHistory"></div>
-
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-// ── STORAGE ────────────────────────────────────────────────
-const S = {
-  get(k){ try{ return JSON.parse(localStorage.getItem('qe_'+k)||'null'); }catch(e){ return null; } },
-  set(k,v){ try{ localStorage.setItem('qe_'+k,JSON.stringify(v)); }catch(e){} },
-};
+// ═══════════════════════════════════════════════════════════
+// CONFIGURATION
+// ═══════════════════════════════════════════════════════════
+const BACKEND = "https://extraordinary-mandazi-a05e7e.netlify.app/.netlify/functions";
 
-let signals  = S.get('signals')  || [];
-let trades   = S.get('trades')   || [];
-let routines = S.get('routines') || [];
-let reviews  = S.get('reviews')  || [];
-let ratings  = { discipline:0, quality:0, risk:0, emotion:0 };
+// State
+let allTrades = [];
+let allSignals = [];
+let currentFilter = 'all';
+let currentPage = 1;
+const PAGE_SIZE = 20;
 
-// ── TABS ───────────────────────────────────────────────────
-function switchTab(name){
-  document.querySelectorAll('.tab').forEach((t,i)=>{
-    const tabs=['dashboard','routine','signals','journal','backtest','review'];
-    t.classList.toggle('active', tabs[i]===name);
+// ── CLOCK ─────────────────────────────────────────────────
+function clock() { document.getElementById('clock').textContent = new Date().toTimeString().slice(0,8); }
+setInterval(clock, 1000); clock();
+
+// ── TABS ──────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const tabs = ['trades','signals','briefings','analytics'];
+    t.classList.toggle('active', tabs[i] === name);
   });
-  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  if(name==='dashboard') refreshDashboard();
-  if(name==='signals') renderSignalHistory();
-  if(name==='journal') renderTradeHistory();
-  if(name==='review') renderWeeklyStats();
-  if(name==='routine') renderRoutine();
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
 }
 
-// ── ALERT ──────────────────────────────────────────────────
-function toast(msg,type='success'){
-  const el=document.getElementById('alert');
-  el.textContent=msg; el.className='alert show '+type;
-  setTimeout(()=>el.className='alert',4000);
+// ── TOAST ─────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const e = document.getElementById('alert');
+  e.textContent = msg; e.className = 'alert show ' + type;
+  setTimeout(() => e.className = 'alert', 5000);
 }
 
-// ── DAILY ROUTINE ──────────────────────────────────────────
-const ROUTINE_ITEMS = {
-  pre:[
-    {id:'pre1',text:'Hit REFRESH on terminal',sub:'Confirm all 6 tickers loading with real prices'},
-    {id:'pre2',text:'Check RSI on all tickers',sub:'Note anything below 35 or above 65 — those are in play'},
-    {id:'pre3',text:'Identify top 2-3 candidates',sub:'Based on RSI + overnight gap from prev close'},
-    {id:'pre4',text:'Write today\'s intention',sub:'Max loss, confidence threshold, close time'},
-  ],
-  open:[
-    {id:'open1',text:'Wait until 9:45 AM before first trade',sub:'Never trade the first 15 minutes — too volatile'},
-    {id:'open2',text:'Tap AI SIGNAL on top candidates',sub:'Only act on confidence above your threshold'},
-    {id:'open3',text:'Log all signals in Signal Log tab',sub:'Record ticker, price, RSI, confidence'},
-  ],
-  mid:[
-    {id:'mid1',text:'Check open positions P&L',sub:'Is price near target? Consider partial close'},
-    {id:'mid2',text:'Re-run AI SIGNAL on active trades',sub:'Has the signal flipped? That\'s your exit signal'},
-    {id:'mid3',text:'No new trades after 2:00 PM',sub:'Mid-day chop kills edge — be patient'},
-  ],
-  power:[
-    {id:'pow1',text:'Review all open positions',sub:'Power hour is your last chance to close cleanly'},
-    {id:'pow2',text:'Close all positions by 3:45 PM',sub:'Never hold a day trade overnight'},
-    {id:'pow3',text:'Log final signal scan',sub:'Note what the AI is saying at close'},
-  ],
-  eod:[
-    {id:'eod1',text:'Record today\'s P&L in Trade Journal',sub:'Every trade logged — wins AND losses'},
-    {id:'eod2',text:'Answer: did I follow my rules?',sub:'Be honest. Rule violations cost money later'},
-    {id:'eod3',text:'Note best and worst signal of the day',sub:'Which ticker/time worked? Which didn\'t?'},
-  ]
-};
-
-let todayChecks = S.get('todayChecks') || {};
-const todayKey = new Date().toDateString();
-if(S.get('checkDate') !== todayKey){
-  todayChecks = {};
-  S.set('todayChecks',{});
-  S.set('checkDate',todayKey);
+// ── FILTER ────────────────────────────────────────────────
+function setFilter(f) {
+  currentFilter = f; currentPage = 1;
+  ['All','Buy','Sell','Auto','Open'].forEach(x => {
+    const btn = document.getElementById('f' + x);
+    if (btn) btn.classList.toggle('active', f === x.toLowerCase());
+  });
+  renderTradesPage();
 }
 
-function renderRoutine(){
-  renderCheckSection('preChecklist','pre','preProgress',ROUTINE_ITEMS.pre);
-  renderCheckSection('openChecklist','open','openProgress',ROUTINE_ITEMS.open);
-  renderCheckSection('midChecklist','mid','midProgress',ROUTINE_ITEMS.mid);
-  renderCheckSection('powerChecklist','pow','powerProgress',ROUTINE_ITEMS.power);
-  renderCheckSection('eodChecklist','eod','eodProgress',ROUTINE_ITEMS.eod);
+function getFilteredTrades() {
+  let trades = [...allTrades];
+  const search = (document.getElementById('searchInput')?.value || '').toUpperCase().trim();
+  if (search) trades = trades.filter(t => (t.symbol||'').toUpperCase().includes(search));
+  if (currentFilter === 'buy')  trades = trades.filter(t => t.side === 'buy');
+  if (currentFilter === 'sell') trades = trades.filter(t => t.side === 'sell');
+  if (currentFilter === 'auto') trades = trades.filter(t => t.source === 'auto' || t.automated);
+  if (currentFilter === 'open') trades = trades.filter(t => t.realizedPnl == null);
+  const sort = document.getElementById('sortSelect')?.value || 'newest';
+  if (sort === 'newest') trades.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  if (sort === 'oldest') trades.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+  if (sort === 'pnl_desc') trades.sort((a,b) => (b.realizedPnl||0) - (a.realizedPnl||0));
+  if (sort === 'pnl_asc')  trades.sort((a,b) => (a.realizedPnl||0) - (b.realizedPnl||0));
+  if (sort === 'conf')     trades.sort((a,b) => (b.confidence||0) - (a.confidence||0));
+  return trades;
 }
 
-function renderCheckSection(elId,prefix,progressId,items){
-  const el=document.getElementById(elId);
-  const done=items.filter(i=>todayChecks[i.id]).length;
-  document.getElementById(progressId).textContent=done+'/'+items.length;
-  el.innerHTML=items.map(item=>`
-    <div class="check-item">
-      <div class="check-box ${todayChecks[item.id]?'done':''}" onclick="toggleCheck('${item.id}')">
-        ${todayChecks[item.id]?'✓':''}
-      </div>
-      <div>
-        <div class="check-text" style="${todayChecks[item.id]?'text-decoration:line-through;opacity:0.5':''}">${item.text}</div>
-        <div class="check-sub">${item.sub}</div>
-      </div>
+// ── RENDER TRADES ─────────────────────────────────────────
+function renderTradesPage() {
+  const filtered = getFilteredTrades();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page = filtered.slice(start, start + PAGE_SIZE);
+
+  document.getElementById('tradeCountLabel').textContent = `${filtered.length} trade${filtered.length !== 1 ? 's' : ''}`;
+
+  const log = document.getElementById('tradeLog');
+  if (!page.length) {
+    log.innerHTML = `<div class="empty-state">No trades match this filter</div>`;
+    document.getElementById('tradePagination').innerHTML = '';
+    return;
+  }
+  log.innerHTML = page.map(t => renderTradeEntry(t)).join('');
+  renderPagination(totalPages);
+}
+
+function renderTradeEntry(t) {
+  const time = t.timestamp ? new Date(t.timestamp).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour:'2-digit', minute:'2-digit' }) : '--';
+  const date = t.timestamp ? new Date(t.timestamp).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'2-digit' }) : '--';
+  const isAuto = t.source === 'auto' || t.automated;
+  const side = (t.side || 'buy').toLowerCase();
+  const borderClass = isAuto ? 'auto' : side;
+  const pnl = t.realizedPnl;
+  const pnlStr = pnl != null
+    ? `<span class="pnl-inline ${pnl >= 0 ? 'up' : 'down'}">${pnl >= 0 ? '+' : ''}$${parseFloat(pnl).toFixed(2)}</span>`
+    : `<span style="color:var(--muted);font-size:11px">open</span>`;
+  const price = parseFloat(t.price || t.filledPrice || 0).toFixed(2);
+  const qty = t.qty || t.quantity || '?';
+  return `<div class="trade-entry ${borderClass}">
+    <div class="trade-meta">
+      <span class="trade-sym">${t.symbol || '?'} <span style="font-size:10px;color:var(--muted);font-weight:400">× ${qty} @ $${price}</span></span>
+      <span>${pnlStr}</span>
     </div>
-  `).join('');
-}
-
-function toggleCheck(id){
-  todayChecks[id]=!todayChecks[id];
-  S.set('todayChecks',todayChecks);
-  renderRoutine();
-  updateTodayProgress();
-}
-
-function updateTodayProgress(){
-  const all=[...ROUTINE_ITEMS.pre,...ROUTINE_ITEMS.open,...ROUTINE_ITEMS.mid,...ROUTINE_ITEMS.power,...ROUTINE_ITEMS.eod];
-  const done=all.filter(i=>todayChecks[i.id]).length;
-  const el=document.getElementById('todayProgress');
-  if(el) el.textContent=done+'/'+all.length+' complete';
-  const el2=document.getElementById('todayChecklist');
-  if(el2){
-    el2.innerHTML=all.slice(0,4).map(item=>`
-      <div class="check-item">
-        <div class="check-box ${todayChecks[item.id]?'done':''}" onclick="toggleCheck('${item.id}');switchTab('dashboard')">
-          ${todayChecks[item.id]?'✓':''}
-        </div>
-        <div class="check-text" style="${todayChecks[item.id]?'text-decoration:line-through;opacity:0.5':''}">${item.text}</div>
+    <div class="trade-detail">${t.reasoning || t.reason || 'Autonomous trade executed by Claude'}</div>
+    <div class="trade-meta" style="margin-top:4px">
+      <div class="trade-badges">
+        <span class="badge ${isAuto ? 'badge-auto' : 'badge-manual'}">${isAuto ? 'AUTO' : 'MANUAL'}</span>
+        <span class="badge badge-${side}">${side.toUpperCase()}</span>
+        ${t.confidence != null ? `<span class="badge badge-conf">${t.confidence}% CONF</span>` : ''}
+        ${t.setupType ? `<span class="badge" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${t.setupType}</span>` : ''}
+        ${pnl != null ? `<span class="badge ${pnl >= 0 ? 'badge-win' : 'badge-loss'}">${pnl >= 0 ? 'WIN' : 'LOSS'}</span>` : `<span class="badge badge-open">OPEN</span>`}
       </div>
-    `).join('')+'<div style="font-size:10px;color:var(--muted);font-family:\'IBM Plex Mono\',monospace;padding:8px 0 0">→ See Daily Routine tab for full checklist</div>';
-  }
+      <span class="trade-time">${date} ${time} EST</span>
+    </div>
+  </div>`;
 }
 
-function saveRoutine(){
-  const intention=document.getElementById('intentionText').value;
-  if(!intention){ toast('Write your trading intention first','warn'); return; }
-  const today=new Date().toDateString();
-  const existing=routines.findIndex(r=>r.date===today);
-  const entry={date:today,intention,checks:Object.keys(todayChecks).filter(k=>todayChecks[k]).length};
-  if(existing>=0) routines[existing]=entry; else routines.push(entry);
-  S.set('routines',routines);
-  toast('Routine saved for '+today,'success');
-  updateReadiness();
-}
-
-// ── SIGNAL LOG ─────────────────────────────────────────────
-function logSignal(){
-  const ticker=document.getElementById('sigTicker').value;
-  const action=document.getElementById('sigAction').value;
-  const price=parseFloat(document.getElementById('sigPrice').value);
-  const conf=parseFloat(document.getElementById('sigConf').value);
-  const rsi=parseFloat(document.getElementById('sigRsi').value);
-  const stop=parseFloat(document.getElementById('sigStop').value);
-  const target=parseFloat(document.getElementById('sigTarget').value);
-  const time=document.getElementById('sigTime').value;
-  if(!price||!conf){ toast('Enter at least price and confidence','warn'); return; }
-  const sig={
-    id:Date.now(), date:new Date().toISOString(), ticker, action,
-    price, conf, rsi, stop, target, time, outcome:null
-  };
-  signals.unshift(sig);
-  S.set('signals',signals);
-  toast('Signal logged: '+action+' '+ticker+' @ $'+price,'success');
-  renderSignalHistory();
-  updateReadiness();
-}
-
-function setOutcome(id,outcome){
-  const sig=signals.find(s=>s.id===id);
-  if(!sig) return;
-  sig.outcome=outcome;
-  S.set('signals',signals);
-  renderSignalHistory();
-  updateReadiness();
-  toast('Outcome recorded: '+outcome,'success');
-}
-
-function renderSignalHistory(){
-  const el=document.getElementById('signalHistory');
-  document.getElementById('signalCount').textContent=signals.length+' logged';
-  if(!signals.length){ el.innerHTML='<div class="empty-state">No signals logged yet.<br>Log your first signal above.</div>'; return; }
-  el.innerHTML=signals.slice(0,20).map(s=>{
-    const d=new Date(s.date);
-    const dateStr=d.toLocaleDateString()+' '+d.toTimeString().slice(0,5);
-    return `<div class="signal-log-item">
-      <div class="sig-header">
-        <div>
-          <span class="sig-sym">${s.ticker}</span>
-          <span style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-left:6px">$${s.price?.toFixed(2)||'--'}</span>
-        </div>
-        <span class="sig-action ${s.action?.toLowerCase()}">${s.action}</span>
-      </div>
-      <div class="sig-row">
-        <span>CONF: ${s.conf}%</span>
-        <span>RSI: ${s.rsi||'--'}</span>
-        <span>STOP: $${s.stop?.toFixed(2)||'--'}</span>
-        <span>TARGET: $${s.target?.toFixed(2)||'--'}</span>
-      </div>
-      <div class="sig-row"><span>${s.time}</span><span>${dateStr}</span></div>
-      ${s.outcome?`<div style="margin-top:6px"><span class="pill ${s.outcome==='WIN'?'pill-green':s.outcome==='LOSS'?'pill-red':'pill-yellow'}">${s.outcome}</span></div>`:`
-      <div class="sig-outcome">
-        <button class="outcome-btn btn-win" onclick="setOutcome(${s.id},'WIN')">✓ WIN</button>
-        <button class="outcome-btn btn-loss" onclick="setOutcome(${s.id},'LOSS')">✗ LOSS</button>
-        <button class="outcome-btn btn-scratch" onclick="setOutcome(${s.id},'SCRATCH')">— SCRATCH</button>
-      </div>`}
-    </div>`;
-  }).join('');
-}
-
-// ── TRADE JOURNAL ──────────────────────────────────────────
-function logTrade(){
-  const ticker=document.getElementById('jTicker').value;
-  const side=document.getElementById('jSide').value;
-  const entry=parseFloat(document.getElementById('jEntry').value);
-  const exit=parseFloat(document.getElementById('jExit').value);
-  const qty=parseInt(document.getElementById('jQty').value);
-  const outcome=document.getElementById('jOutcome').value;
-  const rules=document.getElementById('jRules').value;
-  const good=document.getElementById('jGood').value;
-  const improve=document.getElementById('jImprove').value;
-  if(!entry||!exit||!qty){ toast('Enter entry, exit, and shares','warn'); return; }
-  const pnl=(side==='LONG'?exit-entry:entry-exit)*qty;
-  const rr=Math.abs(pnl)/(entry*qty*0.015);
-  const trade={
-    id:Date.now(), date:new Date().toISOString(), ticker, side,
-    entry, exit, qty, pnl, rr:rr.toFixed(2),
-    outcome, rules, good, improve,
-    won: outcome.startsWith('WIN')
-  };
-  trades.unshift(trade);
-  S.set('trades',trades);
-  toast('Trade logged: $'+(pnl>=0?'+':'')+pnl.toFixed(0)+' P&L','success');
-  document.getElementById('jEntry').value='';
-  document.getElementById('jExit').value='';
-  document.getElementById('jQty').value='';
-  document.getElementById('jGood').value='';
-  document.getElementById('jImprove').value='';
-  renderTradeHistory();
-  updateReadiness();
-}
-
-function renderTradeHistory(){
-  const el=document.getElementById('tradeHistory');
-  document.getElementById('tradeCount').textContent=trades.length+' trades';
-  if(!trades.length){ el.innerHTML='<div class="empty-state">No trades logged yet.</div>'; return; }
-  el.innerHTML=trades.slice(0,20).map(t=>{
-    const d=new Date(t.date);
-    const up=t.pnl>=0;
-    const ruleOk=t.rules.startsWith('Yes');
-    return `<div class="signal-log-item">
-      <div class="sig-header">
-        <div>
-          <span class="sig-sym">${t.ticker}</span>
-          <span class="pill ${t.side==='LONG'?'pill-green':'pill-red'}" style="margin-left:6px">${t.side}</span>
-        </div>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700" class="${up?'up':'down'}">${up?'+':''}$${t.pnl.toFixed(0)}</span>
-      </div>
-      <div class="sig-row">
-        <span>ENTRY: $${t.entry.toFixed(2)}</span>
-        <span>EXIT: $${t.exit.toFixed(2)}</span>
-        <span>QTY: ${t.qty}</span>
-        <span>R:R ${t.rr}</span>
-      </div>
-      <div class="sig-row">
-        <span>${d.toLocaleDateString()}</span>
-        <span class="${ruleOk?'up':'down'}">${ruleOk?'✓ Rules followed':'✗ Rule violation'}</span>
-      </div>
-      ${t.good?`<div style="font-size:10px;color:var(--muted);margin-top:4px;font-family:'IBM Plex Mono',monospace">✓ ${t.good}</div>`:''}
-      ${t.improve?`<div style="font-size:10px;color:var(--red);margin-top:2px;font-family:'IBM Plex Mono',monospace">↑ ${t.improve}</div>`:''}
-    </div>`;
-  }).join('');
-}
-
-// ── BACKTESTER ─────────────────────────────────────────────
-let equityChart=null;
-
-function runBacktest(){
-  const ticker=document.getElementById('btTicker').value;
-  const period=parseInt(document.getElementById('btPeriod').value);
-  const rsiBuy=parseFloat(document.getElementById('btRsiBuy').value);
-  const rsiSell=parseFloat(document.getElementById('btRsiSell').value);
-  const stopPct=parseFloat(document.getElementById('btStop').value)/100;
-  const targetPct=parseFloat(document.getElementById('btTarget').value)/100;
-
-  // Simulate realistic price data based on ticker characteristics
-  const basePrice={AAPL:213,NVDA:875,TSLA:249,SPY:521,MSFT:416,META:512}[ticker]||200;
-  const volatility={AAPL:0.012,NVDA:0.025,TSLA:0.028,SPY:0.008,MSFT:0.012,META:0.018}[ticker]||0.015;
-
-  // Generate daily prices
-  const days=period;
-  let price=basePrice*0.85;
-  const prices=[];
-  for(let i=0;i<days;i++){
-    price=price*(1+(Math.random()-0.48)*volatility);
-    prices.push(parseFloat(price.toFixed(2)));
-  }
-
-  // Calculate RSI for each day
-  function calcRSI(p,n=14){
-    if(p.length<n+1) return 50;
-    let g=0,l=0;
-    for(let i=p.length-n;i<p.length;i++){
-      const d=p[i]-p[i-1];
-      d>0?g+=d:l+=Math.abs(d);
+function renderPagination(totalPages) {
+  const pag = document.getElementById('tradePagination');
+  if (totalPages <= 1) { pag.innerHTML = ''; return; }
+  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>◀</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
+      html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    } else if (Math.abs(i - currentPage) === 2) {
+      html += `<span style="color:var(--muted);font-size:10px;padding:0 4px">…</span>`;
     }
-    return 100-(100/(1+(g/(l||0.001))));
   }
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>▶</button>`;
+  pag.innerHTML = html;
+}
 
-  // Run strategy
-  const btTrades=[];
-  let equity=100000;
-  const equityCurve=[equity];
-  let inTrade=false;
-  let tradeEntry=0,tradeSide='',tradeStop=0,tradeTarget=0;
+function goPage(n) { currentPage = n; renderTradesPage(); window.scrollTo(0, 0); }
 
-  for(let i=20;i<prices.length;i++){
-    const slice=prices.slice(0,i+1);
-    const rsi=calcRSI(slice);
-    const curr=prices[i];
-    const prev=prices[i-1];
-    const vwap=slice.slice(-10).reduce((a,b)=>a+b,0)/10;
+// ── COMPUTE STATS ─────────────────────────────────────────
+function computeStats(trades) {
+  const closed = trades.filter(t => t.realizedPnl != null);
+  const wins = closed.filter(t => t.realizedPnl > 0);
+  const totalPnl = closed.reduce((s, t) => s + (t.realizedPnl || 0), 0);
+  const autoCount = trades.filter(t => t.source === 'auto' || t.automated).length;
 
-    if(inTrade){
-      if(tradeSide==='LONG'){
-        if(curr<=tradeStop||curr>=tradeTarget){
-          const won=curr>=tradeTarget;
-          const pnl=won?equity*targetPct:-(equity*stopPct);
-          equity+=pnl;
-          btTrades.push({day:i,side:'LONG',entry:tradeEntry,exit:curr,won,pnl:pnl.toFixed(0),rsi:rsi.toFixed(0)});
-          inTrade=false;
-        }
-      } else {
-        if(curr>=tradeStop||curr<=tradeTarget){
-          const won=curr<=tradeTarget;
-          const pnl=won?equity*targetPct:-(equity*stopPct);
-          equity+=pnl;
-          btTrades.push({day:i,side:'SHORT',entry:tradeEntry,exit:curr,won,pnl:pnl.toFixed(0),rsi:rsi.toFixed(0)});
-          inTrade=false;
-        }
-      }
+  document.getElementById('statTotal').textContent = trades.length;
+  document.getElementById('statWinRate').textContent = closed.length
+    ? Math.round((wins.length / closed.length) * 100) + '%'
+    : '--';
+  const pnlEl = document.getElementById('statPnl');
+  pnlEl.textContent = closed.length ? (totalPnl >= 0 ? '+' : '') + '$' + Math.abs(totalPnl).toFixed(0) : '--';
+  pnlEl.className = 'stat-value ' + (totalPnl >= 0 ? 'up' : 'down');
+  document.getElementById('statAuto').textContent = autoCount;
+}
+
+// ── LOAD TRADES ───────────────────────────────────────────
+async function loadTrades() {
+  try {
+    const r = await fetch(`${BACKEND}/get-trades?limit=100`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    allTrades = d.trades || [];
+    computeStats(allTrades);
+    renderTradesPage();
+    document.getElementById('dot').className = 'live-dot';
+  } catch(e) {
+    document.getElementById('tradeLog').innerHTML = `<div class="empty-state" style="color:var(--red)">Failed to load trades: ${e.message}</div>`;
+    document.getElementById('dot').className = 'live-dot error';
+    toast('Trade load failed: ' + e.message, 'warn');
+  }
+}
+
+// ── LOAD SIGNALS ──────────────────────────────────────────
+async function loadSignals() {
+  try {
+    const r = await fetch(`${BACKEND}/log-signal`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    allSignals = d.signals || d.entries || [];
+    renderSignals();
+  } catch(e) {
+    // Signals endpoint may return 405 on GET — try parsing from trades as fallback
+    const signalFallback = allTrades.filter(t => t.confidence != null);
+    allSignals = signalFallback;
+    renderSignals();
+  }
+}
+
+function renderSignals() {
+  const log = document.getElementById('signalLog');
+  document.getElementById('signalCountLabel').textContent = `${allSignals.length} signal${allSignals.length !== 1 ? 's' : ''}`;
+  if (!allSignals.length) {
+    log.innerHTML = `<div class="empty-state">No signals logged yet — signals appear after Claude analyzes tickers</div>`;
+    return;
+  }
+  log.innerHTML = allSignals.slice(0, 50).map(s => {
+    const action = s.action || s.side?.toUpperCase() || 'HOLD';
+    const time = s.timestamp ? new Date(s.timestamp).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour:'2-digit', minute:'2-digit' }) : '--';
+    const date = s.timestamp ? new Date(s.timestamp).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '--';
+    return `<div class="signal-entry ${action}">
+      <div class="trade-meta">
+        <span><span class="signal-action-label ${action === 'BUY' ? 'up' : action === 'SELL' ? 'down' : ''}" style="${action === 'HOLD' ? 'color:var(--yellow)' : ''}">${action}</span>
+          <span class="trade-sym" style="margin-left:8px">${s.symbol || s.ticker || '?'}</span></span>
+        <span class="trade-time">${date} ${time} EST</span>
+      </div>
+      <div class="trade-detail" style="margin-top:4px">${s.reasoning || s.reason || 'Signal logged by scanner'}</div>
+      <div class="trade-badges" style="margin-top:6px">
+        ${s.confidence != null ? `<span class="badge badge-conf">${s.confidence}% CONF</span>` : ''}
+        ${s.setupType ? `<span class="badge" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${s.setupType}</span>` : ''}
+        ${s.keyRisk ? `<span class="badge" style="background:var(--bg);color:var(--red);border:1px solid var(--red)">⚠ ${s.keyRisk}</span>` : ''}
+        ${s.executed ? `<span class="badge badge-auto">EXECUTED</span>` : `<span class="badge badge-open">SKIPPED</span>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── LOAD BRIEFINGS ────────────────────────────────────────
+async function loadBriefings() {
+  try {
+    const r = await fetch(`${BACKEND}/get-briefing?type=both`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+
+    // Morning briefing
+    const mb = document.getElementById('morningBriefing');
+    if (d.morning) {
+      const b = d.morning.briefing || d.morning;
+      const biasColor = b.bias === 'BULLISH' ? 'var(--green)' : b.bias === 'BEARISH' ? 'var(--red)' : 'var(--yellow)';
+      mb.innerHTML = `<div class="brief-card">
+        <div class="brief-bias" style="color:${biasColor}">${b.bias || 'NEUTRAL'}</div>
+        <div class="brief-summary">${b.summary || 'No summary available'}</div>
+        ${b.topPicks?.length ? `
+          <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin-bottom:6px">TOP PICKS</div>
+          ${b.topPicks.map(p => `<div class="brief-pick">
+            <span class="brief-ticker">${p.ticker}</span>
+            <span class="brief-dir">${p.direction}</span>
+            <span class="brief-reason">${p.reason}</span>
+          </div>`).join('')}
+        ` : ''}
+        ${b.avoid?.length ? `
+          <div style="font-size:10px;color:var(--red);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin:10px 0 6px">AVOID</div>
+          ${b.avoid.map(x => `<div class="brief-pick"><span class="brief-ticker" style="color:var(--red)">${x.ticker || x}</span><span class="brief-reason">${x.reason || ''}</span></div>`).join('')}
+        ` : ''}
+        ${b.mantra ? `<div class="brief-mantra">"${b.mantra}"</div>` : ''}
+        ${d.morning.generatedAt ? `<div style="font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:10px">Generated ${new Date(d.morning.generatedAt).toLocaleString('en-US',{timeZone:'America/New_York'})}</div>` : ''}
+      </div>`;
     } else {
-      const aboveVwap=curr>vwap;
-      if(rsi<rsiBuy&&aboveVwap&&!inTrade){
-        inTrade=true; tradeSide='LONG'; tradeEntry=curr;
-        tradeStop=curr*(1-stopPct); tradeTarget=curr*(1+targetPct);
-      } else if(rsi>rsiSell&&!aboveVwap&&!inTrade){
-        inTrade=true; tradeSide='SHORT'; tradeEntry=curr;
-        tradeStop=curr*(1+stopPct); tradeTarget=curr*(1-targetPct);
-      }
+      mb.innerHTML = `<div class="empty-state">No morning briefing yet — generated at 9AM EST on market days</div>`;
     }
-    equityCurve.push(parseFloat(equity.toFixed(0)));
+
+    // EOD debrief
+    const eod = document.getElementById('eodDebrief');
+    if (d.eod) {
+      const b = d.eod.debrief || d.eod;
+      const gradeColor = b.grade?.startsWith('A') ? 'var(--green)' : b.grade?.startsWith('B') ? 'var(--yellow)' : 'var(--red)';
+      eod.innerHTML = `<div class="brief-card">
+        <div class="grade-badge" style="color:${gradeColor}">Grade: ${b.grade || 'N/A'}</div>
+        <div class="brief-summary">${b.summary || ''}</div>
+        ${b.bestTrade ? `<div style="margin-top:8px;font-size:11px"><span style="color:var(--muted);font-family:'IBM Plex Mono',monospace">BEST TRADE:</span> ${b.bestTrade}</div>` : ''}
+        ${b.worstTrade ? `<div style="margin-top:4px;font-size:11px"><span style="color:var(--muted);font-family:'IBM Plex Mono',monospace">WORST TRADE:</span> ${b.worstTrade}</div>` : ''}
+        ${b.tomorrowFocus ? `<div style="margin-top:10px;font-size:11px;color:var(--blue)">Tomorrow: ${b.tomorrowFocus}</div>` : ''}
+        ${d.eod.generatedAt ? `<div style="font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:10px">Generated ${new Date(d.eod.generatedAt).toLocaleString('en-US',{timeZone:'America/New_York'})}</div>` : ''}
+      </div>`;
+    } else {
+      eod.innerHTML = `<div class="empty-state">No EOD debrief yet — generated at 4PM EST on market days</div>`;
+    }
+  } catch(e) {
+    document.getElementById('morningBriefing').innerHTML = `<div class="empty-state" style="color:var(--red)">Could not load briefings: ${e.message}</div>`;
   }
+}
 
-  // Calculate stats
-  const wins=btTrades.filter(t=>t.won);
-  const losses=btTrades.filter(t=>!t.won);
-  const winRate=btTrades.length?((wins.length/btTrades.length)*100).toFixed(1):0;
-  const totalReturn=((equity-100000)/100000*100).toFixed(1);
-  const avgWin=wins.length?(wins.reduce((s,t)=>s+parseFloat(t.pnl),0)/wins.length).toFixed(0):0;
-  const avgLoss=losses.length?(losses.reduce((s,t)=>s+parseFloat(t.pnl),0)/losses.length).toFixed(0):0;
-  const maxDD=(() => {
-    let peak=100000,maxDd=0;
-    equityCurve.forEach(v=>{if(v>peak)peak=v;const dd=(peak-v)/peak*100;if(dd>maxDd)maxDd=dd;});
-    return maxDd.toFixed(1);
-  })();
+// ── ANALYTICS ─────────────────────────────────────────────
+function renderAnalytics() {
+  const closed = allTrades.filter(t => t.realizedPnl != null);
+  if (!closed.length) return;
 
-  // Render results
-  document.getElementById('btResults').style.display='block';
-  document.getElementById('btResultTitle').textContent=ticker+' · '+period+' days';
-  document.getElementById('btWinRate').textContent=winRate+'%';
-  document.getElementById('btWinRate').className='bt-val '+(winRate>55?'up':'down');
-  document.getElementById('btTotalReturn').textContent=(totalReturn>=0?'+':'')+totalReturn+'%';
-  document.getElementById('btTotalReturn').className='bt-val '+(totalReturn>=0?'up':'down');
-  document.getElementById('btTrades').textContent=btTrades.length;
-  document.getElementById('btAvgWin').textContent='+$'+avgWin;
-  document.getElementById('btAvgLoss').textContent='$'+avgLoss;
-  document.getElementById('btMaxDD').textContent=maxDD+'%';
-  document.getElementById('btMaxDD').className='bt-val '+(maxDD<10?'up':'down');
-
-  // Equity chart
-  if(equityChart) equityChart.destroy();
-  const ctx=document.getElementById('equityChart').getContext('2d');
-  const up=equity>=100000;
-  equityChart=new Chart(ctx,{
-    type:'line',
-    data:{
-      labels:equityCurve.map((_,i)=>i),
-      datasets:[{
-        data:equityCurve,
-        borderColor:up?'#00e5a0':'#ff4560',
-        borderWidth:1.5,
-        pointRadius:0,
-        fill:true,
-        backgroundColor:up?'rgba(0,229,160,0.07)':'rgba(255,69,96,0.07)',
-        tension:0.3
-      }]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,animation:{duration:600},
-      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'#161c24',borderColor:'#1e2d3d',borderWidth:1,titleColor:'#64748b',bodyColor:'#e2e8f0',callbacks:{label:c=>'$'+c.parsed.y.toLocaleString()}}},
-      scales:{x:{display:false},y:{grid:{color:'rgba(30,45,61,0.8)'},ticks:{color:'#64748b',font:{family:'IBM Plex Mono',size:9},callback:v=>'$'+v.toLocaleString()}}}
-    }
+  // P&L by ticker
+  const byTicker = {};
+  closed.forEach(t => {
+    if (!byTicker[t.symbol]) byTicker[t.symbol] = { pnl: 0, count: 0 };
+    byTicker[t.symbol].pnl += t.realizedPnl;
+    byTicker[t.symbol].count++;
   });
-
-  // Trade list
-  document.getElementById('btTradeList').innerHTML=btTrades.slice(-15).reverse().map(t=>`
-    <div class="trade-row">
-      <span>${t.side}</span>
-      <span>RSI: ${t.rsi}</span>
-      <span>$${t.entry.toFixed(2)} → $${t.exit.toFixed(2)}</span>
-      <span class="${t.won?'up':'down'}">${t.won?'+':''} $${t.pnl}</span>
-    </div>
-  `).join('');
-
-  // Verdict
-  const rr=(targetPct/stopPct).toFixed(1);
-  const edgeScore=parseFloat(winRate)*parseFloat(rr)/100;
-  let verdict='';
-  if(edgeScore>1.1&&winRate>55&&maxDD<15){
-    verdict=`<span class="up">✓ STRATEGY HAS EDGE</span><br><br>
-    Win rate of ${winRate}% with ${rr}:1 risk/reward gives you a positive expectancy of ${edgeScore.toFixed(2)} — meaning every dollar risked returns ${edgeScore.toFixed(2)} on average.<br><br>
-    Max drawdown of ${maxDD}% is within acceptable range. This strategy is worth paper trading seriously.<br><br>
-    <span class="up">Recommended: Continue paper trading for 30 days to confirm live results match backtest.</span>`;
-  } else if(winRate>50){
-    verdict=`<span class="neutral">⚠ MARGINAL EDGE — NEEDS REFINEMENT</span><br><br>
-    Win rate of ${winRate}% is above 50% but the overall expectancy needs improvement. Consider:<br><br>
-    • Tighten RSI thresholds (try ${Math.round(rsiBuy-3)} for buys)<br>
-    • Increase target to ${(targetPct*100+0.5).toFixed(1)}% to improve R:R<br>
-    • Only trade this ticker during high volume periods<br><br>
-    Paper trade for 60 days before considering real money.`;
-  } else {
-    verdict=`<span class="down">✗ STRATEGY NEEDS WORK</span><br><br>
-    Win rate of ${winRate}% with current settings does not show sufficient edge on ${ticker}.<br><br>
-    Suggestions:<br>
-    • Try different RSI thresholds (${rsiBuy-5} buy / ${rsiSell+5} sell)<br>
-    • Test on SPY first — it's more predictable than individual stocks<br>
-    • Backtest a longer period to reduce randomness<br><br>
-    Do NOT use real money with these settings.`;
-  }
-  document.getElementById('btVerdict').innerHTML=verdict;
-  toast('Backtest complete — '+btTrades.length+' trades simulated','success');
-}
-
-// ── WEEKLY REVIEW ──────────────────────────────────────────
-['discipline','quality','risk','emotion'].forEach(cat=>{
-  const el=document.getElementById('stars-'+cat);
-  el.innerHTML=[1,2,3,4,5].map(n=>`<span class="star" onclick="setRating('${cat}',${n})">★</span>`).join('');
-});
-
-function setRating(cat,val){
-  ratings[cat]=val;
-  const stars=document.getElementById('stars-'+cat).querySelectorAll('.star');
-  stars.forEach((s,i)=>s.classList.toggle('on',i<val));
-}
-
-function saveWeeklyReview(){
-  const review={
-    id:Date.now(), date:new Date().toISOString(),
-    week:getWeekStr(),
-    ratings:{...ratings},
-    worked:document.getElementById('wkWorked').value,
-    improve:document.getElementById('wkImprove').value,
-    focus:document.getElementById('wkFocus').value,
-    stats:getWeekStats()
-  };
-  reviews.unshift(review);
-  S.set('reviews',reviews);
-  toast('Weekly review saved','success');
-  renderReviewHistory();
-}
-
-function getWeekStr(){
-  const d=new Date();
-  const start=new Date(d);
-  start.setDate(d.getDate()-d.getDay());
-  return 'Week of '+start.toLocaleDateString();
-}
-
-function getWeekStats(){
-  const weekAgo=Date.now()-7*24*60*60*1000;
-  const wkSigs=signals.filter(s=>new Date(s.date).getTime()>weekAgo);
-  const wkTrades=trades.filter(t=>new Date(t.date).getTime()>weekAgo);
-  const wins=wkSigs.filter(s=>s.outcome==='WIN').length;
-  const pnl=wkTrades.reduce((s,t)=>s+t.pnl,0);
-  return{signals:wkSigs.length,winRate:wkSigs.length?Math.round(wins/wkSigs.length*100):0,pnl:pnl.toFixed(0)};
-}
-
-function renderWeeklyStats(){
-  const stats=getWeekStats();
-  document.getElementById('wkSignals').textContent=stats.signals;
-  document.getElementById('wkWinRate').textContent=stats.winRate+'%';
-  document.getElementById('wkWinRate').className='stat-value '+(stats.winRate>=55?'up':stats.winRate>=45?'neutral':'down');
-  document.getElementById('wkPnl').textContent=(stats.pnl>=0?'+':'')+'$'+stats.pnl;
-  document.getElementById('wkPnl').className='stat-value '+(stats.pnl>=0?'up':'down');
-}
-
-function renderReviewHistory(){
-  const el=document.getElementById('reviewHistory');
-  if(!reviews.length){ el.innerHTML='<div class="empty-state">No reviews saved yet.</div>'; return; }
-  el.innerHTML=reviews.slice(0,5).map(r=>`
-    <div class="signal-log-item">
-      <div class="sig-header">
-        <span class="sig-sym" style="font-size:12px">${r.week}</span>
-        <span style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace">${new Date(r.date).toLocaleDateString()}</span>
-      </div>
-      <div class="sig-row">
-        <span>Signals: ${r.stats?.signals||0}</span>
-        <span>Win Rate: ${r.stats?.winRate||0}%</span>
-        <span>P&L: $${r.stats?.pnl||0}</span>
-      </div>
-      ${r.focus?`<div style="font-size:10px;color:var(--blue);margin-top:4px;font-family:'IBM Plex Mono',monospace">Focus: ${r.focus.slice(0,80)}...</div>`:''}
-    </div>
-  `).join('');
-}
-
-// ── READINESS SCORE ────────────────────────────────────────
-function updateReadiness(){
-  let score=0;
-  // Days with completed routines (max 30 pts)
-  const daysLogged=Math.min(routines.length,30);
-  score+=daysLogged;
-  // Signal accuracy (max 30 pts)
-  const graded=signals.filter(s=>s.outcome&&s.outcome!=='SCRATCH');
-  const wins=graded.filter(s=>s.outcome==='WIN');
-  const winRate=graded.length?(wins.length/graded.length*100):0;
-  if(graded.length>=10) score+=winRate>55?30:winRate>50?15:0;
-  // Trade count (max 20 pts)
-  score+=Math.min(trades.length*2,20);
-  // Rule discipline (max 20 pts)
-  const ruleFollowed=trades.filter(t=>t.rules.startsWith('Yes')).length;
-  const ruleRate=trades.length?(ruleFollowed/trades.length):0;
-  score+=Math.round(ruleRate*20);
-
-  score=Math.min(Math.round(score),100);
-  document.getElementById('readinessScore').textContent=score;
-  document.getElementById('readinessFill').style.width=score+'%';
-  document.getElementById('readinessScore').className='readiness-score '+(score>=80?'up':score>=50?'neutral':'down');
-
-  let sub,badge,badgeClass;
-  if(score>=80){
-    sub='You have demonstrated consistent discipline and edge. Real money may be appropriate.';
-    badge='✓ READY FOR REAL MONEY'; badgeClass='badge-ready';
-  } else if(score>=50){
-    sub='Good progress. Continue paper trading — you need '+(80-score)+' more points.';
-    badge='ALMOST READY — KEEP GOING'; badgeClass='badge-almost';
-  } else {
-    sub='Keep logging daily routines, signals, and trades to build your score.';
-    badge='NOT READY FOR REAL MONEY'; badgeClass='badge-not-ready';
-  }
-  document.getElementById('readinessSub').textContent=sub;
-  document.getElementById('readinessBadge').textContent=badge;
-  document.getElementById('readinessBadge').className='real-money-badge '+badgeClass;
-
-  // Update dashboard stats
-  document.getElementById('dashDays').textContent=daysLogged;
-  document.getElementById('dashSignals').textContent=signals.length;
-  const grWin=graded.length?(wins.length/graded.length*100).toFixed(0)+'%':'--';
-  document.getElementById('dashWinRate').textContent=grWin;
-  document.getElementById('dashWinRate').className='stat-value '+(winRate>=55?'up':winRate>=45?'neutral':'down');
-  const totalPnl=trades.reduce((s,t)=>s+t.pnl,0);
-  document.getElementById('dashPnl').textContent=(totalPnl>=0?'+':'')+'$'+totalPnl.toFixed(0);
-  document.getElementById('dashPnl').className='stat-value '+(totalPnl>=0?'up':'down');
-
-  // Best ticker
-  const tkPnl={};
-  trades.forEach(t=>{ tkPnl[t.ticker]=(tkPnl[t.ticker]||0)+t.pnl; });
-  const best=Object.entries(tkPnl).sort((a,b)=>b[1]-a[1])[0];
-  document.getElementById('dashBestTicker').textContent=best?best[0]:'--';
-
-  // R:R
-  const totalRR=trades.length?(trades.reduce((s,t)=>s+parseFloat(t.rr||0),0)/trades.length).toFixed(1):'--';
-  document.getElementById('dashRR').textContent=totalRR==='--'?'--':totalRR+':1';
-  document.getElementById('dashRR').className='stat-value '+(parseFloat(totalRR)>=2?'up':'neutral');
-}
-
-// ── DASHBOARD ──────────────────────────────────────────────
-function refreshDashboard(){
-  updateReadiness();
-  updateTodayProgress();
-  renderRoutine();
-  // Recent signals
-  const el=document.getElementById('recentSignals');
-  if(!signals.length){ el.innerHTML='<div class="empty-state">No signals logged yet.<br>Go to Signal Log to record your first signal.</div>'; return; }
-  el.innerHTML=signals.slice(0,3).map(s=>{
-    const up=s.action==='BUY';
-    return `<div class="signal-log-item">
-      <div class="sig-header">
-        <span class="sig-sym">${s.ticker}</span>
-        <span class="sig-action ${s.action.toLowerCase()}">${s.action}</span>
-      </div>
-      <div class="sig-row">
-        <span>$${s.price?.toFixed(2)||'--'}</span>
-        <span>CONF: ${s.conf}%</span>
-        <span>${s.outcome?`<span class="pill ${s.outcome==='WIN'?'pill-green':s.outcome==='LOSS'?'pill-red':'pill-yellow'}">${s.outcome}</span>`:'Pending'}</span>
-      </div>
+  const tickerEntries = Object.entries(byTicker).sort((a,b) => b[1].pnl - a[1].pnl);
+  const maxAbs = Math.max(...tickerEntries.map(([,v]) => Math.abs(v.pnl)), 1);
+  document.getElementById('pnlByTicker').innerHTML = tickerEntries.map(([sym, v]) => {
+    const pct = Math.round((Math.abs(v.pnl) / maxAbs) * 100);
+    return `<div class="equity-bar">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;min-width:55px;color:var(--text)">${sym}</span>
+      <div class="equity-fill" style="width:${pct}%;background:${v.pnl >= 0 ? 'var(--green)' : 'var(--red)'}"></div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;${v.pnl >= 0 ? 'color:var(--green)' : 'color:var(--red)'}">${v.pnl >= 0 ? '+' : ''}$${v.pnl.toFixed(0)} (${v.count})</span>
     </div>`;
-  }).join('');
+  }).join('') || '<div class="empty-state">No closed trades</div>';
+
+  // Confidence vs outcome
+  const confBuckets = {'60-69':[],'70-79':[],'80-89':[],'90+':[]} ;
+  closed.forEach(t => {
+    const c = t.confidence || 0;
+    const bucket = c >= 90 ? '90+' : c >= 80 ? '80-89' : c >= 70 ? '70-79' : c >= 60 ? '60-69' : null;
+    if (bucket) confBuckets[bucket].push(t.realizedPnl >= 0 ? 1 : 0);
+  });
+  document.getElementById('confAnalysis').innerHTML = Object.entries(confBuckets).map(([range, results]) => {
+    if (!results.length) return '';
+    const wr = Math.round((results.filter(x=>x).length / results.length) * 100);
+    return `<div class="equity-bar">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;min-width:55px;color:var(--muted)">${range}%</span>
+      <div class="equity-fill" style="width:${wr}%;background:var(--blue)"></div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue)">${wr}% WR (${results.length})</span>
+    </div>`;
+  }).join('') || '<div class="empty-state">Not enough data</div>';
+
+  // Setup breakdown
+  const bySetup = {};
+  allTrades.forEach(t => {
+    const s = t.setupType || 'UNCLASSIFIED';
+    if (!bySetup[s]) bySetup[s] = { total: 0, wins: 0 };
+    bySetup[s].total++;
+    if (t.realizedPnl > 0) bySetup[s].wins++;
+  });
+  document.getElementById('setupBreakdown').innerHTML = Object.entries(bySetup)
+    .sort((a,b) => b[1].total - a[1].total)
+    .map(([setup, v]) => {
+      const wr = v.total > 0 ? Math.round((v.wins/v.total)*100) : 0;
+      return `<div class="equity-bar">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;min-width:110px;color:var(--muted)">${setup}</span>
+        <div class="equity-fill" style="width:${wr}%;background:var(--purple)"></div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--purple)">${wr}% WR · ${v.total} trades</span>
+      </div>`;
+    }).join('') || '<div class="empty-state">No setup data</div>';
 }
 
-// ── INIT ───────────────────────────────────────────────────
-refreshDashboard();
-renderRoutine();
+// ── EXPORT CSV ────────────────────────────────────────────
+function exportCSV() {
+  if (!allTrades.length) { toast('No trades to export', 'warn'); return; }
+  const headers = ['Date','Time','Symbol','Side','Qty','Price','Confidence','SetupType','P&L','Source','Reasoning'];
+  const rows = allTrades.map(t => {
+    const dt = t.timestamp ? new Date(t.timestamp) : null;
+    return [
+      dt ? dt.toLocaleDateString('en-US') : '',
+      dt ? dt.toLocaleTimeString('en-US', { timeZone: 'America/New_York' }) : '',
+      t.symbol || '',
+      t.side || '',
+      t.qty || '',
+      t.price || '',
+      t.confidence || '',
+      t.setupType || '',
+      t.realizedPnl != null ? t.realizedPnl.toFixed(2) : 'open',
+      (t.source === 'auto' || t.automated) ? 'AUTO' : 'MANUAL',
+      `"${(t.reasoning || '').replace(/"/g, "'")}"`
+    ].join(',');
+  });
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `quantedge-trades-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV exported ✓', 'success');
+}
+
+// ── LOAD ALL ──────────────────────────────────────────────
+async function loadAll() {
+  document.getElementById('dot').className = 'live-dot stale';
+  document.getElementById('refreshBtn').textContent = '⟳ LOADING...';
+  document.getElementById('refreshBtn').disabled = true;
+  try {
+    await Promise.all([loadTrades(), loadBriefings(), loadSignals()]);
+    renderAnalytics();
+    toast('Journal updated ✓', 'success');
+  } catch(e) {
+    toast('Partial load error: ' + e.message, 'warn');
+  } finally {
+    document.getElementById('refreshBtn').textContent = '⟳ REFRESH';
+    document.getElementById('refreshBtn').disabled = false;
+  }
+}
+
+// Init
+loadAll();
 </script>
 </body>
 </html>
