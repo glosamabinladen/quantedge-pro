@@ -344,11 +344,10 @@ async function polygonProxy(path) {
 }
 
 async function alpacaProxy(method, path, body) {
-  const r = await fetch(`${BACKEND}/alpaca-proxy`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ path, method, body })
-  });
+  const url = `${BACKEND}/alpaca-proxy?endpoint=${encodeURIComponent(path)}`;
+  const opts = { method: method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
   return r.json();
 }
 
@@ -366,7 +365,8 @@ async function claudeProxy(ticker, marketData) {
 async function fetchSnap() {
   try {
     const tickerStr = SYMS.join(',');
-    const r = await fetch(`${BACKEND}/market-proxy?path=${encodeURIComponent('/v2/snapshot/locale/us/markets/stocks/tickers?tickers=' + tickerStr)}`);
+    const path = '/v2/snapshot/locale/us/markets/stocks/tickers';
+    const r = await fetch(`${BACKEND}/market-proxy?path=${encodeURIComponent(path)}&params=${encodeURIComponent('tickers=' + tickerStr)}`);
     const d = await r.json();
     if (d.tickers) {
       d.tickers.forEach(t => {
@@ -621,7 +621,7 @@ async function triggerManualScan() {
   toast('Triggering market scan via Netlify...', 'info');
   addFeed('SCAN', 'Manual scan triggered — screening market...', 'scan');
   try {
-    const r = await fetch(`${BACKEND}/market-scanner`, { method: 'POST' });
+    const r = await fetch(`${BACKEND}/run-scanner`, { method: 'POST' });
     const d = await r.json();
     if (d.tradesExecuted > 0) {
       toast(`⚡ Scan complete — ${d.tradesExecuted} trade(s) executed`, 'success');
@@ -689,7 +689,7 @@ function renderAutoTrades(trades) {
 // ── BRIEFING PANEL ────────────────────────────────────────
 async function loadBriefing() {
   try {
-    const r = await fetch(`${BACKEND}/get-briefing`);
+    const r = await fetch(`${BACKEND}/get-briefing?type=both`);
     const d = await r.json();
     if (d.morning) {
       const b = d.morning.briefing;
