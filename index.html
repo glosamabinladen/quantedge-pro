@@ -372,15 +372,17 @@ async function fetchSnap() {
 
     let anyData = false;
     Object.entries(d.snapshot).forEach(([sym, data]) => {
-      if (!data) return;
+      if (!data) return; // keep existing snap[sym] — don't overwrite with null
       snap[sym] = data;
       if (snap[sym].price > 0) anyData = true;
     });
 
-    if (anyData) {
-      el('lastFetch').textContent = new Date().toTimeString().slice(0,8);
-      el('dot').className = 'live-dot';
-      return true;
+    // Even if this refresh had some nulls, if we have ANY cached prices show green
+    const hasCachedData = SYMS.some(s => snap[s]?.price > 0);
+    if (anyData || hasCachedData) {
+      if (anyData) el('lastFetch').textContent = new Date().toTimeString().slice(0,8);
+      el('dot').className = anyData ? 'live-dot' : 'live-dot stale';
+      return anyData;
     }
     throw new Error('No data');
   } catch(e) {
@@ -817,12 +819,13 @@ async function loadAll() {
 }
 
 loadAll();
+// 3-minute refresh — Polygon free tier is 5 calls/min
 setInterval(async () => {
-  await fetchSnap();
-  SYMS.forEach(s => appendHist(s));
+  const ok = await fetchSnap();
+  if (ok) SYMS.forEach(s => appendHist(s));
   buildTickers(); renderChart(); renderIndicators(); renderOB();
   checkSignalAlerts(); fetchAlpacaAccount(); fetchAlpacaPositions();
-}, 60000);
+}, 180000);
 </script>
 </body>
 </html>
