@@ -715,12 +715,35 @@ async function loadBriefing() {
 
 async function loadNews() {
   try {
-    const r = await fetch(`https://feeds.finance.yahoo.com/rss/2.0/headline?s=SPY,AAPL,NVDA&region=US&lang=en-US`);
-    const text = await r.text();
-    const titles = [...text.matchAll(/<title><!\[CDATA\[(.+?)\]\]><\/title>/g)].map(m=>m[1]).slice(1,8);
-    el('newsPanel').innerHTML = titles.map(t => `<div class="news-item">${t}<div class="news-source">Yahoo Finance</div></div>`).join('') || '<div class="notif-entry">No news available</div>';
+    // Use rss2json public API — no CORS issues, no key needed
+    const feed = encodeURIComponent('https://feeds.finance.yahoo.com/rss/2.0/headline?s=SPY,AAPL,NVDA&region=US&lang=en-US');
+    const r = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${feed}&count=8`);
+    const d = await r.json();
+    if (d.status === 'ok' && d.items?.length) {
+      el('newsPanel').innerHTML = d.items.map(item => `
+        <div class="news-item">
+          <a href="${item.link}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">${item.title}</a>
+          <div class="news-source">Yahoo Finance · ${new Date(item.pubDate).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'})} EST</div>
+        </div>`).join('');
+    } else {
+      throw new Error('No items');
+    }
   } catch(e) {
-    el('newsPanel').innerHTML = '<div class="notif-entry">News feed unavailable</div>';
+    // Fallback: MarketWatch RSS via rss2json
+    try {
+      const feed2 = encodeURIComponent('https://feeds.marketwatch.com/marketwatch/topstories/');
+      const r2 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${feed2}&count=6`);
+      const d2 = await r2.json();
+      if (d2.status === 'ok' && d2.items?.length) {
+        el('newsPanel').innerHTML = d2.items.map(item => `
+          <div class="news-item">
+            <a href="${item.link}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">${item.title}</a>
+            <div class="news-source">MarketWatch · ${new Date(item.pubDate).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'})} EST</div>
+          </div>`).join('');
+      } else { throw new Error('fallback failed'); }
+    } catch(_) {
+      el('newsPanel').innerHTML = '<div class="notif-entry">News feed unavailable</div>';
+    }
   }
 }
 
