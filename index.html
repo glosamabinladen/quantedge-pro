@@ -1,854 +1,1185 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="QuantEdge Pro">
-<link rel="manifest" href="/quantedge-pro/manifest.json">
-<meta name="theme-color" content="#00c896">
-<title>QuantEdge Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow-x:hidden;background:#0d1117}
-body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
-:root{--green:#00c896;--red:#ff4d4d;--yellow:#f5a623;--blue:#4a9eff;--purple:#a371f7;--bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--border:#30363d;--text:#e6edf3;--muted:#8b949e}
-.dash{max-width:960px;margin:0 auto;padding:12px;min-height:100vh}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:12px}
-.logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--green);letter-spacing:2px}
-.live-dot{display:inline-block;width:8px;height:8px;background:var(--green);border-radius:50%;margin-right:6px;animation:pulse 1.5s infinite}
-.live-dot.stale{background:var(--yellow);animation:none}
-.live-dot.error{background:var(--red);animation:none}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-.status{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:8px}
-.data-badge{font-size:9px;background:var(--bg3);border:1px solid var(--yellow);border-radius:4px;padding:2px 5px;color:var(--yellow)}
-.auto-badge{font-size:9px;background:#0d2a1a;border:1px solid var(--green);border-radius:4px;padding:2px 5px;color:var(--green);animation:pulse 2s infinite}
-/* TABS */
-.tabs{display:flex;gap:4px;margin-bottom:14px;background:var(--bg2);padding:4px;border-radius:10px;border:1px solid var(--border)}
-.tab{flex:1;padding:8px 4px;background:none;border:none;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;border-radius:7px;letter-spacing:.5px;transition:all 0.2s}
-.tab.active{background:var(--bg3);color:var(--green);border:1px solid var(--border)}
-.tab-panel{display:none}.tab-panel.active{display:block}
-/* TICKER BAR */
-.ticker-bar{display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.ticker-bar::-webkit-scrollbar{display:none}
-.ticker-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-width:110px;cursor:pointer;transition:border-color 0.2s;flex-shrink:0}
-.ticker-card.active{border-color:var(--green)}
-.ticker-card.has-position{border-color:var(--purple)}
-.t-sym{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600}
-.t-price{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;margin:4px 0}
-.t-chg{font-size:10px;font-family:'IBM Plex Mono',monospace}
-.up{color:var(--green)}.down{color:var(--red)}
-/* GRIDS */
-.main-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
-@media(min-width:700px){.main-grid{grid-template-columns:1fr 250px}}
-.chart-panel,.signal-panel,.orderbook,.panel{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px}
-.panel-title{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase}
-/* SIGNAL */
-.signal-box{background:var(--bg3);border-radius:6px;padding:10px;margin-bottom:8px;border-left:3px solid var(--green)}
-.signal-box.sell{border-left-color:var(--red)}.signal-box.hold{border-left-color:var(--yellow)}
-.signal-label{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px}
-.signal-action{font-size:22px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin:2px 0}
-.confidence-bar{background:var(--border);border-radius:4px;height:4px;margin-top:6px}
-.confidence-fill{height:4px;border-radius:4px;background:var(--green);transition:width 0.6s}
-.signal-reasoning{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
-/* INDICATORS */
-.indicators{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.ind-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px}
-.ind-label{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px}
-.ind-value{font-size:15px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin-top:4px}
-.ind-sub{font-size:9px;color:var(--muted);margin-top:2px}
-/* PNL */
-.pnl-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-.pnl-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
-.pnl-label{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px}
-.pnl-value{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;margin-top:4px}
-/* ORDER BOOK */
-.ob-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 0;position:relative}
-.ob-bar{position:absolute;right:0;top:0;height:100%;opacity:0.12;border-radius:2px}
-.spread-row{text-align:center;font-size:10px;color:var(--muted);padding:4px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:4px 0}
-.stop-target{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
-.st-box{background:var(--bg3);border-radius:6px;padding:8px}
-.st-val{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;margin-top:4px}
-/* AUTO TRADE LOG */
-.trade-entry{background:var(--bg3);border-radius:6px;padding:10px;margin-bottom:8px;border-left:3px solid var(--green)}
-.trade-entry.sell{border-left-color:var(--red)}
-.trade-entry.auto{border-left-color:var(--purple)}
-.trade-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.trade-sym{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600}
-.trade-time{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
-.trade-detail{font-size:11px;color:var(--muted);line-height:1.5}
-.trade-badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
-.badge{font-size:9px;padding:2px 6px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-weight:600}
-.badge-auto{background:#1a0d2a;color:var(--purple);border:1px solid var(--purple)}
-.badge-buy{background:#0d2a1a;color:var(--green);border:1px solid var(--green)}
-.badge-sell{background:#2a0d0d;color:var(--red);border:1px solid var(--red)}
-.badge-conf{background:var(--bg);color:var(--yellow);border:1px solid var(--yellow)}
-/* CLAUDE LIVE FEED */
-.claude-feed{background:var(--bg3);border-radius:6px;padding:10px;max-height:200px;overflow-y:auto;margin-bottom:12px}
-.feed-entry{font-size:10px;font-family:'IBM Plex Mono',monospace;padding:3px 0;border-bottom:1px solid var(--border);line-height:1.6}
-.feed-entry:last-child{border-bottom:none}
-.feed-time{color:var(--muted)}
-.feed-action{color:var(--green)}
-.feed-action.sell{color:var(--red)}
-.feed-action.scan{color:var(--blue)}
-.feed-action.skip{color:var(--yellow)}
-/* BOTTOM BAR */
-.bottom-bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;margin-top:12px}
-.btn{flex:1;padding:12px 8px;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;border:none;letter-spacing:1px}
-.btn:active{opacity:0.75;transform:scale(0.98)}
-.btn-ai{background:linear-gradient(135deg,#0d1a2a,#0a1520);color:var(--blue);border:1px solid var(--blue);flex:1.2}
-.btn-ai:disabled{opacity:0.5;cursor:not-allowed}
-.btn-buy{background:var(--green);color:#0d1117}
-.btn-sell{background:var(--red);color:#fff}
-.btn-refresh{background:var(--bg2);color:var(--blue);border:1px solid var(--blue)}
-.btn-scan{background:linear-gradient(135deg,#1a0d2a,#12082a);color:var(--purple);border:1px solid var(--purple)}
-/* ALERTS */
-.alert{display:none;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;font-family:'IBM Plex Mono',monospace}
-.alert.show{display:block}
-.alert.success{background:#0d2a1a;border:1px solid var(--green);color:var(--green)}
-.alert.warn{background:#2a1a1a;border:1px solid var(--red);color:var(--red)}
-.alert.info{background:#0d1a2a;border:1px solid var(--blue);color:var(--blue)}
-/* ALERT SETTINGS */
-.alert-settings{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px}
-.alert-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.alert-row:last-child{margin-bottom:0}
-.alert-toggle{position:relative;width:40px;height:22px;background:var(--border);border-radius:11px;cursor:pointer;transition:background 0.2s;border:none;flex-shrink:0}
-.alert-toggle.on{background:var(--green)}
-.alert-toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:left 0.2s}
-.alert-toggle.on::after{left:21px}
-.alert-label{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--text)}
-.alert-sub{font-size:9px;color:var(--muted);margin-top:2px}
-.threshold-row{display:flex;align-items:center;gap:8px}
-.threshold-input{background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 8px;width:60px;text-align:center}
-.notif-log{background:var(--bg3);border-radius:6px;padding:8px;max-height:80px;overflow-y:auto;margin-top:8px}
-.notif-entry{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--muted);padding:1px 0}
-.notif-entry.buy{color:var(--green)}.notif-entry.sell{color:var(--red)}
-/* CHART */
-.chart-area{position:relative;width:100%;height:180px}
-/* META ROW */
-.meta-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
-/* NEWS */
-.news-item{padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;line-height:1.5}
-.news-item:last-child{border-bottom:none}
-.news-source{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:2px}
-</style>
-</head>
-<body>
-<div class="dash">
-  <div class="header">
-    <div class="logo">◈ QUANTEDGE PRO <span class="data-badge">LIVE</span> <span class="auto-badge" id="autoBadge">AUTO OFF</span></div>
-    <div class="status">
-      <span class="live-dot" id="dot"></span>
-      <span id="clock">--:--:--</span>
-      <a href="/quantedge-pro/journal.html" style="color:var(--muted);text-decoration:none;font-size:10px">JOURNAL →</a>
-    </div>
-  </div>
-
-  <div id="alert" class="alert"></div>
-
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('terminal')">TERMINAL</button>
-    <button class="tab" onclick="switchTab('auto')">AUTO TRADES</button>
-    <button class="tab" onclick="switchTab('briefing')">BRIEFING</button>
-    <button class="tab" onclick="switchTab('alerts')">ALERTS</button>
-  </div>
-
-  <!-- ═══ TERMINAL TAB ═══ -->
-  <div class="tab-panel active" id="tab-terminal">
-    <div class="meta-row">
-      <span>Source: Polygon.io → Netlify proxy</span>
-      <span>Updated: <span id="lastFetch">fetching...</span></span>
-    </div>
-
-    <div class="ticker-bar" id="tickerBar"></div>
-
-    <div class="pnl-strip">
-      <div class="pnl-card"><div class="pnl-label">PORTFOLIO</div><div class="pnl-value up" id="dayPnl">--</div></div>
-      <div class="pnl-card"><div class="pnl-label">CASH</div><div class="pnl-value" id="winRate">--</div></div>
-      <div class="pnl-card"><div class="pnl-label">POSITIONS</div><div class="pnl-value" id="tradeCount">0</div></div>
-      <div class="pnl-card"><div class="pnl-label">OPEN P&L</div><div class="pnl-value" id="openPnl">$0</div></div>
-    </div>
-
-    <div class="orderbook" style="margin-bottom:12px">
-      <div class="panel-title">📈 open positions — alpaca paper</div>
-      <div id="positionsPanel"><div class="notif-entry">Loading positions...</div></div>
-    </div>
-
-    <div class="main-grid">
-      <div class="chart-panel">
-        <div class="panel-title">price action — <span id="activeSym">--</span></div>
-        <div class="chart-area"><canvas id="priceChart" role="img" aria-label="Price chart"></canvas></div>
-      </div>
-      <div class="signal-panel">
-        <div class="panel-title">signal engine</div>
-        <div id="sigBox" class="signal-box hold">
-          <div class="signal-label">ACTION</div>
-          <div class="signal-action" id="sigAction" style="color:var(--muted)">LOADING</div>
-          <div class="signal-label" style="margin-top:6px">CONFIDENCE</div>
-          <div class="confidence-bar"><div class="confidence-fill" id="confFill" style="width:0%"></div></div>
-          <div class="signal-reasoning" id="sigReason">Connecting to backend...</div>
-        </div>
-        <div class="stop-target">
-          <div class="st-box"><div class="signal-label">STOP</div><div class="st-val down" id="stopLoss">--</div></div>
-          <div class="st-box"><div class="signal-label">TARGET</div><div class="st-val up" id="tgtPrice">--</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="indicators">
-      <div class="ind-card"><div class="ind-label">RSI (14)</div><div class="ind-value" id="rsiVal">--</div><div class="ind-sub" id="rsiSub">--</div></div>
-      <div class="ind-card"><div class="ind-label">VWAP</div><div class="ind-value" id="vwapVal">--</div><div class="ind-sub" id="vwapSub">--</div></div>
-      <div class="ind-card"><div class="ind-label">VOL SPIKE</div><div class="ind-value" id="volVal">--</div><div class="ind-sub" id="volSub">--</div></div>
-    </div>
-
-    <div class="orderbook">
-      <div class="panel-title">order book — <span id="obSym">--</span></div>
-      <div id="orderBook"><p style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;padding:8px 0">Loading...</p></div>
-    </div>
-  </div>
-
-  <!-- ═══ AUTO TRADES TAB ═══ -->
-  <div class="tab-panel" id="tab-auto">
-    <div class="panel" style="margin-bottom:12px">
-      <div class="panel-title">◈ claude live action feed</div>
-      <div class="claude-feed" id="claudeFeed">
-        <div class="feed-entry"><span class="feed-time">--:--:--</span> <span class="feed-action scan">Waiting for next market scan...</span></div>
-      </div>
-    </div>
-
-    <div class="panel" style="margin-bottom:12px">
-      <div class="panel-title">automated trade journal — all executed trades</div>
-      <div id="autoTradeLog"><div class="notif-entry" style="padding:12px 0;text-align:center">Loading trades from Netlify...</div></div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">scan status</div>
-      <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:2">
-        <div>Next scan: <span id="nextScan" style="color:var(--text)">--</span></div>
-        <div>Last scan: <span id="lastScan" style="color:var(--text)">--</span></div>
-        <div>Trades today: <span id="tradesToday" style="color:var(--green)">0</span></div>
-        <div>Win rate: <span id="winRateAuto" style="color:var(--green)">--</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ BRIEFING TAB ═══ -->
-  <div class="tab-panel" id="tab-briefing">
-    <div class="panel" style="margin-bottom:12px">
-      <div class="panel-title">🌅 morning briefing</div>
-      <div id="morningBriefing" style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:1.8">
-        Loading today's briefing...
-      </div>
-    </div>
-    <div class="panel" style="margin-bottom:12px">
-      <div class="panel-title">🌆 eod debrief</div>
-      <div id="eodDebrief" style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:1.8">
-        Available after market close (4PM EST)
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-title">📰 market news</div>
-      <div id="newsPanel"><div class="notif-entry">Loading news...</div></div>
-    </div>
-  </div>
-
-  <!-- ═══ ALERTS TAB ═══ -->
-  <div class="tab-panel" id="tab-alerts">
-    <div class="alert-settings">
-      <div class="panel-title" style="margin-bottom:10px">🔔 signal alerts</div>
-      <div class="alert-row">
-        <div><div class="alert-label">Browser Alerts</div><div class="alert-sub" id="notifStatus">Tap to enable</div></div>
-        <button class="alert-toggle" id="alertToggle" onclick="toggleAlerts()"></button>
-      </div>
-      <div class="alert-row">
-        <div class="alert-label">Min Confidence to Alert</div>
-        <div class="threshold-row">
-          <input class="threshold-input" id="threshold" type="number" value="70" min="50" max="95">
-          <span style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace">%</span>
-        </div>
-      </div>
-      <div class="alert-row">
-        <div class="alert-label">Watch All Tickers</div>
-        <button class="alert-toggle" id="watchAllToggle" onclick="toggleWatchAll()"></button>
-      </div>
-      <div class="alert-row">
-        <div class="alert-label">Push Notifications</div>
-        <button class="btn" style="flex:0;padding:6px 12px;font-size:10px;background:var(--bg3);color:var(--purple);border:1px solid var(--purple)" onclick="enablePush()">ENABLE PUSH</button>
-      </div>
-      <div class="notif-log" id="notifLog"><div class="notif-entry">— alert log empty —</div></div>
-    </div>
-  </div>
-
-  <div class="bottom-bar">
-    <button class="btn btn-buy" onclick="logTrade('buy')">▲ BUY</button>
-    <button class="btn btn-ai" id="aiBtn" onclick="getAISignal()">◈ AI SIGNAL</button>
-    <button class="btn btn-scan" onclick="triggerManualScan()">⚡ SCAN</button>
-    <button class="btn btn-sell" onclick="logTrade('sell')">▼ SELL</button>
-  </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script>
-// ═══════════════════════════════════════════════════════════
-// CONFIGURATION — all API calls go through Netlify backend
-// ═══════════════════════════════════════════════════════════
-const BACKEND = "https://extraordinary-mandazi-a05e7e.netlify.app/.netlify/functions";
-const SYMS = ['AAPL','NVDA','TSLA','SPY','MSFT','META','AMD','COIN','PLTR','AMZN'];
-
-let active = 'AAPL';
-let snap = {}; let hist = {}; let chart = null;
-let claudeFeedLog = [];
-
-SYMS.forEach(s => { snap[s] = {}; hist[s] = []; });
-
-// ── TABS ──────────────────────────────────────────────────
-function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t,i) => {
-    const tabs = ['terminal','auto','briefing','alerts'];
-    t.classList.toggle('active', tabs[i] === name);
-  });
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'auto') loadAutoTrades();
-  if (name === 'briefing') loadBriefing();
-}
-
-// ── HELPERS ───────────────────────────────────────────────
-const el = id => document.getElementById(id);
-function toast(msg, type='info') {
-  const e = el('alert');
-  e.textContent = msg; e.className = 'alert show ' + type;
-  setTimeout(() => e.className = 'alert', 5000);
-}
-function clock() { el('clock').textContent = new Date().toTimeString().slice(0,8); }
-setInterval(clock, 1000); clock();
-
-function addFeed(action, msg, type='scan') {
-  const t = new Date().toTimeString().slice(0,8);
-  claudeFeedLog.unshift({ t, action, msg, type });
-  if (claudeFeedLog.length > 50) claudeFeedLog.pop();
-  const feed = el('claudeFeed');
-  feed.innerHTML = claudeFeedLog.map(f =>
-    `<div class="feed-entry"><span class="feed-time">${f.t}</span> <span class="feed-action ${f.type}">[${f.action}]</span> ${f.msg}</div>`
-  ).join('');
-}
-
-// ── PROXY API CALLS ───────────────────────────────────────
-async function polygonProxy(path) {
-  const r = await fetch(`${BACKEND}/market-proxy?path=${encodeURIComponent(path)}`);
-  if (!r.ok) throw new Error(`Proxy ${r.status}`);
-  return r.json();
-}
-
-async function alpacaProxy(method, path, body) {
-  const url = `${BACKEND}/alpaca-proxy?endpoint=${encodeURIComponent(path)}`;
-  const opts = { method: method, headers: { 'Content-Type': 'application/json' } };
-  if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(url, opts);
-  return r.json();
-}
-
-async function claudeProxy(ticker, marketData) {
-  const r = await fetch(`${BACKEND}/claude-proxy`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ticker, ...marketData })
-  });
-  if (!r.ok) throw new Error(`Claude proxy ${r.status}`);
-  return r.json();
-}
-
-// ── MARKET DATA — via Netlify yahoo-proxy (avoids browser CORS block) ────────
-async function fetchSnap() {
-  try {
-    const url = `${BACKEND}/yahoo-proxy?symbols=${SYMS.join(',')}`;
-    const r = await fetch(url);
-    if (!r.ok) throw new Error(`Proxy ${r.status}`);
-    const d = await r.json();
-    if (!d.snapshot) throw new Error('No snapshot returned');
-
-    let anyData = false;
-    Object.entries(d.snapshot).forEach(([sym, data]) => {
-      if (!data) return; // keep existing snap[sym] — don't overwrite with null
-      snap[sym] = data;
-      if (snap[sym].price > 0) anyData = true;
-    });
-
-    // Even if this refresh had some nulls, if we have ANY cached prices show green
-    const hasCachedData = SYMS.some(s => snap[s]?.price > 0);
-    if (anyData || hasCachedData) {
-      if (anyData) el('lastFetch').textContent = new Date().toTimeString().slice(0,8);
-      el('dot').className = anyData ? 'live-dot' : 'live-dot stale';
-      return anyData;
-    }
-    throw new Error('No data');
-  } catch(e) {
-    el('dot').className = 'live-dot error';
-    toast('Data error: ' + e.message, 'warn');
-    return false;
-  }
-}
-
-// ── CHART & INDICATORS ────────────────────────────────────
-function seedHist(sym) {
-  const d = snap[sym]; if (!d?.price) return;
-  const { open:o, high:h, low:l, price:c, prev } = d;
-  const pts = [];
-  for(let i=0;i<8;i++) pts.push(+(prev+(o-prev)*(i/7)).toFixed(2));
-  for(let i=0;i<8;i++) pts.push(+(o+(h-o)*(i/7)).toFixed(2));
-  for(let i=0;i<8;i++) pts.push(+(h+(l-h)*(i/7)).toFixed(2));
-  for(let i=0;i<8;i++) pts.push(+(l+(c-l)*(i/7)).toFixed(2));
-  hist[sym] = pts.map(p => +(p+(Math.random()-.5)*p*.001).toFixed(2));
-}
-
-function appendHist(sym) {
-  const price = snap[sym]?.price; if (!price) return;
-  hist[sym].push(+price.toFixed(2));
-  if (hist[sym].length > 80) hist[sym].shift();
-}
-
-function rsi(prices, n=14) {
-  if (prices.length < n+1) return 50;
-  let g=0, l=0;
-  for(let i=prices.length-n; i<prices.length; i++) {
-    const d = prices[i] - prices[i-1];
-    d > 0 ? g += d : l += Math.abs(d);
-  }
-  return +((100-(100/(1+(g/(l||.001)))))).toFixed(1);
-}
-
-function buildTickers() {
-  const bar = el('tickerBar'); bar.innerHTML = '';
-  SYMS.forEach(s => {
-    const d = snap[s]; const p = d?.price||0; const c = d?.chg||0; const up = c >= 0;
-    const div = document.createElement('div');
-    div.className = 'ticker-card' + (s===active?' active':'');
-    div.innerHTML = `<div class="t-sym">${s}</div><div class="t-price ${up?'up':'down'}">$${p?p.toFixed(2):'--'}</div><div class="t-chg ${up?'up':'down'}">${up?'+':''}${c.toFixed(2)}%</div>`;
-    div.onclick = () => { active=s; buildTickers(); if(!hist[s].length)seedHist(s); renderChart(); renderIndicators(); renderOB(); };
-    bar.appendChild(div);
-  });
-  el('activeSym').textContent = active;
-  el('obSym').textContent = active;
-}
-
-function renderChart() {
-  const prices = hist[active]; if (!prices?.length) return;
-  if (chart) chart.destroy();
-  const ctx = el('priceChart').getContext('2d');
-  const mn = Math.min(...prices)*.999, mx = Math.max(...prices)*1.001;
-  const up = prices[prices.length-1] >= prices[0];
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: { labels: prices.map((_,i)=>i), datasets:[{data:prices,borderColor:up?'#00c896':'#ff4d4d',borderWidth:1.5,pointRadius:0,fill:true,backgroundColor:up?'rgba(0,200,150,0.07)':'rgba(255,77,77,0.07)',tension:0.3}] },
-    options: { responsive:true,maintainAspectRatio:false,animation:{duration:300},plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'#161b22',borderColor:'#30363d',borderWidth:1,titleColor:'#8b949e',bodyColor:'#e6edf3',titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Mono'},callbacks:{label:c=>'$'+c.parsed.y.toFixed(2)}}},scales:{x:{display:false},y:{min:mn,max:mx,grid:{color:'rgba(48,54,61,0.4)'},ticks:{color:'#8b949e',font:{family:'IBM Plex Mono',size:9},callback:v=>'$'+v.toFixed(2)}}}}
-  });
-}
-
-function renderIndicators() {
-  const d = snap[active]; const prices = hist[active];
-  if (!d?.price || !prices?.length) return;
-  const curr = d.price;
-  const r = rsi(prices);
-  el('rsiVal').textContent = r;
-  el('rsiVal').className = 'ind-value ' + (r>70?'down':r<30?'up':'');
-  el('rsiSub').textContent = r>70?'OVERBOUGHT':r<30?'OVERSOLD':'NEUTRAL';
-  const vw = d.vwap || prices.reduce((a,b)=>a+b,0)/prices.length;
-  el('vwapVal').textContent = '$'+vw.toFixed(2);
-  const above = curr > vw;
-  el('vwapVal').className = 'ind-value ' + (above?'up':'down');
-  el('vwapSub').textContent = above?'ABOVE VWAP':'BELOW VWAP';
-  const spike = (1+(Math.random()*.8-.1)).toFixed(2);
-  el('volVal').textContent = spike+'x';
-  el('volVal').className = 'ind-value ' + (spike>1.3?'up':'');
-  el('volSub').textContent = spike>1.3?'SPIKE':'NORMAL';
-  renderSignal(r, above, parseFloat(spike), curr);
-}
-
-function renderSignal(r, above, spike, price) {
-  let score = 0;
-  if(r<40) score+=2; else if(r>65) score-=2;
-  if(above) score+=1; else score-=1;
-  if(spike>1.3) score+=Math.sign(score);
-  const box=el('sigBox'), act=el('sigAction'), rea=el('sigReason'), cf=el('confFill');
-  let sig, conf, why, sp, tp;
-  if(score>=2){
-    sig='BUY'; conf=Math.min(50+score*12,92);
-    why='RSI '+r+' — momentum building. '+(above?'Holding VWAP.':'Recovering toward VWAP.')+' '+(spike>1.3?'Volume confirms institutional buying.':'Accumulation forming.');
-    sp=.985; tp=1.025; box.className='signal-box'; act.className='signal-action up';
-  } else if(score<=-2){
-    sig='SELL'; conf=Math.min(50+Math.abs(score)*12,92);
-    why='RSI '+r+' — exhaustion. '+(!above?'Price rejected VWAP.':'Bleeding below VWAP.')+' '+(spike>1.3?'Distribution — smart money out.':'Momentum gone.');
-    sp=1.015; tp=.975; box.className='signal-box sell'; act.className='signal-action down';
-  } else {
-    sig='HOLD'; conf=40+Math.random()*15;
-    why='Mixed signals. RSI '+r+' neutral. No edge — wait for cleaner setup.';
-    sp=.99; tp=1.01; box.className='signal-box hold'; act.className='signal-action'; act.style.color='#f5a623';
-  }
-  act.textContent = sig;
-  cf.style.width = conf.toFixed(0)+'%';
-  rea.textContent = why;
-  el('stopLoss').textContent = '$'+(price*sp).toFixed(2);
-  el('tgtPrice').textContent = '$'+(price*tp).toFixed(2);
-}
-
-function renderOB() {
-  const d = snap[active];
-  const mid = d?.price || hist[active]?.[hist[active].length-1] || 100;
-  const spread = mid*.0003; let html = '';
-  for(let i=5;i>0;i--){const p=(mid+spread/2+i*mid*.0005).toFixed(2);const sz=Math.floor(Math.random()*500+50);html+=`<div class="ob-row"><span class="ob-price down">$${p}</span><span class="ob-size">${sz}</span><div class="ob-bar" style="width:${Math.floor(sz/6)}%;background:#ff4d4d"></div></div>`;}
-  html += `<div class="spread-row">spread $${spread.toFixed(3)}</div>`;
-  for(let i=1;i<=5;i++){const p=(mid-spread/2-i*mid*.0005).toFixed(2);const sz=Math.floor(Math.random()*500+50);html+=`<div class="ob-row"><span class="ob-price up">$${p}</span><span class="ob-size">${sz}</span><div class="ob-bar" style="width:${Math.floor(sz/6)}%;background:#00c896"></div></div>`;}
-  el('orderBook').innerHTML = html;
-}
-
-// ── ALPACA ────────────────────────────────────────────────
-async function fetchAlpacaAccount() {
-  try {
-    const acc = await alpacaProxy('GET', '/v2/account');
-    if (acc.portfolio_value) {
-      el('dayPnl').textContent = '$'+parseInt(acc.portfolio_value).toLocaleString();
-      el('dayPnl').className = 'pnl-value up';
-      el('winRate').textContent = '$'+parseInt(acc.cash).toLocaleString();
-    }
-  } catch(e) { console.warn('Alpaca account error', e); }
-}
-
-async function fetchAlpacaPositions() {
-  try {
-    const positions = await alpacaProxy('GET', '/v2/positions');
-    renderPositions(positions);
-    el('tradeCount').textContent = positions.length;
-    const totalPnl = positions.reduce((sum,p)=>sum+parseFloat(p.unrealized_pl||0),0);
-    el('openPnl').textContent = (totalPnl>=0?'+':'')+'$'+totalPnl.toFixed(0);
-    el('openPnl').className = 'pnl-value ' + (totalPnl>=0?'up':'down');
-  } catch(e) { console.warn('Positions error', e); }
-}
-
-function renderPositions(positions) {
-  const panel = el('positionsPanel');
-  if (!positions?.length) { panel.innerHTML='<div class="notif-entry">No open positions</div>'; return; }
-  panel.innerHTML = positions.map(p => {
-    const pl = parseFloat(p.unrealized_pl||0);
-    const plPct = parseFloat(p.unrealized_plpc||0)*100;
-    const up = pl >= 0;
-    return `<div class="ob-row" style="padding:6px 0;border-bottom:1px solid var(--border)">
-      <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600">${p.symbol}</span>
-      <span style="font-size:10px;color:var(--muted);margin-left:6px">${p.qty} shares @ $${parseFloat(p.avg_entry_price).toFixed(2)}</span></div>
-      <div style="text-align:right">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600" class="${up?'up':'down'}">${up?'+':''}$${pl.toFixed(0)}</div>
-        <div style="font-size:9px;color:var(--muted)">${up?'+':''}${plPct.toFixed(2)}%
-          <button onclick="closePosition('${p.symbol}')" style="margin-left:6px;background:var(--red);border:none;border-radius:3px;color:#fff;font-size:9px;padding:1px 5px;cursor:pointer;font-family:'IBM Plex Mono',monospace">CLOSE</button>
-        </div>
-      </div></div>`;
-  }).join('');
-}
-
-async function closePosition(symbol) {
-  toast('Closing '+symbol+'...', 'info');
-  try {
-    await alpacaProxy('DELETE', '/v2/positions/'+symbol);
-    toast('✓ '+symbol+' closed', 'success');
-    addFeed('CLOSE', `Closed position: ${symbol}`, 'sell');
-    setTimeout(() => { fetchAlpacaAccount(); fetchAlpacaPositions(); }, 1500);
-  } catch(e) { toast('Close failed: '+e.message, 'warn'); }
-}
-
-async function logTrade(side) {
-  const p = snap[active]?.price || 0;
-  if (!p) { toast('No price data', 'warn'); return; }
-  const qty = Math.max(1, Math.floor(2000 / p));
-  toast((side==='buy'?'▲ Buying ':'▼ Shorting ')+qty+' '+active+'...', 'info');
-  try {
-    const order = await alpacaProxy('POST', '/v2/orders', { symbol:active, qty, side, type:'market', time_in_force:'day' });
-    if (order.id) {
-      toast('✓ '+side.toUpperCase()+' '+qty+' '+active+' @ ~$'+p.toFixed(2), 'success');
-      addFeed(side.toUpperCase(), `Manual ${side}: ${qty} ${active} @ $${p.toFixed(2)}`, side);
-      setTimeout(() => { fetchAlpacaAccount(); fetchAlpacaPositions(); }, 2000);
-    } else { toast('Alpaca: '+(order.message||'Unknown error'), 'warn'); }
-  } catch(e) { toast('Order failed: '+e.message, 'warn'); }
-}
-
-// ── AI SIGNAL ─────────────────────────────────────────────
-async function getAISignal() {
-  const d = snap[active];
-  if (!d?.price) { toast('No price data', 'warn'); return; }
-  const prices = hist[active];
-  const r = rsi(prices);
-  const vw = d.vwap || prices.reduce((a,b)=>a+b,0)/prices.length;
-
-  el('sigAction').textContent = 'CLAUDE...';
-  el('sigAction').style.color = 'var(--blue)';
-  el('sigBox').className = 'signal-box hold';
-  el('sigReason').textContent = 'Sending to Claude via secure proxy...';
-  el('confFill').style.width = '0%';
-  el('aiBtn').disabled = true;
-  el('aiBtn').textContent = '⏳ ANALYZING...';
-
-  try {
-    const result = await claudeProxy(active, {
-      price: d.price, rsi: r, vwap: vw,
-      volume: d.vol, volAvg: d.vol * .7,
-      timeOfDay: new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York' }),
-      orderBook: 'balanced'
-    });
-    const sig = result.signal;
-    el('sigAction').textContent = sig.action;
-    el('confFill').style.width = sig.confidence+'%';
-    el('sigReason').textContent = sig.reasoning + ' ⚠ Risk: ' + sig.keyRisk;
-    el('stopLoss').textContent = '$'+parseFloat(sig.stopLoss).toFixed(2);
-    el('tgtPrice').textContent = '$'+parseFloat(sig.target).toFixed(2);
-    if(sig.action==='BUY'){el('sigBox').className='signal-box';el('sigAction').className='signal-action up';}
-    else if(sig.action==='SELL'){el('sigBox').className='signal-box sell';el('sigAction').className='signal-action down';}
-    else{el('sigBox').className='signal-box hold';el('sigAction').style.color='var(--yellow)';}
-    addFeed('AI', `${sig.action} ${active} — ${sig.confidence}% conf — ${sig.setupType}`, sig.action==='BUY'?'buy':sig.action==='SELL'?'sell':'scan');
-    toast('Claude signal: '+sig.action+' '+active+' ('+sig.confidence+'%)', 'success');
-  } catch(e) {
-    el('sigAction').textContent = 'ERROR';
-    el('sigReason').textContent = 'AI signal failed: '+e.message;
-    toast('AI error: '+e.message, 'warn');
-  } finally {
-    el('aiBtn').disabled = false;
-    el('aiBtn').textContent = '◈ AI SIGNAL';
-  }
-}
-
-// ── MANUAL SCAN TRIGGER ───────────────────────────────────
-async function triggerManualScan() {
-  toast('Triggering market scan via Netlify...', 'info');
-  addFeed('SCAN', 'Manual scan triggered — screening market...', 'scan');
-  try {
-    const r = await fetch(`${BACKEND}/run-scanner`, { method: 'POST' });
-    const d = await r.json();
-    if (d.tradesExecuted > 0) {
-      toast(`⚡ Scan complete — ${d.tradesExecuted} trade(s) executed`, 'success');
-      addFeed('EXEC', `${d.tradesExecuted} trade(s) executed by Claude`, 'buy');
-      el('autoBadge').textContent = `AUTO: ${d.tradesExecuted} TRADES`;
-    } else {
-      toast('Scan complete — no qualifying trades found', 'info');
-      addFeed('SKIP', 'No qualifying setups — staying in cash', 'skip');
-    }
-    setTimeout(loadAutoTrades, 2000);
-  } catch(e) {
-    toast('Scan error: '+e.message, 'warn');
-    addFeed('ERR', 'Scan failed: '+e.message, 'skip');
-  }
-}
-
-// ── AUTO TRADES PANEL ─────────────────────────────────────
-async function loadAutoTrades() {
-  try {
-    const r = await fetch(`${BACKEND}/get-trades?limit=50`);
-    const d = await r.json();
-    renderAutoTrades(d.trades || []);
-    const today = new Date().toDateString();
-    const todayTrades = (d.trades||[]).filter(t => new Date(t.timestamp).toDateString() === today);
-    el('tradesToday').textContent = todayTrades.length;
-    const closed = todayTrades.filter(t => t.realizedPnl != null);
-    if (closed.length) {
-      const wins = closed.filter(t => t.realizedPnl > 0).length;
-      el('winRateAuto').textContent = Math.round((wins/closed.length)*100)+'%';
-    }
-    el('lastScan').textContent = d.trades?.[0]?.timestamp
-      ? new Date(d.trades[0].timestamp).toLocaleTimeString('en-US', { timeZone: 'America/New_York' })
-      : '--';
-  } catch(e) {
-    el('autoTradeLog').innerHTML = '<div class="notif-entry" style="padding:12px 0;text-align:center;color:var(--red)">Failed to load trades: '+e.message+'</div>';
-  }
-}
-
-function renderAutoTrades(trades) {
-  const log = el('autoTradeLog');
-  if (!trades.length) {
-    log.innerHTML = '<div class="notif-entry" style="padding:20px 0;text-align:center">No automated trades yet — next scan runs hourly during market hours</div>';
-    return;
-  }
-  log.innerHTML = trades.map(t => {
-    const time = new Date(t.timestamp).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour:'2-digit', minute:'2-digit' });
-    const date = new Date(t.timestamp).toLocaleDateString('en-US', { month:'short', day:'numeric' });
-    const pnlStr = t.realizedPnl != null ? `<span class="${t.realizedPnl>=0?'up':'down'}">${t.realizedPnl>=0?'+':''}$${t.realizedPnl.toFixed(0)} P&L</span>` : `<span style="color:var(--muted)">open</span>`;
-    return `<div class="trade-entry ${t.side} auto">
-      <div class="trade-meta">
-        <span class="trade-sym">${t.symbol} — ${t.qty} shares @ $${parseFloat(t.price||0).toFixed(2)}</span>
-        <span class="trade-time">${date} ${time}</span>
-      </div>
-      <div class="trade-detail">${t.reasoning || 'Autonomous trade'} ${pnlStr}</div>
-      <div class="trade-badges">
-        <span class="badge badge-auto">AUTO</span>
-        <span class="badge badge-${t.side}">${t.side.toUpperCase()}</span>
-        <span class="badge badge-conf">${t.confidence}% CONF</span>
-        ${t.setupType ? `<span class="badge" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${t.setupType}</span>` : ''}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── BRIEFING PANEL ────────────────────────────────────────
-async function loadBriefing() {
-  try {
-    const r = await fetch(`${BACKEND}/get-briefing?type=both`);
-    const d = await r.json();
-    if (d.morning) {
-      const b = d.morning.briefing;
-      el('morningBriefing').innerHTML = `
-        <div style="color:var(--${b.bias==='BULLISH'?'green':b.bias==='BEARISH'?'red':'yellow'});font-size:14px;font-weight:600;margin-bottom:8px">${b.bias || 'NEUTRAL'}</div>
-        <div style="margin-bottom:12px">${b.summary || 'No summary available'}</div>
-        ${b.topPicks?.length ? '<div style="color:var(--text);margin-bottom:4px">Top picks:</div>' + b.topPicks.map(p=>`<div style="padding:4px 0;border-bottom:1px solid var(--border)"><span style="color:var(--green)">${p.ticker}</span> ${p.direction} — ${p.reason}</div>`).join('') : ''}
-        ${b.mantra ? `<div style="margin-top:12px;color:var(--purple);font-style:italic">"${b.mantra}"</div>` : ''}`;
-    } else {
-      el('morningBriefing').textContent = 'No briefing yet — generated at 9AM EST on weekdays';
-    }
-    if (d.eod) {
-      const b = d.eod.debrief;
-      el('eodDebrief').innerHTML = `
-        <div style="color:var(--green);font-size:14px;font-weight:600;margin-bottom:8px">Grade: ${b.grade || 'N/A'}</div>
-        <div style="margin-bottom:8px">${b.summary || ''}</div>
-        <div style="color:var(--text);margin-bottom:4px">Tomorrow: ${b.tomorrowFocus || '--'}</div>`;
-    }
-  } catch(e) {
-    el('morningBriefing').textContent = 'Could not load briefing: ' + e.message;
-  }
-  loadNews();
-}
-
-async function loadNews() {
-  try {
-    // Use rss2json public API — no CORS issues, no key needed
-    const feed = encodeURIComponent('https://feeds.finance.yahoo.com/rss/2.0/headline?s=SPY,AAPL,NVDA&region=US&lang=en-US');
-    const r = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${feed}&count=8`);
-    const d = await r.json();
-    if (d.status === 'ok' && d.items?.length) {
-      el('newsPanel').innerHTML = d.items.map(item => `
-        <div class="news-item">
-          <a href="${item.link}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">${item.title}</a>
-          <div class="news-source">Yahoo Finance · ${new Date(item.pubDate).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'})} EST</div>
-        </div>`).join('');
-    } else {
-      throw new Error('No items');
-    }
-  } catch(e) {
-    // Fallback: MarketWatch RSS via rss2json
-    try {
-      const feed2 = encodeURIComponent('https://feeds.marketwatch.com/marketwatch/topstories/');
-      const r2 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${feed2}&count=6`);
-      const d2 = await r2.json();
-      if (d2.status === 'ok' && d2.items?.length) {
-        el('newsPanel').innerHTML = d2.items.map(item => `
-          <div class="news-item">
-            <a href="${item.link}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">${item.title}</a>
-            <div class="news-source">MarketWatch · ${new Date(item.pubDate).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'})} EST</div>
-          </div>`).join('');
-      } else { throw new Error('fallback failed'); }
-    } catch(_) {
-      el('newsPanel').innerHTML = '<div class="notif-entry">News feed unavailable</div>';
-    }
-  }
-}
-
-// ── ALERTS ────────────────────────────────────────────────
-let alertsOn = false, watchAll = false, lastAlertSig = {}, notifLog = [];
-
-function toggleAlerts() {
-  if (!alertsOn) {
-    Notification.requestPermission().then(p => {
-      if (p==='granted') {
-        alertsOn = true; el('alertToggle').classList.add('on');
-        el('notifStatus').textContent = 'Active — monitoring signals';
-        toast('Alerts enabled ✓', 'success');
-      } else { toast('Enable notifications in browser settings', 'warn'); }
-    });
-  } else {
-    alertsOn = false; el('alertToggle').classList.remove('on');
-    el('notifStatus').textContent = 'Tap to enable';
-  }
-}
-
-function toggleWatchAll() {
-  watchAll = !watchAll;
-  el('watchAllToggle').classList.toggle('on', watchAll);
-}
-
-function logAlert(type, msg) {
-  const t = new Date().toTimeString().slice(0,8);
-  notifLog.unshift({ type, msg, t });
-  if (notifLog.length > 20) notifLog.pop();
-  el('notifLog').innerHTML = notifLog.map(e=>`<div class="notif-entry ${e.type}">[${e.t}] ${e.msg}</div>`).join('');
-}
-
-function fireNotif(sym, action, confidence, price) {
-  if (Notification.permission==='granted') {
-    try { new Notification(`◈ ${action} ${sym}`, { body:`$${price.toFixed(2)} — Conf: ${confidence.toFixed(0)}%`, tag:sym, renotify:true }); } catch(e){}
-  }
-  logAlert(action.toLowerCase(), `${action} ${sym} @ $${price.toFixed(2)} (${confidence.toFixed(0)}%)`);
-}
-
-function checkSignalAlerts() {
-  if (!alertsOn) return;
-  const threshold = parseInt(el('threshold').value) || 70;
-  const symsToWatch = watchAll ? SYMS : [active];
-  symsToWatch.forEach(sym => {
-    const d = snap[sym]; const prices = hist[sym];
-    if (!d?.price || !prices?.length) return;
-    const r = rsi(prices); const vw = d.vwap || prices.reduce((a,b)=>a+b,0)/prices.length;
-    const above = d.price > vw; let score = 0;
-    if(r<40)score+=2;else if(r>65)score-=2;
-    if(above)score+=1;else score-=1;
-    if (score>=2||score<=-2) {
-      const action = score>=2?'BUY':'SELL';
-      const confidence = Math.min(50+Math.abs(score)*12,92);
-      const key = sym+action;
-      if (confidence>=threshold && lastAlertSig[sym]!==key) {
-        lastAlertSig[sym] = key;
-        fireNotif(sym, action, confidence, d.price);
-      }
-    } else { delete lastAlertSig[sym]; }
-  });
-}
-
-// ── PUSH NOTIFICATIONS ────────────────────────────────────
-async function enablePush() {
-  if (!('serviceWorker' in navigator)) { toast('Push not supported on this browser', 'warn'); return; }
-  const perm = await Notification.requestPermission();
-  if (perm !== 'granted') { toast('Enable notifications in browser settings', 'warn'); return; }
-  try {
-    const reg = await navigator.serviceWorker.register('/quantedge-pro/sw.js', { scope: '/quantedge-pro/' });
-    await navigator.serviceWorker.ready;
-    toast('Push notifications enabled ✓', 'success');
-    logAlert('system', 'Push notifications registered');
-  } catch(e) { toast('Push setup failed: '+e.message, 'warn'); }
-}
-
-// ── NEXT SCAN TIMER ───────────────────────────────────────
-function updateNextScan() {
-  const now = new Date();
-  const next = new Date(now);
-  next.setMinutes(30, 0, 0);
-  if (next <= now) next.setHours(next.getHours() + 1);
-  const diff = Math.round((next - now) / 60000);
-  el('nextScan').textContent = `~${diff}min (${next.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'})} EST)`;
-}
-setInterval(updateNextScan, 30000); updateNextScan();
-
-// ── INIT ──────────────────────────────────────────────────
-async function loadAll() {
-  el('dot').className = 'live-dot stale';
-  await fetchSnap();
-  SYMS.forEach(s => { if(!hist[s].length) seedHist(s); else appendHist(s); });
-  buildTickers(); renderChart(); renderIndicators(); renderOB();
-  fetchAlpacaAccount(); fetchAlpacaPositions();
-  addFeed('INIT', 'Terminal connected — backend: Netlify', 'scan');
-}
-
-loadAll();
-// 3-minute refresh — Polygon free tier is 5 calls/min
-setInterval(async () => {
-  const ok = await fetchSnap();
-  if (ok) SYMS.forEach(s => appendHist(s));
-  buildTickers(); renderChart(); renderIndicators(); renderOB();
-  checkSignalAlerts(); fetchAlpacaAccount(); fetchAlpacaPositions();
-}, 180000);
-</script>
-</body>
-</html>
+1 <!DOCTYPE html>
+        2 <html lang="en">
+        3 <head>
+        4 <meta charset="UTF-8">
+        5 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale
+          =1.0">
+        6 <meta name="apple-mobile-web-app-capable" content="yes">
+        7 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        8 <meta name="apple-mobile-web-app-title" content="QuantEdge Pro">
+        9 <link rel="manifest" href="/quantedge-pro/manifest.json">
+       10 <meta name="theme-color" content="#00c896">
+       11 <title>QuantEdge Pro</title>
+       12 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600
+          &family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+       13 <style>
+       14 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+       15 html,body{height:100%;overflow-x:hidden;background:#0d1117}
+       16 body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
+       17 :root{--green:#00c896;--red:#ff4d4d;--yellow:#f5a623;--blue:#4a9eff;--purple:#a371f
+          7;--bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--border:#30363d;--text:#e6edf3;--muted:
+          #8b949e}
+       18 .dash{max-width:960px;margin:0 auto;padding:12px;min-height:100vh}
+       19 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom
+          :14px;border-bottom:1px solid var(--border);padding-bottom:12px}
+       20 .logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:va
+          r(--green);letter-spacing:2px}
+       21 .live-dot{display:inline-block;width:8px;height:8px;background:var(--green);border-
+          radius:50%;margin-right:6px;animation:pulse 1.5s infinite}
+       22 .live-dot.stale{background:var(--yellow);animation:none}
+       23 .live-dot.error{background:var(--red);animation:none}
+       24 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+       25 .status{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;dis
+          play:flex;align-items:center;gap:8px}
+       26 .data-badge{font-size:9px;background:var(--bg3);border:1px solid var(--yellow);bord
+          er-radius:4px;padding:2px 5px;color:var(--yellow)}
+       27 .auto-badge{font-size:9px;background:#0d2a1a;border:1px solid var(--green);border-r
+          adius:4px;padding:2px 5px;color:var(--green);animation:pulse 2s infinite}
+       28 /* TABS */
+       29 .tabs{display:flex;gap:4px;margin-bottom:14px;background:var(--bg2);padding:4px;bor
+          der-radius:10px;border:1px solid var(--border)}
+       30 .tab{flex:1;padding:8px 4px;background:none;border:none;color:var(--muted);font-fam
+          ily:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;border-radius:7px;lette
+          r-spacing:.5px;transition:all 0.2s}
+       31 .tab.active{background:var(--bg3);color:var(--green);border:1px solid var(--border)
+          }
+       32 .tab-panel{display:none}.tab-panel.active{display:block}
+       33 /* TICKER BAR */
+       34 .ticker-bar{display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom
+          :6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+       35 .ticker-bar::-webkit-scrollbar{display:none}
+       36 .ticker-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px
+          ;padding:10px 12px;min-width:110px;cursor:pointer;transition:border-color 0.2s;flex
+          -shrink:0}
+       37 .ticker-card.active{border-color:var(--green)}
+       38 .ticker-card.has-position{border-color:var(--purple)}
+       39 .t-sym{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600}
+       40 .t-price{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;margi
+          n:4px 0}
+       41 .t-chg{font-size:10px;font-family:'IBM Plex Mono',monospace}
+       42 .up{color:var(--green)}.down{color:var(--red)}
+       43 /* GRIDS */
+       44 .main-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+       45 @media(min-width:700px){.main-grid{grid-template-columns:1fr 250px}}
+       46 .chart-panel,.signal-panel,.orderbook,.panel{background:var(--bg2);border:1px solid
+           var(--border);border-radius:8px;padding:12px}
+       47 .panel-title{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospac
+          e;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase}
+       48 /* SIGNAL */
+       49 .signal-box{background:var(--bg3);border-radius:6px;padding:10px;margin-bottom:8px;
+          border-left:3px solid var(--green)}
+       50 .signal-box.sell{border-left-color:var(--red)}.signal-box.hold{border-left-color:va
+          r(--yellow)}
+       51 .signal-label{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospa
+          ce;letter-spacing:1px}
+       52 .signal-action{font-size:22px;font-weight:600;font-family:'IBM Plex Mono',monospace
+          ;margin:2px 0}
+       53 .confidence-bar{background:var(--border);border-radius:4px;height:4px;margin-top:6p
+          x}
+       54 .confidence-fill{height:4px;border-radius:4px;background:var(--green);transition:wi
+          dth 0.6s}
+       55 .signal-reasoning{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
+       56 /* INDICATORS */
+       57 .indicators{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12
+          px}
+       58 .ind-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;pa
+          dding:10px}
+       59 .ind-label{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;
+          letter-spacing:1px}
+       60 .ind-value{font-size:15px;font-weight:600;font-family:'IBM Plex Mono',monospace;mar
+          gin-top:4px}
+       61 .ind-sub{font-size:9px;color:var(--muted);margin-top:2px}
+       62 /* PNL */
+       63 .pnl-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1
+          2px}
+       64 .pnl-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;pa
+          dding:10px;text-align:center}
+       65 .pnl-label{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;l
+          etter-spacing:1px}
+       66 .pnl-value{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;mar
+          gin-top:4px}
+       67 /* ORDER BOOK */
+       68 .ob-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',mono
+          space;font-size:11px;padding:3px 0;position:relative}
+       69 .ob-bar{position:absolute;right:0;top:0;height:100%;opacity:0.12;border-radius:2px}
+       70 .spread-row{text-align:center;font-size:10px;color:var(--muted);padding:4px 0;borde
+          r-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:4px 0}
+       71 .stop-target{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+       72 .st-box{background:var(--bg3);border-radius:6px;padding:8px}
+       73 .st-val{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;margin
+          -top:4px}
+       74 /* AUTO TRADE LOG */
+       75 .trade-entry{background:var(--bg3);border-radius:6px;padding:10px;margin-bottom:8px
+          ;border-left:3px solid var(--green)}
+       76 .trade-entry.sell{border-left-color:var(--red)}
+       77 .trade-entry.auto{border-left-color:var(--purple)}
+       78 .trade-meta{display:flex;justify-content:space-between;align-items:center;margin-bo
+          ttom:4px}
+       79 .trade-sym{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600}
+       80 .trade-time{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace
+          }
+       81 .trade-detail{font-size:11px;color:var(--muted);line-height:1.5}
+       82 .trade-badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+       83 .badge{font-size:9px;padding:2px 6px;border-radius:3px;font-family:'IBM Plex Mono',
+          monospace;font-weight:600}
+       84 .badge-auto{background:#1a0d2a;color:var(--purple);border:1px solid var(--purple)}
+       85 .badge-buy{background:#0d2a1a;color:var(--green);border:1px solid var(--green)}
+       86 .badge-sell{background:#2a0d0d;color:var(--red);border:1px solid var(--red)}
+       87 .badge-conf{background:var(--bg);color:var(--yellow);border:1px solid var(--yellow)
+          }
+       88 /* CLAUDE LIVE FEED */
+       89 .claude-feed{background:var(--bg3);border-radius:6px;padding:10px;max-height:200px;
+          overflow-y:auto;margin-bottom:12px}
+       90 .feed-entry{font-size:10px;font-family:'IBM Plex Mono',monospace;padding:3px 0;bord
+          er-bottom:1px solid var(--border);line-height:1.6}
+       91 .feed-entry:last-child{border-bottom:none}
+       92 .feed-time{color:var(--muted)}
+       93 .feed-action{color:var(--green)}
+       94 .feed-action.sell{color:var(--red)}
+       95 .feed-action.scan{color:var(--blue)}
+       96 .feed-action.skip{color:var(--yellow)}
+       97 /* BOTTOM BAR */
+       98 .bottom-bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(
+          --border);padding:10px 12px;display:flex;gap:8px;margin-top:12px}
+       99 .btn{flex:1;padding:12px 8px;border-radius:8px;font-family:'IBM Plex Mono',monospac
+          e;font-size:11px;font-weight:600;cursor:pointer;border:none;letter-spacing:1px}
+      100 .btn:active{opacity:0.75;transform:scale(0.98)}
+      101 .btn-ai{background:linear-gradient(135deg,#0d1a2a,#0a1520);color:var(--blue);border
+          :1px solid var(--blue);flex:1.2}
+      102 .btn-ai:disabled{opacity:0.5;cursor:not-allowed}
+      103 .btn-buy{background:var(--green);color:#0d1117}
+      104 .btn-sell{background:var(--red);color:#fff}
+      105 .btn-refresh{background:var(--bg2);color:var(--blue);border:1px solid var(--blue)}
+      106 .btn-scan{background:linear-gradient(135deg,#1a0d2a,#12082a);color:var(--purple);bo
+          rder:1px solid var(--purple)}
+      107 /* ALERTS */
+      108 .alert{display:none;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-siz
+          e:12px;font-family:'IBM Plex Mono',monospace}
+      109 .alert.show{display:block}
+      110 .alert.success{background:#0d2a1a;border:1px solid var(--green);color:var(--green)}
+      111 .alert.warn{background:#2a1a1a;border:1px solid var(--red);color:var(--red)}
+      112 .alert.info{background:#0d1a2a;border:1px solid var(--blue);color:var(--blue)}
+      113 /* ALERT SETTINGS */
+      114 .alert-settings{background:var(--bg2);border:1px solid var(--border);border-radius:
+          8px;padding:12px;margin-bottom:12px}
+      115 .alert-row{display:flex;justify-content:space-between;align-items:center;margin-bot
+          tom:8px}
+      116 .alert-row:last-child{margin-bottom:0}
+      117 .alert-toggle{position:relative;width:40px;height:22px;background:var(--border);bor
+          der-radius:11px;cursor:pointer;transition:background 0.2s;border:none;flex-shrink:0
+          }
+      118 .alert-toggle.on{background:var(--green)}
+      119 .alert-toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;heigh
+          t:16px;background:#fff;border-radius:50%;transition:left 0.2s}
+      120 .alert-toggle.on::after{left:21px}
+      121 .alert-label{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--text)
+          }
+      122 .alert-sub{font-size:9px;color:var(--muted);margin-top:2px}
+      123 .threshold-row{display:flex;align-items:center;gap:8px}
+      124 .threshold-input{background:var(--bg3);border:1px solid var(--border);border-radius
+          :4px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;padding
+          :4px 8px;width:60px;text-align:center}
+      125 .notif-log{background:var(--bg3);border-radius:6px;padding:8px;max-height:80px;over
+          flow-y:auto;margin-top:8px}
+      126 .notif-entry{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--muted
+          );padding:1px 0}
+      127 .notif-entry.buy{color:var(--green)}.notif-entry.sell{color:var(--red)}
+      128 /* CHART */
+      129 .chart-area{position:relative;width:100%;height:180px}
+      130 /* META ROW */
+      131 .meta-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:9p
+          x;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+      132 /* NEWS */
+      133 .news-item{padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;line-
+          height:1.5}
+      134 .news-item:last-child{border-bottom:none}
+      135 .news-source{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace
+          ;margin-top:2px}
+      136 /* TICKER REMOVE BUTTON */
+      137 .ticker-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-s
+          ize:12px;padding:0;line-height:1;opacity:0.6;transition:opacity 0.15s}
+      138 .ticker-remove:hover{opacity:1;color:var(--red)}
+      139 /* ADD TICKER CARD */
+      140 .ticker-add-card{background:var(--bg2);border:1px dashed var(--border);border-radiu
+          s:8px;padding:10px 12px;min-width:80px;cursor:pointer;flex-shrink:0;display:flex;fl
+          ex-direction:column;align-items:center;justify-content:center;gap:2px;transition:bo
+          rder-color 0.2s}
+      141 .ticker-add-card:hover{border-color:var(--green)}
+      142 .ticker-input-card{background:var(--bg2);border:1px solid var(--green);border-radiu
+          s:8px;padding:10px 10px;min-width:130px;flex-shrink:0;display:flex;flex-direction:c
+          olumn;gap:6px}
+      143 .ticker-sym-input{background:var(--bg3);border:1px solid var(--border);border-radiu
+          s:4px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;font-w
+          eight:600;padding:4px 8px;width:100%;text-transform:uppercase;outline:none;letter-s
+          pacing:1px}
+      144 .ticker-sym-input:focus{border-color:var(--green)}
+      145 .ticker-input-btns{display:flex;gap:4px}
+      146 .ticker-input-btns button{flex:1;border:none;border-radius:3px;font-family:'IBM Ple
+          x Mono',monospace;font-size:10px;font-weight:600;padding:4px;cursor:pointer}
+      147 </style>
+      148 </head>
+      149 <body>
+      150 <div class="dash">
+      151   <div class="header">
+      152     <div class="logo">◈ QUANTEDGE PRO <span class="data-badge">LIVE</span> <span cl
+          ass="auto-badge" id="autoBadge">AUTO OFF</span></div>
+      153     <div class="status">
+      154       <span class="live-dot" id="dot"></span>
+      155       <span id="clock">--:--:--</span>
+      156       <a href="/quantedge-pro/journal.html" style="color:var(--muted);text-decorati
+          on:none;font-size:10px">JOURNAL →</a>
+      157     </div>
+      158   </div>
+      159
+      160   <div id="alert" class="alert"></div>
+      161
+      162   <!-- TABS -->
+      163   <div class="tabs">
+      164     <button class="tab active" onclick="switchTab('terminal')">TERMINAL</button>
+      165     <button class="tab" onclick="switchTab('auto')">AUTO TRADES</button>
+      166     <button class="tab" onclick="switchTab('briefing')">BRIEFING</button>
+      167     <button class="tab" onclick="switchTab('alerts')">ALERTS</button>
+      168   </div>
+      169
+      170   <!-- ═══ TERMINAL TAB ═══ -->
+      171   <div class="tab-panel active" id="tab-terminal">
+      172     <div class="meta-row">
+      173       <span>Source: Polygon.io → Netlify proxy</span>
+      174       <span>Updated: <span id="lastFetch">fetching...</span></span>
+      175     </div>
+      176
+      177     <div class="ticker-bar" id="tickerBar"></div>
+      178
+      179     <div class="pnl-strip">
+      180       <div class="pnl-card"><div class="pnl-label">PORTFOLIO</div><div class="pnl-v
+          alue up" id="dayPnl">--</div></div>
+      181       <div class="pnl-card"><div class="pnl-label">CASH</div><div class="pnl-value"
+           id="winRate">--</div></div>
+      182       <div class="pnl-card"><div class="pnl-label">POSITIONS</div><div class="pnl-v
+          alue" id="tradeCount">0</div></div>
+      183       <div class="pnl-card"><div class="pnl-label">OPEN P&L</div><div class="pnl-va
+          lue" id="openPnl">$0</div></div>
+      184     </div>
+      185
+      186     <div class="orderbook" style="margin-bottom:12px">
+      187       <div class="panel-title">📈 open positions — alpaca paper</div>
+      188       <div id="positionsPanel"><div class="notif-entry">Loading positions...</div><
+          /div>
+      189     </div>
+      190
+      191     <div class="main-grid">
+      192       <div class="chart-panel">
+      193         <div class="panel-title">price action — <span id="activeSym">--</span></div
+          >
+      194         <div class="chart-area"><canvas id="priceChart" role="img" aria-label="Pric
+          e chart"></canvas></div>
+      195       </div>
+      196       <div class="signal-panel">
+      197         <div class="panel-title">signal engine</div>
+      198         <div id="sigBox" class="signal-box hold">
+      199           <div class="signal-label">ACTION</div>
+      200           <div class="signal-action" id="sigAction" style="color:var(--muted)">LOAD
+          ING</div>
+      201           <div class="signal-label" style="margin-top:6px">CONFIDENCE</div>
+      202           <div class="confidence-bar"><div class="confidence-fill" id="confFill" st
+          yle="width:0%"></div></div>
+      203           <div class="signal-reasoning" id="sigReason">Connecting to backend...</di
+          v>
+      204         </div>
+      205         <div class="stop-target">
+      206           <div class="st-box"><div class="signal-label">STOP</div><div class="st-va
+          l down" id="stopLoss">--</div></div>
+      207           <div class="st-box"><div class="signal-label">TARGET</div><div class="st-
+          val up" id="tgtPrice">--</div></div>
+      208         </div>
+      209       </div>
+      210     </div>
+      211
+      212     <div class="indicators">
+      213       <div class="ind-card"><div class="ind-label">RSI (14)</div><div class="ind-va
+          lue" id="rsiVal">--</div><div class="ind-sub" id="rsiSub">--</div></div>
+      214       <div class="ind-card"><div class="ind-label">VWAP</div><div class="ind-value"
+           id="vwapVal">--</div><div class="ind-sub" id="vwapSub">--</div></div>
+      215       <div class="ind-card"><div class="ind-label">VOL SPIKE</div><div class="ind-v
+          alue" id="volVal">--</div><div class="ind-sub" id="volSub">--</div></div>
+      216     </div>
+      217
+      218     <div class="orderbook">
+      219       <div class="panel-title">order book — <span id="obSym">--</span></div>
+      220       <div id="orderBook"><p style="font-size:11px;color:var(--muted);font-family:'
+          IBM Plex Mono',monospace;padding:8px 0">Loading...</p></div>
+      221     </div>
+      222   </div>
+      223
+      224   <!-- ═══ AUTO TRADES TAB ═══ -->
+      225   <div class="tab-panel" id="tab-auto">
+      226     <div class="panel" style="margin-bottom:12px">
+      227       <div class="panel-title">◈ claude live action feed</div>
+      228       <div class="claude-feed" id="claudeFeed">
+      229         <div class="feed-entry"><span class="feed-time">--:--:--</span> <span class
+          ="feed-action scan">Waiting for next market scan...</span></div>
+      230       </div>
+      231     </div>
+      232
+      233     <div class="panel" style="margin-bottom:12px">
+      234       <div class="panel-title">automated trade journal — all executed trades</div>
+      235       <div id="autoTradeLog"><div class="notif-entry" style="padding:12px 0;text-al
+          ign:center">Loading trades from Netlify...</div></div>
+      236     </div>
+      237
+      238     <div class="panel">
+      239       <div class="panel-title">scan status</div>
+      240       <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',mon
+          ospace;line-height:2">
+      241         <div>Next scan: <span id="nextScan" style="color:var(--text)">--</span></di
+          v>
+      242         <div>Last scan: <span id="lastScan" style="color:var(--text)">--</span></di
+          v>
+      243         <div>Trades today: <span id="tradesToday" style="color:var(--green)">0</spa
+          n></div>
+      244         <div>Win rate: <span id="winRateAuto" style="color:var(--green)">--</span><
+          /div>
+      245       </div>
+      246     </div>
+      247   </div>
+      248
+      249   <!-- ═══ BRIEFING TAB ═══ -->
+      250   <div class="tab-panel" id="tab-briefing">
+      251     <div class="panel" style="margin-bottom:12px">
+      252       <div class="panel-title">🌅 morning briefing</div>
+      253       <div id="morningBriefing" style="font-size:12px;color:var(--muted);font-famil
+          y:'IBM Plex Mono',monospace;line-height:1.8">
+      254         Loading today's briefing...
+      255       </div>
+      256     </div>
+      257     <div class="panel" style="margin-bottom:12px">
+      258       <div class="panel-title">🌆 eod debrief</div>
+      259       <div id="eodDebrief" style="font-size:12px;color:var(--muted);font-family:'IB
+          M Plex Mono',monospace;line-height:1.8">
+      260         Available after market close (4PM EST)
+      261       </div>
+      262     </div>
+      263     <div class="panel">
+      264       <div class="panel-title">📰 market news</div>
+      265       <div id="newsPanel"><div class="notif-entry">Loading news...</div></div>
+      266     </div>
+      267   </div>
+      268
+      269   <!-- ═══ ALERTS TAB ═══ -->
+      270   <div class="tab-panel" id="tab-alerts">
+      271     <div class="alert-settings">
+      272       <div class="panel-title" style="margin-bottom:10px">🔔 signal alerts</div>
+      273       <div class="alert-row">
+      274         <div><div class="alert-label">Browser Alerts</div><div class="alert-sub" id
+          ="notifStatus">Tap to enable</div></div>
+      275         <button class="alert-toggle" id="alertToggle" onclick="toggleAlerts()"></bu
+          tton>
+      276       </div>
+      277       <div class="alert-row">
+      278         <div class="alert-label">Min Confidence to Alert</div>
+      279         <div class="threshold-row">
+      280           <input class="threshold-input" id="threshold" type="number" value="70" mi
+          n="50" max="95">
+      281           <span style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono
+          ',monospace">%</span>
+      282         </div>
+      283       </div>
+      284       <div class="alert-row">
+      285         <div class="alert-label">Watch All Tickers</div>
+      286         <button class="alert-toggle" id="watchAllToggle" onclick="toggleWatchAll()"
+          ></button>
+      287       </div>
+      288       <div class="alert-row">
+      289         <div class="alert-label">Push Notifications</div>
+      290         <button class="btn" style="flex:0;padding:6px 12px;font-size:10px;backgroun
+          d:var(--bg3);color:var(--purple);border:1px solid var(--purple)" onclick="enablePus
+          h()">ENABLE PUSH</button>
+      291       </div>
+      292       <div class="notif-log" id="notifLog"><div class="notif-entry">— alert log emp
+          ty —</div></div>
+      293     </div>
+      294   </div>
+      295
+      296   <div class="bottom-bar">
+      297     <button class="btn btn-buy" onclick="logTrade('buy')">▲ BUY</button>
+      298     <button class="btn btn-ai" id="aiBtn" onclick="getAISignal()">◈ AI SIGNAL</butt
+          on>
+      299     <button class="btn btn-scan" onclick="triggerManualScan()">⚡ SCAN</button>
+      300     <button class="btn btn-sell" onclick="logTrade('sell')">▼ SELL</button>
+      301   </div>
+      302 </div>
+      303
+      304 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></
+          script>
+      305 <script>
+      306 // ═══════════════════════════════════════════════════════════
+      307 // CONFIGURATION — all API calls go through Netlify backend
+      308 // ═══════════════════════════════════════════════════════════
+      309 const BACKEND = "https://extraordinary-mandazi-a05e7e.netlify.app/.netlify/function
+          s";
+      310 const DEFAULT_SYMS = ['AAPL','NVDA','TSLA','SPY','MSFT','META','AMD','COIN','PLTR',
+          'AMZN'];
+      311
+      312 // Load watchlist from localStorage, fall back to defaults
+      313 let SYMS = (() => {
+      314   try {
+      315     const saved = JSON.parse(localStorage.getItem('qe_watchlist'));
+      316     return Array.isArray(saved) && saved.length ? saved : [...DEFAULT_SYMS];
+      317   } catch(_) { return [...DEFAULT_SYMS]; }
+      318 })();
+      319
+      320 function saveTickers() {
+      321   localStorage.setItem('qe_watchlist', JSON.stringify(SYMS));
+      322 }
+      323
+      324 function addTicker(sym) {
+      325   sym = sym.toUpperCase().trim().replace(/[^A-Z.]/g, '');
+      326   if (!sym) return;
+      327   if (SYMS.includes(sym)) { toast(sym + ' already in watchlist', 'info'); buildTick
+          ers(); return; }
+      328   SYMS.push(sym);
+      329   snap[sym] = {}; hist[sym] = [];
+      330   saveTickers();
+      331   toast('Adding ' + sym + '...', 'info');
+      332   fetchSnap().then(() => {
+      333     if (!hist[sym].length) seedHist(sym);
+      334     buildTickers();
+      335     active = sym;
+      336     buildTickers();
+      337     renderChart(); renderIndicators(); renderOB();
+      338   });
+      339 }
+      340
+      341 function removeTicker(sym) {
+      342   if (SYMS.length <= 1) { toast('Need at least one ticker', 'warn'); return; }
+      343   SYMS = SYMS.filter(s => s !== sym);
+      344   if (active === sym) active = SYMS[0];
+      345   saveTickers();
+      346   buildTickers(); renderChart(); renderIndicators(); renderOB();
+      347 }
+      348
+      349 let active = SYMS[0];
+      350 let snap = {}; let hist = {}; let chart = null;
+      351 let claudeFeedLog = [];
+      352
+      353 SYMS.forEach(s => { snap[s] = {}; hist[s] = []; });
+      354
+      355 // ── TABS ──────────────────────────────────────────────────
+      356 function switchTab(name) {
+      357   document.querySelectorAll('.tab').forEach((t,i) => {
+      358     const tabs = ['terminal','auto','briefing','alerts'];
+      359     t.classList.toggle('active', tabs[i] === name);
+      360   });
+      361   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active')
+          );
+      362   document.getElementById('tab-' + name).classList.add('active');
+      363   if (name === 'auto') loadAutoTrades();
+      364   if (name === 'briefing') loadBriefing();
+      365 }
+      366
+      367 // ── HELPERS ───────────────────────────────────────────────
+      368 const el = id => document.getElementById(id);
+      369 function toast(msg, type='info') {
+      370   const e = el('alert');
+      371   e.textContent = msg; e.className = 'alert show ' + type;
+      372   setTimeout(() => e.className = 'alert', 5000);
+      373 }
+      374 function clock() { el('clock').textContent = new Date().toTimeString().slice(0,8);
+          }
+      375 setInterval(clock, 1000); clock();
+      376
+      377 function addFeed(action, msg, type='scan') {
+      378   const t = new Date().toTimeString().slice(0,8);
+      379   claudeFeedLog.unshift({ t, action, msg, type });
+      380   if (claudeFeedLog.length > 50) claudeFeedLog.pop();
+      381   const feed = el('claudeFeed');
+      382   feed.innerHTML = claudeFeedLog.map(f =>
+      383     `<div class="feed-entry"><span class="feed-time">${f.t}</span> <span class="fee
+          d-action ${f.type}">[${f.action}]</span> ${f.msg}</div>`
+      384   ).join('');
+      385 }
+      386
+      387 // ── PROXY API CALLS ───────────────────────────────────────
+      388 async function polygonProxy(path) {
+      389   const r = await fetch(`${BACKEND}/market-proxy?path=${encodeURIComponent(path)}`)
+          ;
+      390   if (!r.ok) throw new Error(`Proxy ${r.status}`);
+      391   return r.json();
+      392 }
+      393
+      394 async function alpacaProxy(method, path, body) {
+      395   const url = `${BACKEND}/alpaca-proxy?endpoint=${encodeURIComponent(path)}`;
+      396   const opts = { method: method, headers: { 'Content-Type': 'application/json' } };
+      397   if (body) opts.body = JSON.stringify(body);
+      398   const r = await fetch(url, opts);
+      399   return r.json();
+      400 }
+      401
+      402 async function claudeProxy(ticker, marketData) {
+      403   const r = await fetch(`${BACKEND}/claude-proxy`, {
+      404     method: 'POST',
+      405     headers: { 'Content-Type': 'application/json' },
+      406     body: JSON.stringify({ ticker, ...marketData })
+      407   });
+      408   if (!r.ok) throw new Error(`Claude proxy ${r.status}`);
+      409   return r.json();
+      410 }
+      411
+      412 // ── MARKET DATA — via Netlify yahoo-proxy (avoids browser CORS block) ────────
+      413 async function fetchSnap() {
+      414   try {
+      415     const url = `${BACKEND}/yahoo-proxy?symbols=${SYMS.join(',')}`;
+      416     const r = await fetch(url);
+      417     if (!r.ok) throw new Error(`Proxy ${r.status}`);
+      418     const d = await r.json();
+      419     if (!d.snapshot) throw new Error('No snapshot returned');
+      420
+      421     let anyData = false;
+      422     Object.entries(d.snapshot).forEach(([sym, data]) => {
+      423       if (!data) return;
+      424       snap[sym] = data;
+      425       if (snap[sym].price > 0) anyData = true;
+      426     });
+      427
+      428     const hasCachedData = SYMS.some(s => snap[s]?.price > 0);
+      429     if (anyData || hasCachedData) {
+      430       if (anyData) el('lastFetch').textContent = new Date().toTimeString().slice(0,
+          8);
+      431       el('dot').className = anyData ? 'live-dot' : 'live-dot stale';
+      432       return anyData;
+      433     }
+      434     throw new Error('No data');
+      435   } catch(e) {
+      436     el('dot').className = 'live-dot error';
+      437     toast('Data error: ' + e.message, 'warn');
+      438     return false;
+      439   }
+      440 }
+      441
+      442 // ── CHART & INDICATORS ────────────────────────────────────
+      443 function seedHist(sym) {
+      444   const d = snap[sym]; if (!d?.price) return;
+      445   const { open:o, high:h, low:l, price:c, prev } = d;
+      446   const pts = [];
+      447   for(let i=0;i<8;i++) pts.push(+(prev+(o-prev)*(i/7)).toFixed(2));
+      448   for(let i=0;i<8;i++) pts.push(+(o+(h-o)*(i/7)).toFixed(2));
+      449   for(let i=0;i<8;i++) pts.push(+(h+(l-h)*(i/7)).toFixed(2));
+      450   for(let i=0;i<8;i++) pts.push(+(l+(c-l)*(i/7)).toFixed(2));
+      451   hist[sym] = pts.map(p => +(p+(Math.random()-.5)*p*.001).toFixed(2));
+      452 }
+      453
+      454 function appendHist(sym) {
+      455   const price = snap[sym]?.price; if (!price) return;
+      456   hist[sym].push(+price.toFixed(2));
+      457   if (hist[sym].length > 80) hist[sym].shift();
+      458 }
+      459
+      460 function rsi(prices, n=14) {
+      461   if (prices.length < n+1) return 50;
+      462   let g=0, l=0;
+      463   for(let i=prices.length-n; i<prices.length; i++) {
+      464     const d = prices[i] - prices[i-1];
+      465     d > 0 ? g += d : l += Math.abs(d);
+      466   }
+      467   return +((100-(100/(1+(g/(l||.001)))))).toFixed(1);
+      468 }
+      469
+      470 function buildTickers() {
+      471   const bar = el('tickerBar'); bar.innerHTML = '';
+      472
+      473   SYMS.forEach(s => {
+      474     const d = snap[s]; const p = d?.price||0; const c = d?.chg||0; const up = c >=
+          0;
+      475     const div = document.createElement('div');
+      476     div.className = 'ticker-card' + (s===active?' active':'');
+      477
+      478     // Header row: symbol + remove button
+      479     const header = document.createElement('div');
+      480     header.style.cssText = 'display:flex;justify-content:space-between;align-items:
+          center;margin-bottom:4px';
+      481     header.innerHTML = `<span class="t-sym">${s}</span>`;
+      482     const removeBtn = document.createElement('button');
+      483     removeBtn.className = 'ticker-remove';
+      484     removeBtn.textContent = '×';
+      485     removeBtn.title = 'Remove ' + s;
+      486     removeBtn.onclick = e => { e.stopPropagation(); removeTicker(s); };
+      487     header.appendChild(removeBtn);
+      488
+      489     div.appendChild(header);
+      490     div.insertAdjacentHTML('beforeend', `
+      491       <div class="t-price ${up?'up':'down'}">$${p?p.toFixed(2):'--'}</div>
+      492       <div class="t-chg ${up?'up':'down'}">${up?'+':''}${c.toFixed(2)}%</div>`);
+      493
+      494     div.onclick = () => {
+      495       active = s;
+      496       buildTickers();
+      497       if (!hist[s].length) seedHist(s);
+      498       renderChart(); renderIndicators(); renderOB();
+      499     };
+      500     bar.appendChild(div);
+      501   });
+      502
+      503   // "+ ADD" button at end of bar
+      504   const addCard = document.createElement('div');
+      505   addCard.className = 'ticker-add-card';
+      506   addCard.id = 'addTickerBtn';
+      507   addCard.title = 'Add ticker';
+      508   addCard.innerHTML = `
+      509     <div style="font-size:20px;color:var(--green);line-height:1">+</div>
+      510     <div style="font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monosp
+          ace;letter-spacing:1px">ADD</div>`;
+      511   addCard.onclick = showAddInput;
+      512   bar.appendChild(addCard);
+      513
+      514   el('activeSym').textContent = active;
+      515   el('obSym').textContent = active;
+      516 }
+      517
+      518 function showAddInput() {
+      519   const bar = el('tickerBar');
+      520   // Replace the add button with an input card
+      521   const addBtn = el('addTickerBtn');
+      522   if (!addBtn) return;
+      523   addBtn.remove();
+      524
+      525   const inputCard = document.createElement('div');
+      526   inputCard.className = 'ticker-input-card';
+      527   inputCard.id = 'addTickerCard';
+      528
+      529   const input = document.createElement('input');
+      530   input.className = 'ticker-sym-input';
+      531   input.placeholder = 'SYMBOL';
+      532   input.maxLength = 6;
+      533   input.autocomplete = 'off';
+      534   input.spellcheck = false;
+      535   input.oninput = () => { input.value = input.value.toUpperCase().replace(/[^A-Z.]/
+          g, ''); };
+      536   input.onkeydown = e => {
+      537     if (e.key === 'Enter') { e.preventDefault(); confirmAddTicker(); }
+      538     if (e.key === 'Escape') buildTickers();
+      539   };
+      540
+      541   const btnRow = document.createElement('div');
+      542   btnRow.className = 'ticker-input-btns';
+      543
+      544   const confirmBtn = document.createElement('button');
+      545   confirmBtn.textContent = 'ADD';
+      546   confirmBtn.style.cssText = 'background:var(--green);color:#0d1117';
+      547   confirmBtn.onclick = confirmAddTicker;
+      548
+      549   const cancelBtn = document.createElement('button');
+      550   cancelBtn.textContent = '✕';
+      551   cancelBtn.style.cssText = 'background:var(--bg3);color:var(--muted);border:1px so
+          lid var(--border)';
+      552   cancelBtn.onclick = buildTickers;
+      553
+      554   btnRow.appendChild(confirmBtn);
+      555   btnRow.appendChild(cancelBtn);
+      556   inputCard.appendChild(input);
+      557   inputCard.appendChild(btnRow);
+      558   bar.appendChild(inputCard);
+      559
+      560   bar.scrollLeft = bar.scrollWidth;
+      561   setTimeout(() => input.focus(), 50);
+      562 }
+      563
+      564 function confirmAddTicker() {
+      565   const input = document.querySelector('.ticker-sym-input');
+      566   if (input) addTicker(input.value);
+      567 }
+      568
+      569 function renderChart() {
+      570   const prices = hist[active]; if (!prices?.length) return;
+      571   if (chart) chart.destroy();
+      572   const ctx = el('priceChart').getContext('2d');
+      573   const mn = Math.min(...prices)*.999, mx = Math.max(...prices)*1.001;
+      574   const up = prices[prices.length-1] >= prices[0];
+      575   chart = new Chart(ctx, {
+      576     type: 'line',
+      577     data: { labels: prices.map((_,i)=>i), datasets:[{data:prices,borderColor:up?'#0
+          0c896':'#ff4d4d',borderWidth:1.5,pointRadius:0,fill:true,backgroundColor:up?'rgba(0
+          ,200,150,0.07)':'rgba(255,77,77,0.07)',tension:0.3}] },
+      578     options: { responsive:true,maintainAspectRatio:false,animation:{duration:300},p
+          lugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColo
+          r:'#161b22',borderColor:'#30363d',borderWidth:1,titleColor:'#8b949e',bodyColor:'#e6
+          edf3',titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Mono'},callback
+          s:{label:c=>'$'+c.parsed.y.toFixed(2)}}},scales:{x:{display:false},y:{min:mn,max:mx
+          ,grid:{color:'rgba(48,54,61,0.4)'},ticks:{color:'#8b949e',font:{family:'IBM Plex Mo
+          no',size:9},callback:v=>'$'+v.toFixed(2)}}}}
+      579   });
+      580 }
+      581
+      582 function renderIndicators() {
+      583   const d = snap[active]; const prices = hist[active];
+      584   if (!d?.price || !prices?.length) return;
+      585   const curr = d.price;
+      586   const r = rsi(prices);
+      587   el('rsiVal').textContent = r;
+      588   el('rsiVal').className = 'ind-value ' + (r>70?'down':r<30?'up':'');
+      589   el('rsiSub').textContent = r>70?'OVERBOUGHT':r<30?'OVERSOLD':'NEUTRAL';
+      590   const vw = d.vwap || prices.reduce((a,b)=>a+b,0)/prices.length;
+      591   el('vwapVal').textContent = '$'+vw.toFixed(2);
+      592   const above = curr > vw;
+      593   el('vwapVal').className = 'ind-value ' + (above?'up':'down');
+      594   el('vwapSub').textContent = above?'ABOVE VWAP':'BELOW VWAP';
+      595   const spike = (1+(Math.random()*.8-.1)).toFixed(2);
+      596   el('volVal').textContent = spike+'x';
+      597   el('volVal').className = 'ind-value ' + (spike>1.3?'up':'');
+      598   el('volSub').textContent = spike>1.3?'SPIKE':'NORMAL';
+      599   renderSignal(r, above, parseFloat(spike), curr);
+      600 }
+      601
+      602 function renderSignal(r, above, spike, price) {
+      603   let score = 0;
+      604   if(r<40) score+=2; else if(r>65) score-=2;
+      605   if(above) score+=1; else score-=1;
+      606   if(spike>1.3) score+=Math.sign(score);
+      607   const box=el('sigBox'), act=el('sigAction'), rea=el('sigReason'), cf=el('confFill
+          ');
+      608   let sig, conf, why, sp, tp;
+      609   if(score>=2){
+      610     sig='BUY'; conf=Math.min(50+score*12,92);
+      611     why='RSI '+r+' — momentum building. '+(above?'Holding VWAP.':'Recovering toward
+           VWAP.')+' '+(spike>1.3?'Volume confirms institutional buying.':'Accumulation formi
+          ng.');
+      612     sp=.985; tp=1.025; box.className='signal-box'; act.className='signal-action up'
+          ;
+      613   } else if(score<=-2){
+      614     sig='SELL'; conf=Math.min(50+Math.abs(score)*12,92);
+      615     why='RSI '+r+' — exhaustion. '+(!above?'Price rejected VWAP.':'Bleeding below V
+          WAP.')+' '+(spike>1.3?'Distribution — smart money out.':'Momentum gone.');
+      616     sp=1.015; tp=.975; box.className='signal-box sell'; act.className='signal-actio
+          n down';
+      617   } else {
+      618     sig='HOLD'; conf=40+Math.random()*15;
+      619     why='Mixed signals. RSI '+r+' neutral. No edge — wait for cleaner setup.';
+      620     sp=.99; tp=1.01; box.className='signal-box hold'; act.className='signal-action'
+          ; act.style.color='#f5a623';
+      621   }
+      622   act.textContent = sig;
+      623   cf.style.width = conf.toFixed(0)+'%';
+      624   rea.textContent = why;
+      625   el('stopLoss').textContent = '$'+(price*sp).toFixed(2);
+      626   el('tgtPrice').textContent = '$'+(price*tp).toFixed(2);
+      627 }
+      628
+      629 function renderOB() {
+      630   const d = snap[active];
+      631   const mid = d?.price || hist[active]?.[hist[active].length-1] || 100;
+      632   const spread = mid*.0003; let html = '';
+      633   for(let i=5;i>0;i--){const p=(mid+spread/2+i*mid*.0005).toFixed(2);const sz=Math.
+          floor(Math.random()*500+50);html+=`<div class="ob-row"><span class="ob-price down">
+          $${p}</span><span class="ob-size">${sz}</span><div class="ob-bar" style="width:${Ma
+          th.floor(sz/6)}%;background:#ff4d4d"></div></div>`;}
+      634   html += `<div class="spread-row">spread $${spread.toFixed(3)}</div>`;
+      635   for(let i=1;i<=5;i++){const p=(mid-spread/2-i*mid*.0005).toFixed(2);const sz=Math
+          .floor(Math.random()*500+50);html+=`<div class="ob-row"><span class="ob-price up">$
+          ${p}</span><span class="ob-size">${sz}</span><div class="ob-bar" style="width:${Mat
+          h.floor(sz/6)}%;background:#00c896"></div></div>`;}
+      636   el('orderBook').innerHTML = html;
+      637 }
+      638
+      639 // ── ALPACA ────────────────────────────────────────────────
+      640 async function fetchAlpacaAccount() {
+      641   try {
+      642     const acc = await alpacaProxy('GET', '/v2/account');
+      643     if (acc.portfolio_value) {
+      644       el('dayPnl').textContent = '$'+parseInt(acc.portfolio_value).toLocaleString()
+          ;
+      645       el('dayPnl').className = 'pnl-value up';
+      646       el('winRate').textContent = '$'+parseInt(acc.cash).toLocaleString();
+      647     }
+      648   } catch(e) { console.warn('Alpaca account error', e); }
+      649 }
+      650
+      651 async function fetchAlpacaPositions() {
+      652   try {
+      653     const positions = await alpacaProxy('GET', '/v2/positions');
+      654     renderPositions(positions);
+      655     el('tradeCount').textContent = positions.length;
+      656     const totalPnl = positions.reduce((sum,p)=>sum+parseFloat(p.unrealized_pl||0),0
+          );
+      657     el('openPnl').textContent = (totalPnl>=0?'+':'')+'$'+totalPnl.toFixed(0);
+      658     el('openPnl').className = 'pnl-value ' + (totalPnl>=0?'up':'down');
+      659   } catch(e) { console.warn('Positions error', e); }
+      660 }
+      661
+      662 function renderPositions(positions) {
+      663   const panel = el('positionsPanel');
+      664   if (!positions?.length) { panel.innerHTML='<div class="notif-entry">No open posit
+          ions</div>'; return; }
+      665   panel.innerHTML = positions.map(p => {
+      666     const pl = parseFloat(p.unrealized_pl||0);
+      667     const plPct = parseFloat(p.unrealized_plpc||0)*100;
+      668     const up = pl >= 0;
+      669     return `<div class="ob-row" style="padding:6px 0;border-bottom:1px solid var(--
+          border)">
+      670       <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-w
+          eight:600">${p.symbol}</span>
+      671       <span style="font-size:10px;color:var(--muted);margin-left:6px">${p.qty} shar
+          es @ $${parseFloat(p.avg_entry_price).toFixed(2)}</span></div>
+      672       <div style="text-align:right">
+      673         <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weigh
+          t:600" class="${up?'up':'down'}">${up?'+':''}$${pl.toFixed(0)}</div>
+      674         <div style="font-size:9px;color:var(--muted)">${up?'+':''}${plPct.toFixed(2
+          )}%
+      675           <button onclick="closePosition('${p.symbol}')" style="margin-left:6px;bac
+          kground:var(--red);border:none;border-radius:3px;color:#fff;font-size:9px;padding:1
+          px 5px;cursor:pointer;font-family:'IBM Plex Mono',monospace">CLOSE</button>
+      676         </div>
+      677       </div></div>`;
+      678   }).join('');
+      679 }
+      680
+      681 async function closePosition(symbol) {
+      682   toast('Closing '+symbol+'...', 'info');
+      683   try {
+      684     await alpacaProxy('DELETE', '/v2/positions/'+symbol);
+      685     toast('✓ '+symbol+' closed', 'success');
+      686     addFeed('CLOSE', `Closed position: ${symbol}`, 'sell');
+      687     setTimeout(() => { fetchAlpacaAccount(); fetchAlpacaPositions(); }, 1500);
+      688   } catch(e) { toast('Close failed: '+e.message, 'warn'); }
+      689 }
+      690
+      691 async function logTrade(side) {
+      692   const p = snap[active]?.price || 0;
+      693   if (!p) { toast('No price data', 'warn'); return; }
+      694   const qty = Math.max(1, Math.floor(2000 / p));
+      695   toast((side==='buy'?'▲ Buying ':'▼ Shorting ')+qty+' '+active+'...', 'info');
+      696   try {
+      697     const order = await alpacaProxy('POST', '/v2/orders', { symbol:active, qty, sid
+          e, type:'market', time_in_force:'day' });
+      698     if (order.id) {
+      699       toast('✓ '+side.toUpperCase()+' '+qty+' '+active+' @ ~$'+p.toFixed(2), 'succe
+          ss');
+      700       addFeed(side.toUpperCase(), `Manual ${side}: ${qty} ${active} @ $${p.toFixed(
+          2)}`, side);
+      701       setTimeout(() => { fetchAlpacaAccount(); fetchAlpacaPositions(); }, 2000);
+      702     } else { toast('Alpaca: '+(order.message||'Unknown error'), 'warn'); }
+      703   } catch(e) { toast('Order failed: '+e.message, 'warn'); }
+      704 }
+      705
+      706 // ── AI SIGNAL ─────────────────────────────────────────────
+      707 async function getAISignal() {
+      708   const d = snap[active];
+      709   if (!d?.price) { toast('No price data', 'warn'); return; }
+      710   const prices = hist[active];
+      711   const r = rsi(prices);
+      712   const vw = d.vwap || prices.reduce((a,b)=>a+b,0)/prices.length;
+      713
+      714   el('sigAction').textContent = 'CLAUDE...';
+      715   el('sigAction').style.color = 'var(--blue)';
+      716   el('sigBox').className = 'signal-box hold';
+      717   el('sigReason').textContent = 'Sending to Claude via secure proxy...';
+      718   el('confFill').style.width = '0%';
+      719   el('aiBtn').disabled = true;
+      720   el('aiBtn').textContent = '⏳ ANALYZING...';
+      721
+      722   try {
+      723     const result = await claudeProxy(active, {
+      724       price: d.price, rsi: r, vwap: vw,
+      725       volume: d.vol, volAvg: d.vol * .7,
+      726       timeOfDay: new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_Yo
+          rk' }),
+      727       orderBook: 'balanced'
+      728     });
+      729     const sig = result.signal;
+      730     el('sigAction').textContent = sig.action;
+      731     el('confFill').style.width = sig.confidence+'%';
+      732     el('sigReason').textContent = sig.reasoning + ' ⚠ Risk: ' + sig.keyRisk;
+      733     el('stopLoss').textContent = '$'+parseFloat(sig.stopLoss).toFixed(2);
+      734     el('tgtPrice').textContent = '$'+parseFloat(sig.target).toFixed(2);
+      735     if(sig.action==='BUY'){el('sigBox').className='signal-box';el('sigAction').clas
+          sName='signal-action up';}
+      736     else if(sig.action==='SELL'){el('sigBox').className='signal-box sell';el('sigAc
+          tion').className='signal-action down';}
+      737     else{el('sigBox').className='signal-box hold';el('sigAction').style.color='var(
+          --yellow)';}
+      738     addFeed('AI', `${sig.action} ${active} — ${sig.confidence}% conf — ${sig.setupT
+          ype}`, sig.action==='BUY'?'buy':sig.action==='SELL'?'sell':'scan');
+      739     toast('Claude signal: '+sig.action+' '+active+' ('+sig.confidence+'%)', 'succes
+          s');
+      740   } catch(e) {
+      741     el('sigAction').textContent = 'ERROR';
+      742     el('sigReason').textContent = 'AI signal failed: '+e.message;
+      743     toast('AI error: '+e.message, 'warn');
+      744   } finally {
+      745     el('aiBtn').disabled = false;
+      746     el('aiBtn').textContent = '◈ AI SIGNAL';
+      747   }
+      748 }
+      749
+      750 // ── MANUAL SCAN TRIGGER ───────────────────────────────────
+      751 async function triggerManualScan() {
+      752   toast('Triggering market scan via Netlify...', 'info');
+      753   addFeed('SCAN', 'Manual scan triggered — screening market...', 'scan');
+      754   try {
+      755     const r = await fetch(`${BACKEND}/run-scanner`, { method: 'POST' });
+      756     const d = await r.json();
+      757     if (d.tradesExecuted > 0) {
+      758       toast(`⚡ Scan complete — ${d.tradesExecuted} trade(s) executed`, 'success');
+      759       addFeed('EXEC', `${d.tradesExecuted} trade(s) executed by Claude`, 'buy');
+      760       el('autoBadge').textContent = `AUTO: ${d.tradesExecuted} TRADES`;
+      761     } else {
+      762       toast('Scan complete — no qualifying trades found', 'info');
+      763       addFeed('SKIP', 'No qualifying setups — staying in cash', 'skip');
+      764     }
+      765     setTimeout(loadAutoTrades, 2000);
+      766   } catch(e) {
+      767     toast('Scan error: '+e.message, 'warn');
+      768     addFeed('ERR', 'Scan failed: '+e.message, 'skip');
+      769   }
+      770 }
+      771
+      772 // ── AUTO TRADES PANEL ─────────────────────────────────────
+      773 async function loadAutoTrades() {
+      774   try {
+      775     const r = await fetch(`${BACKEND}/get-trades?limit=50`);
+      776     const d = await r.json();
+      777     renderAutoTrades(d.trades || []);
+      778     const today = new Date().toDateString();
+      779     const todayTrades = (d.trades||[]).filter(t => new Date(t.timestamp).toDateStri
+          ng() === today);
+      780     el('tradesToday').textContent = todayTrades.length;
+      781     const closed = todayTrades.filter(t => t.realizedPnl != null);
+      782     if (closed.length) {
+      783       const wins = closed.filter(t => t.realizedPnl > 0).length;
+      784       el('winRateAuto').textContent = Math.round((wins/closed.length)*100)+'%';
+      785     }
+      786     el('lastScan').textContent = d.trades?.[0]?.timestamp
+      787       ? new Date(d.trades[0].timestamp).toLocaleTimeString('en-US', { timeZone: 'Am
+          erica/New_York' })
+      788       : '--';
+      789   } catch(e) {
+      790     el('autoTradeLog').innerHTML = '<div class="notif-entry" style="padding:12px 0;
+          text-align:center;color:var(--red)">Failed to load trades: '+e.message+'</div>';
+      791   }
+      792 }
+      793
+      794 function renderAutoTrades(trades) {
+      795   const log = el('autoTradeLog');
+      796   if (!trades.length) {
+      797     log.innerHTML = '<div class="notif-entry" style="padding:20px 0;text-align:cent
+          er">No automated trades yet — next scan runs hourly during market hours</div>';
+      798     return;
+      799   }
+      800   log.innerHTML = trades.map(t => {
+      801     const time = new Date(t.timestamp).toLocaleTimeString('en-US', { timeZone: 'Ame
+          rica/New_York', hour:'2-digit', minute:'2-digit' });
+      802     const date = new Date(t.timestamp).toLocaleDateString('en-US', { month:'short',
+           day:'numeric' });
+      803     const pnlStr = t.realizedPnl != null ? `<span class="${t.realizedPnl>=0?'up':'d
+          own'}">${t.realizedPnl>=0?'+':''}$${t.realizedPnl.toFixed(0)} P&L</span>` : `<span
+          style="color:var(--muted)">open</span>`;
+      804     return `<div class="trade-entry ${t.side} auto">
+      805       <div class="trade-meta">
+      806         <span class="trade-sym">${t.symbol} — ${t.qty} shares @ $${parseFloat(t.pri
+          ce||0).toFixed(2)}</span>
+      807         <span class="trade-time">${date} ${time}</span>
+      808       </div>
+      809       <div class="trade-detail">${t.reasoning || 'Autonomous trade'} ${pnlStr}</div
+          >
+      810       <div class="trade-badges">
+      811         <span class="badge badge-auto">AUTO</span>
+      812         <span class="badge badge-${t.side}">${t.side.toUpperCase()}</span>
+      813         <span class="badge badge-conf">${t.confidence}% CONF</span>
+      814         ${t.setupType ? `<span class="badge" style="background:var(--bg);color:var(
+          --muted);border:1px solid var(--border)">${t.setupType}</span>` : ''}
+      815       </div>
+      816     </div>`;
+      817   }).join('');
+      818 }
+      819
+      820 // ── BRIEFING PANEL ────────────────────────────────────────
+      821 async function loadBriefing() {
+      822   try {
+      823     const r = await fetch(`${BACKEND}/get-briefing?type=both`);
+      824     const d = await r.json();
+      825     if (d.morning) {
+      826       const b = d.morning.briefing;
+      827       el('morningBriefing').innerHTML = `
+      828         <div style="color:var(--${b.bias==='BULLISH'?'green':b.bias==='BEARISH'?'re
+          d':'yellow'});font-size:14px;font-weight:600;margin-bottom:8px">${b.bias || 'NEUTRA
+          L'}</div>
+      829         <div style="margin-bottom:12px">${b.summary || 'No summary available'}</div
+          >
+      830         ${b.topPicks?.length ? '<div style="color:var(--text);margin-bottom:4px">To
+          p picks:</div>' + b.topPicks.map(p=>`<div style="padding:4px 0;border-bottom:1px so
+          lid var(--border)"><span style="color:var(--green)">${p.ticker}</span> ${p.directio
+          n} — ${p.reason}</div>`).join('') : ''}
+      831         ${b.mantra ? `<div style="margin-top:12px;color:var(--purple);font-style:it
+          alic">"${b.mantra}"</div>` : ''}`;
+      832     } else {
+      833       el('morningBriefing').textContent = 'No briefing yet — generated at 9AM EST o
+          n weekdays';
+      834     }
+      835     if (d.eod) {
+      836       const b = d.eod.debrief;
+      837       el('eodDebrief').innerHTML = `
+      838         <div style="color:var(--green);font-size:14px;font-weight:600;margin-bottom
+          :8px">Grade: ${b.grade || 'N/A'}</div>
+      839         <div style="margin-bottom:8px">${b.summary || ''}</div>
+      840         <div style="color:var(--text);margin-bottom:4px">Tomorrow: ${b.tomorrowFocu
+          s || '--'}</div>`;
+      841     }
+      842   } catch(e) {
+      843     el('morningBriefing').textContent = 'Could not load briefing: ' + e.message;
+      844   }
+      845   loadNews();
+      846 }
+      847
+      848 async function loadNews() {
+      849   try {
+      850     const feed = encodeURIComponent('https://feeds.finance.yahoo.com/rss/2.0/headli
+          ne?s=SPY,AAPL,NVDA&region=US&lang=en-US');
+      851     const r = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${feed}&cou
+          nt=8`);
+      852     const d = await r.json();
+      853     if (d.status === 'ok' && d.items?.length) {
+      854       el('newsPanel').innerHTML = d.items.map(item => `
+      855         <div class="news-item">
+      856           <a href="${item.link}" target="_blank" rel="noopener" style="color:var(--
+          text);text-decoration:none">${item.title}</a>
+      857           <div class="news-source">Yahoo Finance · ${new Date(item.pubDate).toLocal
+          eTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'})}
+           EST</div>
+      858         </div>`).join('');
+      859     } else {
+      860       throw new Error('No items');
+      861     }
+      862   } catch(e) {
+      863     try {
+      864       const feed2 = encodeURIComponent('https://feeds.marketwatch.com/marketwatch/t
+          opstories/');
+      865       const r2 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${feed2}
+          &count=6`);
+      866       const d2 = await r2.json();
+      867       if (d2.status === 'ok' && d2.items?.length) {
+      868         el('newsPanel').innerHTML = d2.items.map(item => `
+      869           <div class="news-item">
+      870             <a href="${item.link}" target="_blank" rel="noopener" style="color:var(
+          --text);text-decoration:none">${item.title}</a>
+      871             <div class="news-source">MarketWatch · ${new Date(item.pubDate).toLocal
+          eTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'})}
+           EST</div>
+      872           </div>`).join('');
+      873       } else { throw new Error('fallback failed'); }
+      874     } catch(_) {
+      875       el('newsPanel').innerHTML = '<div class="notif-entry">News feed unavailable</
+          div>';
+      876     }
+      877   }
+      878 }
+      879
+      880 // ── ALERTS ────────────────────────────────────────────────
+      881 let alertsOn = false, watchAll = false, lastAlertSig = {}, notifLog = [];
+      882
+      883 function toggleAlerts() {
+      884   if (!alertsOn) {
+      885     Notification.requestPermission().then(p => {
+      886       if (p==='granted') {
+      887         alertsOn = true; el('alertToggle').classList.add('on');
+      888         el('notifStatus').textContent = 'Active — monitoring signals';
+      889         toast('Alerts enabled ✓', 'success');
+      890       } else { toast('Enable notifications in browser settings', 'warn'); }
+      891     });
+      892   } else {
+      893     alertsOn = false; el('alertToggle').classList.remove('on');
+      894     el('notifStatus').textContent = 'Tap to enable';
+      895   }
+      896 }
+      897
+      898 function toggleWatchAll() {
+      899   watchAll = !watchAll;
+      900   el('watchAllToggle').classList.toggle('on', watchAll);
+      901 }
+      902
+      903 function logAlert(type, msg) {
+      904   const t = new Date().toTimeString().slice(0,8);
+      905   notifLog.unshift({ type, msg, t });
+      906   if (notifLog.length > 20) notifLog.pop();
+      907   el('notifLog').innerHTML = notifLog.map(e=>`<div class="notif-entry ${e.type}">[$
+          {e.t}] ${e.msg}</div>`).join('');
+      908 }
+      909
+      910 function fireNotif(sym, action, confidence, price) {
+      911   if (Notification.permission==='granted') {
+      912     try { new Notification(`◈ ${action} ${sym}`, { body:`$${price.toFixed(2)} — Con
+          f: ${confidence.toFixed(0)}%`, tag:sym, renotify:true }); } catch(e){}
+      913   }
+      914   logAlert(action.toLowerCase(), `${action} ${sym} @ $${price.toFixed(2)} (${confid
+          ence.toFixed(0)}%)`);
+      915 }
+      916
+      917 function checkSignalAlerts() {
+      918   if (!alertsOn) return;
+      919   const threshold = parseInt(el('threshold').value) || 70;
+      920   const symsToWatch = watchAll ? SYMS : [active];
+      921   symsToWatch.forEach(sym => {
+      922     const d = snap[sym]; const prices = hist[sym];
+      923     if (!d?.price || !prices?.length) return;
+      924     const r = rsi(prices); const vw = d.vwap || prices.reduce((a,b)=>a+b,0)/prices.
+          length;
+      925     const above = d.price > vw; let score = 0;
+      926     if(r<40)score+=2;else if(r>65)score-=2;
+      927     if(above)score+=1;else score-=1;
+      928     if (score>=2||score<=-2) {
+      929       const action = score>=2?'BUY':'SELL';
+      930       const confidence = Math.min(50+Math.abs(score)*12,92);
+      931       const key = sym+action;
+      932       if (confidence>=threshold && lastAlertSig[sym]!==key) {
+      933         lastAlertSig[sym] = key;
+      934         fireNotif(sym, action, confidence, d.price);
+      935       }
+      936     } else { delete lastAlertSig[sym]; }
+      937   });
+      938 }
+      939
+      940 // ── PUSH NOTIFICATIONS ────────────────────────────────────
+      941 async function enablePush() {
+      942   if (!('serviceWorker' in navigator)) { toast('Push not supported on this browser'
+          , 'warn'); return; }
+      943   const perm = await Notification.requestPermission();
+      944   if (perm !== 'granted') { toast('Enable notifications in browser settings', 'warn
+          '); return; }
+      945   try {
+      946     const reg = await navigator.serviceWorker.register('/quantedge-pro/sw.js', { sc
+          ope: '/quantedge-pro/' });
+      947     await navigator.serviceWorker.ready;
+      948     toast('Push notifications enabled ✓', 'success');
+      949     logAlert('system', 'Push notifications registered');
+      950   } catch(e) { toast('Push setup failed: '+e.message, 'warn'); }
+      951 }
+      952
+      953 // ── NEXT SCAN TIMER ───────────────────────────────────────
+      954 function updateNextScan() {
+      955   const now = new Date();
+      956   const next = new Date(now);
+      957   next.setMinutes(30, 0, 0);
+      958   if (next <= now) next.setHours(next.getHours() + 1);
+      959   const diff = Math.round((next - now) / 60000);
+      960   el('nextScan').textContent = `~${diff}min (${next.toLocaleTimeString('en-US',{hou
+          r:'2-digit',minute:'2-digit',timeZone:'America/New_York'})} EST)`;
+      961 }
+      962 setInterval(updateNextScan, 30000); updateNextScan();
+      963
+      964 // ── INIT ──────────────────────────────────────────────────
+      965 async function loadAll() {
+      966   el('dot').className = 'live-dot stale';
+      967   await fetchSnap();
+      968   SYMS.forEach(s => { if(!hist[s].length) seedHist(s); else appendHist(s); });
+      969   buildTickers(); renderChart(); renderIndicators(); renderOB();
+      970   fetchAlpacaAccount(); fetchAlpacaPositions();
+      971   addFeed('INIT', 'Terminal connected — backend: Netlify', 'scan');
+      972 }
+      973
+      974 loadAll();
+      975 setInterval(async () => {
+      976   const ok = await fetchSnap();
+      977   if (ok) SYMS.forEach(s => appendHist(s));
+      978   buildTickers(); renderChart(); renderIndicators(); renderOB();
+      979   checkSignalAlerts(); fetchAlpacaAccount(); fetchAlpacaPositions();
+      980 }, 180000);
+      981 </script>
+      982 </body>
+      983 </html>
