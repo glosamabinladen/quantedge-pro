@@ -25,10 +25,20 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
 .status{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:8px}
 .data-badge{font-size:9px;background:var(--bg3);border:1px solid var(--yellow);border-radius:4px;padding:2px 5px;color:var(--yellow)}
 .auto-badge{font-size:9px;background:#0d2a1a;border:1px solid var(--green);border-radius:4px;padding:2px 5px;color:var(--green);animation:pulse 2s infinite}
+.auto-badge.off{background:var(--bg3);border-color:var(--border);color:var(--muted);animation:none}
+.auto-badge.grad{background:#1a1a0d;border-color:var(--yellow);color:var(--yellow);animation:none}
+/* PHASE PANEL */
+.phase-panel{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;font-size:10px}
+.phase-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.phase-bar-track{background:var(--border);border-radius:3px;height:5px}
+.phase-bar-fill{height:5px;border-radius:3px;background:var(--green);transition:width 0.8s}
+.phase-meta{display:flex;justify-content:space-between;margin-top:5px;font-size:9px;color:var(--muted)}
+/* TABS */
 .tabs{display:flex;gap:4px;margin-bottom:14px;background:var(--bg2);padding:4px;border-radius:10px;border:1px solid var(--border)}
 .tab{flex:1;padding:8px 4px;background:none;border:none;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;border-radius:7px;letter-spacing:.5px;transition:all 0.2s}
 .tab.active{background:var(--bg3);color:var(--green);border:1px solid var(--border)}
 .tab-panel{display:none}.tab-panel.active{display:block}
+/* TICKER BAR */
 .ticker-bar{display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .ticker-bar::-webkit-scrollbar{display:none}
 .ticker-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-width:110px;cursor:pointer;transition:border-color 0.2s;flex-shrink:0}
@@ -38,10 +48,12 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
 .t-price{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;margin:4px 0}
 .t-chg{font-size:10px;font-family:'IBM Plex Mono',monospace}
 .up{color:var(--green)}.down{color:var(--red)}
+/* GRIDS */
 .main-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
 @media(min-width:700px){.main-grid{grid-template-columns:1fr 250px}}
 .chart-panel,.signal-panel,.orderbook,.panel{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px}
 .panel-title{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase}
+/* SIGNAL */
 .signal-box{background:var(--bg3);border-radius:6px;padding:10px;margin-bottom:8px;border-left:3px solid var(--green)}
 .signal-box.sell{border-left-color:var(--red)}.signal-box.hold{border-left-color:var(--yellow)}
 .signal-label{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px}
@@ -49,21 +61,25 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
 .confidence-bar{background:var(--border);border-radius:4px;height:4px;margin-top:6px}
 .confidence-fill{height:4px;border-radius:4px;background:var(--green);transition:width 0.6s}
 .signal-reasoning{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
+/* INDICATORS */
 .indicators{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
 .ind-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px}
 .ind-label{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px}
 .ind-value{font-size:15px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin-top:4px}
 .ind-sub{font-size:9px;color:var(--muted);margin-top:2px}
+/* PNL */
 .pnl-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
 .pnl-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
 .pnl-label{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px}
 .pnl-value{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;margin-top:4px}
+/* ORDER BOOK */
 .ob-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 0;position:relative}
 .ob-bar{position:absolute;right:0;top:0;height:100%;opacity:0.12;border-radius:2px}
 .spread-row{text-align:center;font-size:10px;color:var(--muted);padding:4px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:4px 0}
 .stop-target{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .st-box{background:var(--bg3);border-radius:6px;padding:8px}
 .st-val{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;margin-top:4px}
+/* AUTO TRADE LOG */
 .trade-entry{background:var(--bg3);border-radius:6px;padding:10px;margin-bottom:8px;border-left:3px solid var(--green)}
 .trade-entry.sell{border-left-color:var(--red)}
 .trade-entry.auto{border-left-color:var(--purple)}
@@ -77,6 +93,7 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
 .badge-buy{background:#0d2a1a;color:var(--green);border:1px solid var(--green)}
 .badge-sell{background:#2a0d0d;color:var(--red);border:1px solid var(--red)}
 .badge-conf{background:var(--bg);color:var(--yellow);border:1px solid var(--yellow)}
+/* CLAUDE LIVE FEED */
 .claude-feed{background:var(--bg3);border-radius:6px;padding:10px;max-height:200px;overflow-y:auto;margin-bottom:12px}
 .feed-entry{font-size:10px;font-family:'IBM Plex Mono',monospace;padding:3px 0;border-bottom:1px solid var(--border);line-height:1.6}
 .feed-entry:last-child{border-bottom:none}
@@ -85,6 +102,7 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
 .feed-action.sell{color:var(--red)}
 .feed-action.scan{color:var(--blue)}
 .feed-action.skip{color:var(--yellow)}
+/* BOTTOM BAR */
 .bottom-bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;margin-top:12px}
 .btn{flex:1;padding:12px 8px;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;border:none;letter-spacing:1px}
 .btn:active{opacity:0.75;transform:scale(0.98)}
@@ -92,13 +110,14 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
 .btn-ai:disabled{opacity:0.5;cursor:not-allowed}
 .btn-buy{background:var(--green);color:#0d1117}
 .btn-sell{background:var(--red);color:#fff}
-.btn-refresh{background:var(--bg2);color:var(--blue);border:1px solid var(--blue)}
 .btn-scan{background:linear-gradient(135deg,#1a0d2a,#12082a);color:var(--purple);border:1px solid var(--purple)}
+/* ALERTS */
 .alert{display:none;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;font-family:'IBM Plex Mono',monospace}
 .alert.show{display:block}
 .alert.success{background:#0d2a1a;border:1px solid var(--green);color:var(--green)}
 .alert.warn{background:#2a1a1a;border:1px solid var(--red);color:var(--red)}
 .alert.info{background:#0d1a2a;border:1px solid var(--blue);color:var(--blue)}
+/* ALERT SETTINGS */
 .alert-settings{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px}
 .alert-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .alert-row:last-child{margin-bottom:0}
@@ -113,26 +132,34 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
 .notif-log{background:var(--bg3);border-radius:6px;padding:8px;max-height:80px;overflow-y:auto;margin-top:8px}
 .notif-entry{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--muted);padding:1px 0}
 .notif-entry.buy{color:var(--green)}.notif-entry.sell{color:var(--red)}
+/* CHART */
 .chart-area{position:relative;width:100%;height:180px}
+/* META ROW */
 .meta-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+/* NEWS */
 .news-item{padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;line-height:1.5}
 .news-item:last-child{border-bottom:none}
 .news-source{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:2px}
+/* TICKER REMOVE BUTTON */
 .ticker-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:0;line-height:1;opacity:0.6;transition:opacity 0.15s}
 .ticker-remove:hover{opacity:1;color:var(--red)}
+/* ADD TICKER CARD */
 .ticker-add-card{background:var(--bg2);border:1px dashed var(--border);border-radius:8px;padding:10px 12px;min-width:80px;cursor:pointer;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:border-color 0.2s}
 .ticker-add-card:hover{border-color:var(--green)}
-.ticker-input-card{background:var(--bg2);border:1px solid var(--green);border-radius:8px;padding:10px 10px;min-width:130px;flex-shrink:0;display:flex;flex-direction:column;gap:6px}
+.ticker-input-card{background:var(--bg2);border:1px solid var(--green);border-radius:8px;padding:10px;min-width:130px;flex-shrink:0;display:flex;flex-direction:column;gap:6px}
 .ticker-sym-input{background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;padding:4px 8px;width:100%;text-transform:uppercase;outline:none;letter-spacing:1px}
 .ticker-sym-input:focus{border-color:var(--green)}
 .ticker-input-btns{display:flex;gap:4px}
 .ticker-input-btns button{flex:1;border:none;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:4px;cursor:pointer}
+/* GRAD BANNER */
+.grad-banner{background:linear-gradient(135deg,#1a1a00,#1a1200);border:1px solid var(--yellow);border-radius:8px;padding:12px;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;display:none}
+.grad-banner.show{display:block}
 </style>
 </head>
 <body>
 <div class="dash">
   <div class="header">
-    <div class="logo">◈ QUANTEDGE PRO <span class="data-badge">LIVE</span> <span class="auto-badge" id="autoBadge">AUTO OFF</span></div>
+    <div class="logo">◈ QUANTEDGE PRO <span class="data-badge">LIVE</span> <span class="auto-badge" id="autoBadge">AUTO ON</span></div>
     <div class="status">
       <span class="live-dot" id="dot"></span>
       <span id="clock">--:--:--</span>
@@ -141,7 +168,11 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
   </div>
 
   <div id="alert" class="alert"></div>
+  <div id="gradBanner" class="grad-banner">
+    🎓 <strong>Paper trading goals met!</strong> Win rate and P&L targets achieved after 30 days. Review your journal, then switch Alpaca to live funds.
+  </div>
 
+  <!-- TABS -->
   <div class="tabs">
     <button class="tab active" onclick="switchTab('terminal')">TERMINAL</button>
     <button class="tab" onclick="switchTab('auto')">AUTO TRADES</button>
@@ -149,11 +180,25 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
     <button class="tab" onclick="switchTab('alerts')">ALERTS</button>
   </div>
 
-  <!-- TERMINAL TAB -->
+  <!-- ═══ TERMINAL TAB ═══ -->
   <div class="tab-panel active" id="tab-terminal">
     <div class="meta-row">
-      <span>Source: Yahoo Finance → Netlify proxy</span>
+      <span>Source: Polygon.io → Netlify proxy</span>
       <span>Updated: <span id="lastFetch">fetching...</span></span>
+    </div>
+
+    <!-- Paper trading phase tracker -->
+    <div class="phase-panel" id="phasePanel">
+      <div class="phase-row">
+        <span style="color:var(--text)">PAPER TRADING PHASE</span>
+        <span id="phaseStatus" style="color:var(--muted)">Loading...</span>
+      </div>
+      <div class="phase-bar-track"><div class="phase-bar-fill" id="phaseBarFill" style="width:0%"></div></div>
+      <div class="phase-meta">
+        <span id="phaseMeta1">Day 0 / 30</span>
+        <span id="phaseMeta2">Win rate: --% · P&L: $0</span>
+        <span id="phaseMeta3">-- trades closed</span>
+      </div>
     </div>
 
     <div class="ticker-bar" id="tickerBar"></div>
@@ -203,7 +248,7 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
     </div>
   </div>
 
-  <!-- AUTO TRADES TAB -->
+  <!-- ═══ AUTO TRADES TAB ═══ -->
   <div class="tab-panel" id="tab-auto">
     <div class="panel" style="margin-bottom:12px">
       <div class="panel-title">◈ claude live action feed</div>
@@ -211,10 +256,12 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
         <div class="feed-entry"><span class="feed-time">--:--:--</span> <span class="feed-action scan">Waiting for next market scan...</span></div>
       </div>
     </div>
+
     <div class="panel" style="margin-bottom:12px">
       <div class="panel-title">automated trade journal — all executed trades</div>
       <div id="autoTradeLog"><div class="notif-entry" style="padding:12px 0;text-align:center">Loading trades from Netlify...</div></div>
     </div>
+
     <div class="panel">
       <div class="panel-title">scan status</div>
       <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:2">
@@ -222,19 +269,24 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
         <div>Last scan: <span id="lastScan" style="color:var(--text)">--</span></div>
         <div>Trades today: <span id="tradesToday" style="color:var(--green)">0</span></div>
         <div>Win rate: <span id="winRateAuto" style="color:var(--green)">--</span></div>
+        <div>Auto schedule: <span style="color:var(--green)">Every 30 min · 9:30AM–4PM EST · Mon–Fri</span></div>
       </div>
     </div>
   </div>
 
-  <!-- BRIEFING TAB -->
+  <!-- ═══ BRIEFING TAB ═══ -->
   <div class="tab-panel" id="tab-briefing">
     <div class="panel" style="margin-bottom:12px">
       <div class="panel-title">🌅 morning briefing</div>
-      <div id="morningBriefing" style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:1.8">Loading today's briefing...</div>
+      <div id="morningBriefing" style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:1.8">
+        Loading today's briefing...
+      </div>
     </div>
     <div class="panel" style="margin-bottom:12px">
       <div class="panel-title">🌆 eod debrief</div>
-      <div id="eodDebrief" style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:1.8">Available after market close (4PM EST)</div>
+      <div id="eodDebrief" style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:1.8">
+        Available after market close (4PM EST)
+      </div>
     </div>
     <div class="panel">
       <div class="panel-title">📰 market news</div>
@@ -242,7 +294,7 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
     </div>
   </div>
 
-  <!-- ALERTS TAB -->
+  <!-- ═══ ALERTS TAB ═══ -->
   <div class="tab-panel" id="tab-alerts">
     <div class="alert-settings">
       <div class="panel-title" style="margin-bottom:10px">🔔 signal alerts</div>
@@ -285,10 +337,11 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
 const BACKEND = "https://extraordinary-mandazi-a05e7e.netlify.app/.netlify/functions";
 const DEFAULT_SYMS = ['AAPL','NVDA','TSLA','SPY','MSFT','META','AMD','COIN','PLTR','AMZN'];
 
+// ── WATCHLIST (localStorage) ──────────────────────────────
 let SYMS = (() => {
   try {
-    const saved = JSON.parse(localStorage.getItem('qe_watchlist'));
-    return Array.isArray(saved) && saved.length ? saved : [...DEFAULT_SYMS];
+    const s = JSON.parse(localStorage.getItem('qe_watchlist'));
+    return Array.isArray(s) && s.length ? s : [...DEFAULT_SYMS];
   } catch(_) { return [...DEFAULT_SYMS]; }
 })();
 
@@ -304,10 +357,8 @@ function addTicker(sym) {
   toast('Adding ' + sym + '...', 'info');
   fetchSnap().then(() => {
     if (!hist[sym].length) seedHist(sym);
-    buildTickers();
     active = sym;
-    buildTickers();
-    renderChart(); renderIndicators(); renderOB();
+    buildTickers(); renderChart(); renderIndicators(); renderOB();
   });
 }
 
@@ -319,16 +370,135 @@ function removeTicker(sym) {
   buildTickers(); renderChart(); renderIndicators(); renderOB();
 }
 
+// ── AUTO TRADING STATE ────────────────────────────────────
+const PAPER_DURATION_DAYS = 30;
+const WIN_RATE_GOAL = 60;
+const MIN_TRADES_FOR_GRADUATION = 10;
+
+function getAutoState() {
+  try { return JSON.parse(localStorage.getItem('qe_auto')) || {}; }
+  catch(_) { return {}; }
+}
+function saveAutoState(s) { localStorage.setItem('qe_auto', JSON.stringify(s)); }
+
+function initAutoState() {
+  const s = getAutoState();
+  if (!s.startDate) {
+    s.startDate = new Date().toISOString();
+    s.phase = 'paper';
+    saveAutoState(s);
+  }
+  return s;
+}
+
+function daysElapsed() {
+  const s = getAutoState();
+  if (!s.startDate) return 0;
+  return Math.floor((Date.now() - new Date(s.startDate).getTime()) / 86400000);
+}
+
+async function refreshPhasePanel() {
+  try {
+    const r = await fetch(`${BACKEND}/get-trades?limit=200`);
+    const d = await r.json();
+    const trades = (d.trades || []);
+    const closed = trades.filter(t => t.realizedPnl != null);
+    const wins = closed.filter(t => t.realizedPnl > 0).length;
+    const winRate = closed.length >= 3 ? Math.round((wins / closed.length) * 100) : 0;
+    const totalPnl = closed.reduce((s, t) => s + (parseFloat(t.realizedPnl) || 0), 0);
+    const days = daysElapsed();
+    const pct = Math.min(100, (days / PAPER_DURATION_DAYS) * 100);
+    const graduated = days >= PAPER_DURATION_DAYS || (winRate >= WIN_RATE_GOAL && totalPnl > 0 && closed.length >= MIN_TRADES_FOR_GRADUATION);
+
+    // Update phase bar
+    const fill = el('phaseBarFill');
+    if (fill) fill.style.width = pct + '%';
+    if (graduated && fill) fill.style.background = 'var(--yellow)';
+
+    // Update phase meta
+    const m1 = el('phaseMeta1'), m2 = el('phaseMeta2'), m3 = el('phaseMeta3');
+    const ps = el('phaseStatus');
+    if (m1) m1.textContent = `Day ${days} / ${PAPER_DURATION_DAYS}`;
+    if (m2) {
+      const pnlStr = (totalPnl >= 0 ? '+' : '') + '$' + totalPnl.toFixed(0);
+      m2.innerHTML = `Win rate: <span class="${winRate >= WIN_RATE_GOAL ? 'up' : ''}">${winRate}%</span> · P&L: <span class="${totalPnl >= 0 ? 'up' : 'down'}">${pnlStr}</span>`;
+    }
+    if (m3) m3.textContent = `${closed.length} trades closed`;
+    if (ps) {
+      if (graduated) {
+        ps.textContent = '🎓 READY FOR LIVE';
+        ps.style.color = 'var(--yellow)';
+      } else {
+        const dLeft = Math.max(0, PAPER_DURATION_DAYS - days);
+        const wrLeft = WIN_RATE_GOAL - winRate;
+        ps.textContent = dLeft > 0 ? `${dLeft}d remaining` : `Need ${wrLeft}% more win rate`;
+        ps.style.color = 'var(--muted)';
+      }
+    }
+
+    // Auto badge
+    const badge = el('autoBadge');
+    if (graduated) {
+      badge.textContent = 'GRAD ✓ LIVE READY';
+      badge.className = 'auto-badge grad';
+      el('gradBanner').classList.add('show');
+    } else {
+      badge.textContent = `AUTO ON · D${days}`;
+      badge.className = 'auto-badge';
+    }
+
+    // Update win rate in auto tab
+    if (el('winRateAuto') && winRate > 0) el('winRateAuto').textContent = winRate + '%';
+  } catch(e) {
+    const badge = el('autoBadge');
+    badge.textContent = 'AUTO ON';
+    badge.className = 'auto-badge';
+  }
+}
+
+// ── MARKET HOURS CHECK ────────────────────────────────────
+function isMarketOpen() {
+  const est = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const day = est.getDay();
+  if (day === 0 || day === 6) return false;
+  const mins = est.getHours() * 60 + est.getMinutes();
+  return mins >= 570 && mins < 960; // 9:30 AM – 4:00 PM
+}
+
+// ── CLIENT-SIDE AUTO SCAN (when tab is open) ──────────────
+let lastAutoScan = parseInt(localStorage.getItem('qe_last_scan') || '0');
+
+async function autoScanTick() {
+  if (!isMarketOpen()) return;
+  const now = Date.now();
+  if (now - lastAutoScan < 28 * 60 * 1000) return; // 28-min cooldown
+  lastAutoScan = now;
+  localStorage.setItem('qe_last_scan', String(now));
+  addFeed('AUTO', 'Scheduled scan — screening watchlist...', 'scan');
+  try {
+    const r = await fetch(`${BACKEND}/run-scanner`, { method: 'POST' });
+    const d = await r.json();
+    if (d.tradesExecuted > 0) {
+      addFeed('EXEC', `${d.tradesExecuted} auto trade(s) executed`, 'buy');
+      toast(`⚡ Auto: ${d.tradesExecuted} trade(s) executed`, 'success');
+      setTimeout(() => { fetchAlpacaAccount(); fetchAlpacaPositions(); loadAutoTrades(); refreshPhasePanel(); }, 2000);
+    } else {
+      addFeed('SKIP', 'No qualifying setups this scan', 'skip');
+    }
+  } catch(e) {
+    addFeed('ERR', 'Auto scan error: ' + e.message, 'skip');
+  }
+}
+
 let active = SYMS[0];
 let snap = {}; let hist = {}; let chart = null;
 let claudeFeedLog = [];
-
 SYMS.forEach(s => { snap[s] = {}; hist[s] = []; });
 
-// ── TABS
+// ── TABS ──────────────────────────────────────────────────
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t,i) => {
-    const tabs = ['terminal','auto','briefing','alerts'];
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const tabs = ['terminal', 'auto', 'briefing', 'alerts'];
     t.classList.toggle('active', tabs[i] === name);
   });
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -337,27 +507,33 @@ function switchTab(name) {
   if (name === 'briefing') loadBriefing();
 }
 
-// ── HELPERS
+// ── HELPERS ───────────────────────────────────────────────
 const el = id => document.getElementById(id);
-function toast(msg, type='info') {
+function toast(msg, type = 'info') {
   const e = el('alert');
   e.textContent = msg; e.className = 'alert show ' + type;
   setTimeout(() => e.className = 'alert', 5000);
 }
-function clock() { el('clock').textContent = new Date().toTimeString().slice(0,8); }
+function clock() { el('clock').textContent = new Date().toTimeString().slice(0, 8); }
 setInterval(clock, 1000); clock();
 
-function addFeed(action, msg, type='scan') {
-  const t = new Date().toTimeString().slice(0,8);
+function addFeed(action, msg, type = 'scan') {
+  const t = new Date().toTimeString().slice(0, 8);
   claudeFeedLog.unshift({ t, action, msg, type });
   if (claudeFeedLog.length > 50) claudeFeedLog.pop();
   const feed = el('claudeFeed');
-  feed.innerHTML = claudeFeedLog.map(f =>
+  if (feed) feed.innerHTML = claudeFeedLog.map(f =>
     `<div class="feed-entry"><span class="feed-time">${f.t}</span> <span class="feed-action ${f.type}">[${f.action}]</span> ${f.msg}</div>`
   ).join('');
 }
 
-// ── PROXY CALLS
+// ── PROXY API CALLS ───────────────────────────────────────
+async function polygonProxy(path) {
+  const r = await fetch(`${BACKEND}/market-proxy?path=${encodeURIComponent(path)}`);
+  if (!r.ok) throw new Error(`Proxy ${r.status}`);
+  return r.json();
+}
+
 async function alpacaProxy(method, path, body) {
   const url = `${BACKEND}/alpaca-proxy?endpoint=${encodeURIComponent(path)}`;
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
@@ -376,50 +552,44 @@ async function claudeProxy(ticker, marketData) {
   return r.json();
 }
 
-// ── MARKET DATA — Yahoo Finance via Netlify proxy
+// ── MARKET DATA ───────────────────────────────────────────
 async function fetchSnap() {
   try {
     const url = `${BACKEND}/yahoo-proxy?symbols=${SYMS.join(',')}`;
     const r = await fetch(url);
     if (!r.ok) throw new Error(`Proxy ${r.status}`);
     const d = await r.json();
-
-    // Handle both {snapshot:{}} and flat array/object responses
-    const snapshot = d.snapshot || d;
-    if (!snapshot || typeof snapshot !== 'object') throw new Error('No snapshot returned');
-
+    if (!d.snapshot) throw new Error('No snapshot returned');
     let anyData = false;
-    Object.entries(snapshot).forEach(([sym, data]) => {
+    Object.entries(d.snapshot).forEach(([sym, data]) => {
       if (!data) return;
       snap[sym] = data;
       if (snap[sym].price > 0) anyData = true;
     });
-
-    const hasCachedData = SYMS.some(s => snap[s]?.price > 0);
-    if (anyData || hasCachedData) {
-      if (anyData) el('lastFetch').textContent = new Date().toTimeString().slice(0,8);
+    const hasCached = SYMS.some(s => snap[s]?.price > 0);
+    if (anyData || hasCached) {
+      if (anyData) el('lastFetch').textContent = new Date().toTimeString().slice(0, 8);
       el('dot').className = anyData ? 'live-dot' : 'live-dot stale';
       return anyData;
     }
-    throw new Error('No price data in response');
+    throw new Error('No data');
   } catch(e) {
-    console.error('fetchSnap error:', e);
     el('dot').className = 'live-dot error';
     toast('Data error: ' + e.message, 'warn');
     return false;
   }
 }
 
-// ── CHART & INDICATORS
+// ── CHART & INDICATORS ────────────────────────────────────
 function seedHist(sym) {
   const d = snap[sym]; if (!d?.price) return;
-  const { open:o, high:h, low:l, price:c, prev } = d;
+  const { open: o, high: h, low: l, price: c, prev } = d;
   const pts = [];
-  for(let i=0;i<8;i++) pts.push(+(prev+(o-prev)*(i/7)).toFixed(2));
-  for(let i=0;i<8;i++) pts.push(+(o+(h-o)*(i/7)).toFixed(2));
-  for(let i=0;i<8;i++) pts.push(+(h+(l-h)*(i/7)).toFixed(2));
-  for(let i=0;i<8;i++) pts.push(+(l+(c-l)*(i/7)).toFixed(2));
-  hist[sym] = pts.map(p => +(p+(Math.random()-.5)*p*.001).toFixed(2));
+  for (let i = 0; i < 8; i++) pts.push(+(prev + (o - prev) * (i / 7)).toFixed(2));
+  for (let i = 0; i < 8; i++) pts.push(+(o + (h - o) * (i / 7)).toFixed(2));
+  for (let i = 0; i < 8; i++) pts.push(+(h + (l - h) * (i / 7)).toFixed(2));
+  for (let i = 0; i < 8; i++) pts.push(+(l + (c - l) * (i / 7)).toFixed(2));
+  hist[sym] = pts.map(p => +(p + (Math.random() - .5) * p * .001).toFixed(2));
 }
 
 function appendHist(sym) {
@@ -428,35 +598,36 @@ function appendHist(sym) {
   if (hist[sym].length > 80) hist[sym].shift();
 }
 
-function rsi(prices, n=14) {
-  if (prices.length < n+1) return 50;
-  let g=0, l=0;
-  for(let i=prices.length-n; i<prices.length; i++) {
-    const d = prices[i] - prices[i-1];
+function rsi(prices, n = 14) {
+  if (prices.length < n + 1) return 50;
+  let g = 0, l = 0;
+  for (let i = prices.length - n; i < prices.length; i++) {
+    const d = prices[i] - prices[i - 1];
     d > 0 ? g += d : l += Math.abs(d);
   }
-  return +((100-(100/(1+(g/(l||.001)))))).toFixed(1);
+  return +((100 - (100 / (1 + (g / (l || .001)))))).toFixed(1);
 }
 
 function buildTickers() {
   const bar = el('tickerBar'); bar.innerHTML = '';
   SYMS.forEach(s => {
-    const d = snap[s]; const p = d?.price||0; const c = d?.chg||0; const up = c >= 0;
+    const d = snap[s]; const p = d?.price || 0; const c = d?.chg || 0; const up = c >= 0;
     const div = document.createElement('div');
-    div.className = 'ticker-card' + (s===active?' active':'');
+    div.className = 'ticker-card' + (s === active ? ' active' : '');
+
     const header = document.createElement('div');
     header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:4px';
     header.innerHTML = `<span class="t-sym">${s}</span>`;
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'ticker-remove';
-    removeBtn.textContent = '×';
-    removeBtn.title = 'Remove ' + s;
-    removeBtn.onclick = e => { e.stopPropagation(); removeTicker(s); };
-    header.appendChild(removeBtn);
+    const rmBtn = document.createElement('button');
+    rmBtn.className = 'ticker-remove';
+    rmBtn.textContent = '×';
+    rmBtn.title = 'Remove ' + s;
+    rmBtn.onclick = e => { e.stopPropagation(); removeTicker(s); };
+    header.appendChild(rmBtn);
     div.appendChild(header);
     div.insertAdjacentHTML('beforeend', `
-      <div class="t-price ${up?'up':'down'}">$${p?p.toFixed(2):'--'}</div>
-      <div class="t-chg ${up?'up':'down'}">${up?'+':''}${c.toFixed(2)}%</div>`);
+      <div class="t-price ${up ? 'up' : 'down'}">$${p ? p.toFixed(2) : '--'}</div>
+      <div class="t-chg ${up ? 'up' : 'down'}">${up ? '+' : ''}${c.toFixed(2)}%</div>`);
     div.onclick = () => {
       active = s; buildTickers();
       if (!hist[s].length) seedHist(s);
@@ -464,13 +635,11 @@ function buildTickers() {
     };
     bar.appendChild(div);
   });
+
   const addCard = document.createElement('div');
   addCard.className = 'ticker-add-card';
   addCard.id = 'addTickerBtn';
-  addCard.title = 'Add ticker';
-  addCard.innerHTML = `
-    <div style="font-size:20px;color:var(--green);line-height:1">+</div>
-    <div style="font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px">ADD</div>`;
+  addCard.innerHTML = `<div style="font-size:20px;color:var(--green);line-height:1">+</div><div style="font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px">ADD</div>`;
   addCard.onclick = showAddInput;
   bar.appendChild(addCard);
   el('activeSym').textContent = active;
@@ -490,7 +659,6 @@ function showAddInput() {
   input.placeholder = 'SYMBOL';
   input.maxLength = 6;
   input.autocomplete = 'off';
-  input.spellcheck = false;
   input.oninput = () => { input.value = input.value.toUpperCase().replace(/[^A-Z.]/g, ''); };
   input.onkeydown = e => {
     if (e.key === 'Enter') { e.preventDefault(); confirmAddTicker(); }
@@ -524,12 +692,12 @@ function renderChart() {
   const prices = hist[active]; if (!prices?.length) return;
   if (chart) chart.destroy();
   const ctx = el('priceChart').getContext('2d');
-  const mn = Math.min(...prices)*.999, mx = Math.max(...prices)*1.001;
-  const up = prices[prices.length-1] >= prices[0];
+  const mn = Math.min(...prices) * .999, mx = Math.max(...prices) * 1.001;
+  const up = prices[prices.length - 1] >= prices[0];
   chart = new Chart(ctx, {
     type: 'line',
-    data: { labels: prices.map((_,i)=>i), datasets:[{data:prices,borderColor:up?'#00c896':'#ff4d4d',borderWidth:1.5,pointRadius:0,fill:true,backgroundColor:up?'rgba(0,200,150,0.07)':'rgba(255,77,77,0.07)',tension:0.3}] },
-    options: { responsive:true,maintainAspectRatio:false,animation:{duration:300},plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'#161b22',borderColor:'#30363d',borderWidth:1,titleColor:'#8b949e',bodyColor:'#e6edf3',titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Mono'},callbacks:{label:c=>'$'+c.parsed.y.toFixed(2)}}},scales:{x:{display:false},y:{min:mn,max:mx,grid:{color:'rgba(48,54,61,0.4)'},ticks:{color:'#8b949e',font:{family:'IBM Plex Mono',size:9},callback:v=>'$'+v.toFixed(2)}}}}
+    data: { labels: prices.map((_, i) => i), datasets: [{ data: prices, borderColor: up ? '#00c896' : '#ff4d4d', borderWidth: 1.5, pointRadius: 0, fill: true, backgroundColor: up ? 'rgba(0,200,150,0.07)' : 'rgba(255,77,77,0.07)', tension: 0.3 }] },
+    options: { responsive: true, maintainAspectRatio: false, animation: { duration: 300 }, plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, backgroundColor: '#161b22', borderColor: '#30363d', borderWidth: 1, titleColor: '#8b949e', bodyColor: '#e6edf3', titleFont: { family: 'IBM Plex Mono' }, bodyFont: { family: 'IBM Plex Mono' }, callbacks: { label: c => '$' + c.parsed.y.toFixed(2) } } }, scales: { x: { display: false }, y: { min: mn, max: mx, grid: { color: 'rgba(48,54,61,0.4)' }, ticks: { color: '#8b949e', font: { family: 'IBM Plex Mono', size: 9 }, callback: v => '$' + v.toFixed(2) } } } }
   });
 }
 
@@ -539,65 +707,65 @@ function renderIndicators() {
   const curr = d.price;
   const r = rsi(prices);
   el('rsiVal').textContent = r;
-  el('rsiVal').className = 'ind-value ' + (r>70?'down':r<30?'up':'');
-  el('rsiSub').textContent = r>70?'OVERBOUGHT':r<30?'OVERSOLD':'NEUTRAL';
-  const vw = d.vwap || prices.reduce((a,b)=>a+b,0)/prices.length;
-  el('vwapVal').textContent = '$'+vw.toFixed(2);
+  el('rsiVal').className = 'ind-value ' + (r > 70 ? 'down' : r < 30 ? 'up' : '');
+  el('rsiSub').textContent = r > 70 ? 'OVERBOUGHT' : r < 30 ? 'OVERSOLD' : 'NEUTRAL';
+  const vw = d.vwap || prices.reduce((a, b) => a + b, 0) / prices.length;
+  el('vwapVal').textContent = '$' + vw.toFixed(2);
   const above = curr > vw;
-  el('vwapVal').className = 'ind-value ' + (above?'up':'down');
-  el('vwapSub').textContent = above?'ABOVE VWAP':'BELOW VWAP';
-  const spike = (1+(Math.random()*.8-.1)).toFixed(2);
-  el('volVal').textContent = spike+'x';
-  el('volVal').className = 'ind-value ' + (spike>1.3?'up':'');
-  el('volSub').textContent = spike>1.3?'SPIKE':'NORMAL';
+  el('vwapVal').className = 'ind-value ' + (above ? 'up' : 'down');
+  el('vwapSub').textContent = above ? 'ABOVE VWAP' : 'BELOW VWAP';
+  const spike = (1 + (Math.random() * .8 - .1)).toFixed(2);
+  el('volVal').textContent = spike + 'x';
+  el('volVal').className = 'ind-value ' + (spike > 1.3 ? 'up' : '');
+  el('volSub').textContent = spike > 1.3 ? 'SPIKE' : 'NORMAL';
   renderSignal(r, above, parseFloat(spike), curr);
 }
 
 function renderSignal(r, above, spike, price) {
   let score = 0;
-  if(r<40) score+=2; else if(r>65) score-=2;
-  if(above) score+=1; else score-=1;
-  if(spike>1.3) score+=Math.sign(score);
-  const box=el('sigBox'), act=el('sigAction'), rea=el('sigReason'), cf=el('confFill');
+  if (r < 40) score += 2; else if (r > 65) score -= 2;
+  if (above) score += 1; else score -= 1;
+  if (spike > 1.3) score += Math.sign(score);
+  const box = el('sigBox'), act = el('sigAction'), rea = el('sigReason'), cf = el('confFill');
   let sig, conf, why, sp, tp;
-  if(score>=2){
-    sig='BUY'; conf=Math.min(50+score*12,92);
-    why='RSI '+r+' — momentum building. '+(above?'Holding VWAP.':'Recovering toward VWAP.')+' '+(spike>1.3?'Volume confirms institutional buying.':'Accumulation forming.');
-    sp=.985; tp=1.025; box.className='signal-box'; act.className='signal-action up';
-  } else if(score<=-2){
-    sig='SELL'; conf=Math.min(50+Math.abs(score)*12,92);
-    why='RSI '+r+' — exhaustion. '+(!above?'Price rejected VWAP.':'Bleeding below VWAP.')+' '+(spike>1.3?'Distribution — smart money out.':'Momentum gone.');
-    sp=1.015; tp=.975; box.className='signal-box sell'; act.className='signal-action down';
+  if (score >= 2) {
+    sig = 'BUY'; conf = Math.min(50 + score * 12, 92);
+    why = 'RSI ' + r + ' — momentum building. ' + (above ? 'Holding VWAP.' : 'Recovering toward VWAP.') + ' ' + (spike > 1.3 ? 'Volume confirms institutional buying.' : 'Accumulation forming.');
+    sp = .985; tp = 1.025; box.className = 'signal-box'; act.className = 'signal-action up';
+  } else if (score <= -2) {
+    sig = 'SELL'; conf = Math.min(50 + Math.abs(score) * 12, 92);
+    why = 'RSI ' + r + ' — exhaustion. ' + (!above ? 'Price rejected VWAP.' : 'Bleeding below VWAP.') + ' ' + (spike > 1.3 ? 'Distribution — smart money out.' : 'Momentum gone.');
+    sp = 1.015; tp = .975; box.className = 'signal-box sell'; act.className = 'signal-action down';
   } else {
-    sig='HOLD'; conf=40+Math.random()*15;
-    why='Mixed signals. RSI '+r+' neutral. No edge — wait for cleaner setup.';
-    sp=.99; tp=1.01; box.className='signal-box hold'; act.className='signal-action'; act.style.color='#f5a623';
+    sig = 'HOLD'; conf = 40 + Math.random() * 15;
+    why = 'Mixed signals. RSI ' + r + ' neutral. No edge — wait for cleaner setup.';
+    sp = .99; tp = 1.01; box.className = 'signal-box hold'; act.className = 'signal-action'; act.style.color = '#f5a623';
   }
   act.textContent = sig;
-  cf.style.width = conf.toFixed(0)+'%';
+  cf.style.width = conf.toFixed(0) + '%';
   rea.textContent = why;
-  el('stopLoss').textContent = '$'+(price*sp).toFixed(2);
-  el('tgtPrice').textContent = '$'+(price*tp).toFixed(2);
+  el('stopLoss').textContent = '$' + (price * sp).toFixed(2);
+  el('tgtPrice').textContent = '$' + (price * tp).toFixed(2);
 }
 
 function renderOB() {
   const d = snap[active];
-  const mid = d?.price || hist[active]?.[hist[active].length-1] || 100;
-  const spread = mid*.0003; let html = '';
-  for(let i=5;i>0;i--){const p=(mid+spread/2+i*mid*.0005).toFixed(2);const sz=Math.floor(Math.random()*500+50);html+=`<div class="ob-row"><span class="ob-price down">$${p}</span><span class="ob-size">${sz}</span><div class="ob-bar" style="width:${Math.floor(sz/6)}%;background:#ff4d4d"></div></div>`;}
+  const mid = d?.price || hist[active]?.[hist[active].length - 1] || 100;
+  const spread = mid * .0003; let html = '';
+  for (let i = 5; i > 0; i--) { const p = (mid + spread / 2 + i * mid * .0005).toFixed(2); const sz = Math.floor(Math.random() * 500 + 50); html += `<div class="ob-row"><span class="ob-price down">$${p}</span><span class="ob-size">${sz}</span><div class="ob-bar" style="width:${Math.floor(sz / 6)}%;background:#ff4d4d"></div></div>`; }
   html += `<div class="spread-row">spread $${spread.toFixed(3)}</div>`;
-  for(let i=1;i<=5;i++){const p=(mid-spread/2-i*mid*.0005).toFixed(2);const sz=Math.floor(Math.random()*500+50);html+=`<div class="ob-row"><span class="ob-price up">$${p}</span><span class="ob-size">${sz}</span><div class="ob-bar" style="width:${Math.floor(sz/6)}%;background:#00c896"></div></div>`;}
+  for (let i = 1; i <= 5; i++) { const p = (mid - spread / 2 - i * mid * .0005).toFixed(2); const sz = Math.floor(Math.random() * 500 + 50); html += `<div class="ob-row"><span class="ob-price up">$${p}</span><span class="ob-size">${sz}</span><div class="ob-bar" style="width:${Math.floor(sz / 6)}%;background:#00c896"></div></div>`; }
   el('orderBook').innerHTML = html;
 }
 
-// ── ALPACA
+// ── ALPACA ────────────────────────────────────────────────
 async function fetchAlpacaAccount() {
   try {
     const acc = await alpacaProxy('GET', '/v2/account');
     if (acc.portfolio_value) {
-      el('dayPnl').textContent = '$'+parseInt(acc.portfolio_value).toLocaleString();
+      el('dayPnl').textContent = '$' + parseInt(acc.portfolio_value).toLocaleString();
       el('dayPnl').className = 'pnl-value up';
-      el('winRate').textContent = '$'+parseInt(acc.cash).toLocaleString();
+      el('winRate').textContent = '$' + parseInt(acc.cash).toLocaleString();
     }
   } catch(e) { console.warn('Alpaca account error', e); }
 }
@@ -607,25 +775,25 @@ async function fetchAlpacaPositions() {
     const positions = await alpacaProxy('GET', '/v2/positions');
     renderPositions(positions);
     el('tradeCount').textContent = positions.length;
-    const totalPnl = positions.reduce((sum,p)=>sum+parseFloat(p.unrealized_pl||0),0);
-    el('openPnl').textContent = (totalPnl>=0?'+':'')+'$'+totalPnl.toFixed(0);
-    el('openPnl').className = 'pnl-value ' + (totalPnl>=0?'up':'down');
+    const totalPnl = positions.reduce((sum, p) => sum + parseFloat(p.unrealized_pl || 0), 0);
+    el('openPnl').textContent = (totalPnl >= 0 ? '+' : '') + '$' + totalPnl.toFixed(0);
+    el('openPnl').className = 'pnl-value ' + (totalPnl >= 0 ? 'up' : 'down');
   } catch(e) { console.warn('Positions error', e); }
 }
 
 function renderPositions(positions) {
   const panel = el('positionsPanel');
-  if (!positions?.length) { panel.innerHTML='<div class="notif-entry">No open positions</div>'; return; }
+  if (!positions?.length) { panel.innerHTML = '<div class="notif-entry">No open positions</div>'; return; }
   panel.innerHTML = positions.map(p => {
-    const pl = parseFloat(p.unrealized_pl||0);
-    const plPct = parseFloat(p.unrealized_plpc||0)*100;
+    const pl = parseFloat(p.unrealized_pl || 0);
+    const plPct = parseFloat(p.unrealized_plpc || 0) * 100;
     const up = pl >= 0;
     return `<div class="ob-row" style="padding:6px 0;border-bottom:1px solid var(--border)">
       <div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600">${p.symbol}</span>
       <span style="font-size:10px;color:var(--muted);margin-left:6px">${p.qty} shares @ $${parseFloat(p.avg_entry_price).toFixed(2)}</span></div>
       <div style="text-align:right">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600" class="${up?'up':'down'}">${up?'+':''}$${pl.toFixed(0)}</div>
-        <div style="font-size:9px;color:var(--muted)">${up?'+':''}${plPct.toFixed(2)}%
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600" class="${up ? 'up' : 'down'}">${up ? '+' : ''}$${pl.toFixed(0)}</div>
+        <div style="font-size:9px;color:var(--muted)">${up ? '+' : ''}${plPct.toFixed(2)}%
           <button onclick="closePosition('${p.symbol}')" style="margin-left:6px;background:var(--red);border:none;border-radius:3px;color:#fff;font-size:9px;padding:1px 5px;cursor:pointer;font-family:'IBM Plex Mono',monospace">CLOSE</button>
         </div>
       </div></div>`;
@@ -633,37 +801,37 @@ function renderPositions(positions) {
 }
 
 async function closePosition(symbol) {
-  toast('Closing '+symbol+'...', 'info');
+  toast('Closing ' + symbol + '...', 'info');
   try {
-    await alpacaProxy('DELETE', '/v2/positions/'+symbol);
-    toast('✓ '+symbol+' closed', 'success');
+    await alpacaProxy('DELETE', '/v2/positions/' + symbol);
+    toast('✓ ' + symbol + ' closed', 'success');
     addFeed('CLOSE', `Closed position: ${symbol}`, 'sell');
     setTimeout(() => { fetchAlpacaAccount(); fetchAlpacaPositions(); }, 1500);
-  } catch(e) { toast('Close failed: '+e.message, 'warn'); }
+  } catch(e) { toast('Close failed: ' + e.message, 'warn'); }
 }
 
 async function logTrade(side) {
   const p = snap[active]?.price || 0;
   if (!p) { toast('No price data', 'warn'); return; }
   const qty = Math.max(1, Math.floor(2000 / p));
-  toast((side==='buy'?'▲ Buying ':'▼ Shorting ')+qty+' '+active+'...', 'info');
+  toast((side === 'buy' ? '▲ Buying ' : '▼ Shorting ') + qty + ' ' + active + '...', 'info');
   try {
-    const order = await alpacaProxy('POST', '/v2/orders', { symbol:active, qty, side, type:'market', time_in_force:'day' });
+    const order = await alpacaProxy('POST', '/v2/orders', { symbol: active, qty, side, type: 'market', time_in_force: 'day' });
     if (order.id) {
-      toast('✓ '+side.toUpperCase()+' '+qty+' '+active+' @ ~$'+p.toFixed(2), 'success');
+      toast('✓ ' + side.toUpperCase() + ' ' + qty + ' ' + active + ' @ ~$' + p.toFixed(2), 'success');
       addFeed(side.toUpperCase(), `Manual ${side}: ${qty} ${active} @ $${p.toFixed(2)}`, side);
       setTimeout(() => { fetchAlpacaAccount(); fetchAlpacaPositions(); }, 2000);
-    } else { toast('Alpaca: '+(order.message||'Unknown error'), 'warn'); }
-  } catch(e) { toast('Order failed: '+e.message, 'warn'); }
+    } else { toast('Alpaca: ' + (order.message || 'Unknown error'), 'warn'); }
+  } catch(e) { toast('Order failed: ' + e.message, 'warn'); }
 }
 
-// ── AI SIGNAL
+// ── AI SIGNAL ─────────────────────────────────────────────
 async function getAISignal() {
   const d = snap[active];
   if (!d?.price) { toast('No price data', 'warn'); return; }
   const prices = hist[active];
   const r = rsi(prices);
-  const vw = d.vwap || prices.reduce((a,b)=>a+b,0)/prices.length;
+  const vw = d.vwap || prices.reduce((a, b) => a + b, 0) / prices.length;
   el('sigAction').textContent = 'CLAUDE...';
   el('sigAction').style.color = 'var(--blue)';
   el('sigBox').className = 'signal-box hold';
@@ -680,26 +848,26 @@ async function getAISignal() {
     });
     const sig = result.signal;
     el('sigAction').textContent = sig.action;
-    el('confFill').style.width = sig.confidence+'%';
+    el('confFill').style.width = sig.confidence + '%';
     el('sigReason').textContent = sig.reasoning + ' ⚠ Risk: ' + sig.keyRisk;
-    el('stopLoss').textContent = '$'+parseFloat(sig.stopLoss).toFixed(2);
-    el('tgtPrice').textContent = '$'+parseFloat(sig.target).toFixed(2);
-    if(sig.action==='BUY'){el('sigBox').className='signal-box';el('sigAction').className='signal-action up';}
-    else if(sig.action==='SELL'){el('sigBox').className='signal-box sell';el('sigAction').className='signal-action down';}
-    else{el('sigBox').className='signal-box hold';el('sigAction').style.color='var(--yellow)';}
-    addFeed('AI', `${sig.action} ${active} — ${sig.confidence}% conf — ${sig.setupType}`, sig.action==='BUY'?'buy':sig.action==='SELL'?'sell':'scan');
-    toast('Claude signal: '+sig.action+' '+active+' ('+sig.confidence+'%)', 'success');
+    el('stopLoss').textContent = '$' + parseFloat(sig.stopLoss).toFixed(2);
+    el('tgtPrice').textContent = '$' + parseFloat(sig.target).toFixed(2);
+    if (sig.action === 'BUY') { el('sigBox').className = 'signal-box'; el('sigAction').className = 'signal-action up'; }
+    else if (sig.action === 'SELL') { el('sigBox').className = 'signal-box sell'; el('sigAction').className = 'signal-action down'; }
+    else { el('sigBox').className = 'signal-box hold'; el('sigAction').style.color = 'var(--yellow)'; }
+    addFeed('AI', `${sig.action} ${active} — ${sig.confidence}% conf — ${sig.setupType}`, sig.action === 'BUY' ? 'buy' : sig.action === 'SELL' ? 'sell' : 'scan');
+    toast('Claude signal: ' + sig.action + ' ' + active + ' (' + sig.confidence + '%)', 'success');
   } catch(e) {
     el('sigAction').textContent = 'ERROR';
-    el('sigReason').textContent = 'AI signal failed: '+e.message;
-    toast('AI error: '+e.message, 'warn');
+    el('sigReason').textContent = 'AI signal failed: ' + e.message;
+    toast('AI error: ' + e.message, 'warn');
   } finally {
     el('aiBtn').disabled = false;
     el('aiBtn').textContent = '◈ AI SIGNAL';
   }
 }
 
-// ── MANUAL SCAN
+// ── MANUAL SCAN TRIGGER ───────────────────────────────────
 async function triggerManualScan() {
   toast('Triggering market scan via Netlify...', 'info');
   addFeed('SCAN', 'Manual scan triggered — screening market...', 'scan');
@@ -709,53 +877,52 @@ async function triggerManualScan() {
     if (d.tradesExecuted > 0) {
       toast(`⚡ Scan complete — ${d.tradesExecuted} trade(s) executed`, 'success');
       addFeed('EXEC', `${d.tradesExecuted} trade(s) executed by Claude`, 'buy');
-      el('autoBadge').textContent = `AUTO: ${d.tradesExecuted} TRADES`;
+      setTimeout(() => { loadAutoTrades(); refreshPhasePanel(); fetchAlpacaAccount(); fetchAlpacaPositions(); }, 2000);
     } else {
       toast('Scan complete — no qualifying trades found', 'info');
       addFeed('SKIP', 'No qualifying setups — staying in cash', 'skip');
     }
-    setTimeout(loadAutoTrades, 2000);
   } catch(e) {
-    toast('Scan error: '+e.message, 'warn');
-    addFeed('ERR', 'Scan failed: '+e.message, 'skip');
+    toast('Scan error: ' + e.message, 'warn');
+    addFeed('ERR', 'Scan failed: ' + e.message, 'skip');
   }
 }
 
-// ── AUTO TRADES
+// ── AUTO TRADES PANEL ─────────────────────────────────────
 async function loadAutoTrades() {
   try {
     const r = await fetch(`${BACKEND}/get-trades?limit=50`);
     const d = await r.json();
     renderAutoTrades(d.trades || []);
     const today = new Date().toDateString();
-    const todayTrades = (d.trades||[]).filter(t => new Date(t.timestamp).toDateString() === today);
+    const todayTrades = (d.trades || []).filter(t => new Date(t.timestamp).toDateString() === today);
     el('tradesToday').textContent = todayTrades.length;
     const closed = todayTrades.filter(t => t.realizedPnl != null);
     if (closed.length) {
       const wins = closed.filter(t => t.realizedPnl > 0).length;
-      el('winRateAuto').textContent = Math.round((wins/closed.length)*100)+'%';
+      el('winRateAuto').textContent = Math.round((wins / closed.length) * 100) + '%';
     }
     el('lastScan').textContent = d.trades?.[0]?.timestamp
       ? new Date(d.trades[0].timestamp).toLocaleTimeString('en-US', { timeZone: 'America/New_York' })
       : '--';
   } catch(e) {
-    el('autoTradeLog').innerHTML = '<div class="notif-entry" style="padding:12px 0;text-align:center;color:var(--red)">Failed to load trades: '+e.message+'</div>';
+    el('autoTradeLog').innerHTML = '<div class="notif-entry" style="padding:12px 0;text-align:center;color:var(--red)">Failed to load trades: ' + e.message + '</div>';
   }
 }
 
 function renderAutoTrades(trades) {
   const log = el('autoTradeLog');
   if (!trades.length) {
-    log.innerHTML = '<div class="notif-entry" style="padding:20px 0;text-align:center">No automated trades yet — next scan runs hourly during market hours</div>';
+    log.innerHTML = '<div class="notif-entry" style="padding:20px 0;text-align:center">No automated trades yet — scans run every 30 min during market hours via GitHub Actions</div>';
     return;
   }
   log.innerHTML = trades.map(t => {
-    const time = new Date(t.timestamp).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour:'2-digit', minute:'2-digit' });
-    const date = new Date(t.timestamp).toLocaleDateString('en-US', { month:'short', day:'numeric' });
-    const pnlStr = t.realizedPnl != null ? `<span class="${t.realizedPnl>=0?'up':'down'}">${t.realizedPnl>=0?'+':''}$${t.realizedPnl.toFixed(0)} P&L</span>` : `<span style="color:var(--muted)">open</span>`;
+    const time = new Date(t.timestamp).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' });
+    const date = new Date(t.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const pnlStr = t.realizedPnl != null ? `<span class="${t.realizedPnl >= 0 ? 'up' : 'down'}">${t.realizedPnl >= 0 ? '+' : ''}$${t.realizedPnl.toFixed(0)} P&L</span>` : `<span style="color:var(--muted)">open</span>`;
     return `<div class="trade-entry ${t.side} auto">
       <div class="trade-meta">
-        <span class="trade-sym">${t.symbol} — ${t.qty} shares @ $${parseFloat(t.price||0).toFixed(2)}</span>
+        <span class="trade-sym">${t.symbol} — ${t.qty} shares @ $${parseFloat(t.price || 0).toFixed(2)}</span>
         <span class="trade-time">${date} ${time}</span>
       </div>
       <div class="trade-detail">${t.reasoning || 'Autonomous trade'} ${pnlStr}</div>
@@ -769,7 +936,7 @@ function renderAutoTrades(trades) {
   }).join('');
 }
 
-// ── BRIEFING
+// ── BRIEFING PANEL ────────────────────────────────────────
 async function loadBriefing() {
   try {
     const r = await fetch(`${BACKEND}/get-briefing?type=both`);
@@ -777,12 +944,12 @@ async function loadBriefing() {
     if (d.morning) {
       const b = d.morning.briefing;
       el('morningBriefing').innerHTML = `
-        <div style="color:var(--${b.bias==='BULLISH'?'green':b.bias==='BEARISH'?'red':'yellow'});font-size:14px;font-weight:600;margin-bottom:8px">${b.bias || 'NEUTRAL'}</div>
+        <div style="color:var(--${b.bias === 'BULLISH' ? 'green' : b.bias === 'BEARISH' ? 'red' : 'yellow'});font-size:14px;font-weight:600;margin-bottom:8px">${b.bias || 'NEUTRAL'}</div>
         <div style="margin-bottom:12px">${b.summary || 'No summary available'}</div>
-        ${b.topPicks?.length ? '<div style="color:var(--text);margin-bottom:4px">Top picks:</div>' + b.topPicks.map(p=>`<div style="padding:4px 0;border-bottom:1px solid var(--border)"><span style="color:var(--green)">${p.ticker}</span> ${p.direction} — ${p.reason}</div>`).join('') : ''}
+        ${b.topPicks?.length ? '<div style="color:var(--text);margin-bottom:4px">Top picks:</div>' + b.topPicks.map(p => `<div style="padding:4px 0;border-bottom:1px solid var(--border)"><span style="color:var(--green)">${p.ticker}</span> ${p.direction} — ${p.reason}</div>`).join('') : ''}
         ${b.mantra ? `<div style="margin-top:12px;color:var(--purple);font-style:italic">"${b.mantra}"</div>` : ''}`;
     } else {
-      el('morningBriefing').textContent = 'No briefing yet — generated at 9AM EST on weekdays';
+      el('morningBriefing').innerHTML = '<span style="color:var(--muted)">No briefing yet for today — generated at market open (9 AM EST) via GitHub Actions automation.</span>';
     }
     if (d.eod) {
       const b = d.eod.debrief;
@@ -792,48 +959,58 @@ async function loadBriefing() {
         <div style="color:var(--text);margin-bottom:4px">Tomorrow: ${b.tomorrowFocus || '--'}</div>`;
     }
   } catch(e) {
-    el('morningBriefing').textContent = 'Could not load briefing: ' + e.message;
+    el('morningBriefing').innerHTML = '<span style="color:var(--muted)">Briefing unavailable — will appear after first market open scan.</span>';
   }
   loadNews();
 }
 
+// ── NEWS — multiple fallback sources ─────────────────────
+const NEWS_FEEDS = [
+  { url: 'https://feeds.finance.yahoo.com/rss/2.0/headline?s=SPY,AAPL,NVDA&region=US&lang=en-US', source: 'Yahoo Finance' },
+  { url: 'https://feeds.marketwatch.com/marketwatch/topstories/', source: 'MarketWatch' },
+  { url: 'https://www.investing.com/rss/news_25.rss', source: 'Investing.com' },
+  { url: 'https://www.cnbc.com/id/10000664/device/rss/rss.html', source: 'CNBC Markets' },
+];
+
 async function loadNews() {
-  try {
-    const feed = encodeURIComponent('https://feeds.finance.yahoo.com/rss/2.0/headline?s=SPY,AAPL,NVDA&region=US&lang=en-US');
-    const r = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${feed}&count=8`);
-    const d = await r.json();
-    if (d.status === 'ok' && d.items?.length) {
-      el('newsPanel').innerHTML = d.items.map(item => `
-        <div class="news-item">
-          <a href="${item.link}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">${item.title}</a>
-          <div class="news-source">Yahoo Finance · ${new Date(item.pubDate).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'})} EST</div>
-        </div>`).join('');
-    } else { throw new Error('No items'); }
-  } catch(e) {
+  const panel = el('newsPanel');
+  panel.innerHTML = '<div class="notif-entry">Loading news...</div>';
+
+  for (const feed of NEWS_FEEDS) {
     try {
-      const feed2 = encodeURIComponent('https://feeds.marketwatch.com/marketwatch/topstories/');
-      const r2 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${feed2}&count=6`);
-      const d2 = await r2.json();
-      if (d2.status === 'ok' && d2.items?.length) {
-        el('newsPanel').innerHTML = d2.items.map(item => `
+      const encoded = encodeURIComponent(feed.url);
+      const r = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encoded}&count=8&api_key=`, { signal: AbortSignal.timeout(6000) });
+      const d = await r.json();
+      if (d.status === 'ok' && d.items?.length) {
+        panel.innerHTML = d.items.map(item => `
           <div class="news-item">
             <a href="${item.link}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">${item.title}</a>
-            <div class="news-source">MarketWatch · ${new Date(item.pubDate).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'})} EST</div>
+            <div class="news-source">${feed.source} · ${new Date(item.pubDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' })} EST</div>
           </div>`).join('');
-      } else { throw new Error('fallback failed'); }
-    } catch(_) {
-      el('newsPanel').innerHTML = '<div class="notif-entry">News feed unavailable</div>';
-    }
+        return;
+      }
+    } catch(_) { /* try next source */ }
   }
+
+  // Final fallback: static headlines with links
+  panel.innerHTML = `
+    <div class="news-item">
+      <a href="https://finance.yahoo.com/news/" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">→ Open Yahoo Finance for latest market news</a>
+      <div class="news-source">Yahoo Finance</div>
+    </div>
+    <div class="news-item">
+      <a href="https://www.marketwatch.com/" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">→ Open MarketWatch for real-time coverage</a>
+      <div class="news-source">MarketWatch</div>
+    </div>`;
 }
 
-// ── ALERTS
+// ── ALERTS ────────────────────────────────────────────────
 let alertsOn = false, watchAll = false, lastAlertSig = {}, notifLog = [];
 
 function toggleAlerts() {
   if (!alertsOn) {
     Notification.requestPermission().then(p => {
-      if (p==='granted') {
+      if (p === 'granted') {
         alertsOn = true; el('alertToggle').classList.add('on');
         el('notifStatus').textContent = 'Active — monitoring signals';
         toast('Alerts enabled ✓', 'success');
@@ -851,15 +1028,15 @@ function toggleWatchAll() {
 }
 
 function logAlert(type, msg) {
-  const t = new Date().toTimeString().slice(0,8);
+  const t = new Date().toTimeString().slice(0, 8);
   notifLog.unshift({ type, msg, t });
   if (notifLog.length > 20) notifLog.pop();
-  el('notifLog').innerHTML = notifLog.map(e=>`<div class="notif-entry ${e.type}">[${e.t}] ${e.msg}</div>`).join('');
+  el('notifLog').innerHTML = notifLog.map(e => `<div class="notif-entry ${e.type}">[${e.t}] ${e.msg}</div>`).join('');
 }
 
 function fireNotif(sym, action, confidence, price) {
-  if (Notification.permission==='granted') {
-    try { new Notification(`◈ ${action} ${sym}`, { body:`$${price.toFixed(2)} — Conf: ${confidence.toFixed(0)}%`, tag:sym, renotify:true }); } catch(e){}
+  if (Notification.permission === 'granted') {
+    try { new Notification(`◈ ${action} ${sym}`, { body: `$${price.toFixed(2)} — Conf: ${confidence.toFixed(0)}%`, tag: sym, renotify: true }); } catch(e) {}
   }
   logAlert(action.toLowerCase(), `${action} ${sym} @ $${price.toFixed(2)} (${confidence.toFixed(0)}%)`);
 }
@@ -871,15 +1048,15 @@ function checkSignalAlerts() {
   symsToWatch.forEach(sym => {
     const d = snap[sym]; const prices = hist[sym];
     if (!d?.price || !prices?.length) return;
-    const r = rsi(prices); const vw = d.vwap || prices.reduce((a,b)=>a+b,0)/prices.length;
+    const r = rsi(prices); const vw = d.vwap || prices.reduce((a, b) => a + b, 0) / prices.length;
     const above = d.price > vw; let score = 0;
-    if(r<40)score+=2;else if(r>65)score-=2;
-    if(above)score+=1;else score-=1;
-    if (score>=2||score<=-2) {
-      const action = score>=2?'BUY':'SELL';
-      const confidence = Math.min(50+Math.abs(score)*12,92);
-      const key = sym+action;
-      if (confidence>=threshold && lastAlertSig[sym]!==key) {
+    if (r < 40) score += 2; else if (r > 65) score -= 2;
+    if (above) score += 1; else score -= 1;
+    if (score >= 2 || score <= -2) {
+      const action = score >= 2 ? 'BUY' : 'SELL';
+      const confidence = Math.min(50 + Math.abs(score) * 12, 92);
+      const key = sym + action;
+      if (confidence >= threshold && lastAlertSig[sym] !== key) {
         lastAlertSig[sym] = key;
         fireNotif(sym, action, confidence, d.price);
       }
@@ -887,47 +1064,57 @@ function checkSignalAlerts() {
   });
 }
 
-// ── PUSH NOTIFICATIONS
+// ── PUSH NOTIFICATIONS ────────────────────────────────────
 async function enablePush() {
   if (!('serviceWorker' in navigator)) { toast('Push not supported on this browser', 'warn'); return; }
   const perm = await Notification.requestPermission();
   if (perm !== 'granted') { toast('Enable notifications in browser settings', 'warn'); return; }
   try {
-    const reg = await navigator.serviceWorker.register('/quantedge-pro/sw.js', { scope: '/quantedge-pro/' });
+    await navigator.serviceWorker.register('/quantedge-pro/sw.js', { scope: '/quantedge-pro/' });
     await navigator.serviceWorker.ready;
     toast('Push notifications enabled ✓', 'success');
     logAlert('system', 'Push notifications registered');
-  } catch(e) { toast('Push setup failed: '+e.message, 'warn'); }
+  } catch(e) { toast('Push setup failed: ' + e.message, 'warn'); }
 }
 
-// ── NEXT SCAN TIMER
+// ── NEXT SCAN TIMER ───────────────────────────────────────
 function updateNextScan() {
   const now = new Date();
   const next = new Date(now);
-  next.setMinutes(30, 0, 0);
-  if (next <= now) next.setHours(next.getHours() + 1);
+  next.setMinutes(next.getMinutes() < 30 ? 30 : 60, 0, 0);
+  if (next.getMinutes() === 60) { next.setMinutes(0); next.setHours(next.getHours() + 1); }
   const diff = Math.round((next - now) / 60000);
-  el('nextScan').textContent = `~${diff}min (${next.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'})} EST)`;
+  el('nextScan').textContent = `~${diff}min (${next.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' })} EST)`;
 }
 setInterval(updateNextScan, 30000); updateNextScan();
 
-// ── INIT
+// ── INIT ──────────────────────────────────────────────────
 async function loadAll() {
+  initAutoState();
   el('dot').className = 'live-dot stale';
   await fetchSnap();
-  SYMS.forEach(s => { if(!hist[s].length) seedHist(s); else appendHist(s); });
+  SYMS.forEach(s => { if (!hist[s].length) seedHist(s); else appendHist(s); });
   buildTickers(); renderChart(); renderIndicators(); renderOB();
   fetchAlpacaAccount(); fetchAlpacaPositions();
-  addFeed('INIT', 'Terminal connected — backend: Netlify', 'scan');
+  refreshPhasePanel();
+  addFeed('INIT', 'Terminal connected — auto-scan: GitHub Actions every 30 min', 'scan');
 }
 
 loadAll();
+
+// Refresh market data every 3 minutes
 setInterval(async () => {
   const ok = await fetchSnap();
   if (ok) SYMS.forEach(s => appendHist(s));
   buildTickers(); renderChart(); renderIndicators(); renderOB();
   checkSignalAlerts(); fetchAlpacaAccount(); fetchAlpacaPositions();
 }, 180000);
+
+// Client-side auto-scan check every 5 minutes (fires actual scan every 28 min during market hours)
+setInterval(autoScanTick, 5 * 60 * 1000);
+
+// Refresh phase panel every 10 minutes
+setInterval(refreshPhasePanel, 10 * 60 * 1000);
 </script>
 </body>
 </html>
