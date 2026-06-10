@@ -55,6 +55,7 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
 .trade-entry.sell{border-left-color:var(--red)}
 .trade-entry.auto{border-left-color:var(--purple)}
 .trade-entry.manual{border-left-color:var(--blue)}
+.trade-entry.gated{border-left-color:var(--border);opacity:0.7}
 .trade-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
 .trade-sym{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600}
 .trade-time{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
@@ -69,9 +70,16 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
 .badge-win{background:#0d2a1a;color:var(--green);border:1px solid var(--green)}
 .badge-loss{background:#2a0d0d;color:var(--red);border:1px solid var(--red)}
 .badge-open{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.badge-gated{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.badge-executed{background:#1a0d2a;color:var(--purple);border:1px solid var(--purple)}
 .pnl-inline{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600}
 .up{color:var(--green)}.down{color:var(--red)}
 .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:12px;font-family:'IBM Plex Mono',monospace}
+
+/* AUTO TAB SPECIFIC */
+.auto-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.auto-filter-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.scan-pill{display:inline-flex;align-items:center;gap:4px;background:var(--bg3);border:1px solid var(--purple);border-radius:12px;padding:3px 10px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--purple);margin-bottom:8px}
 
 /* BRIEFING PANELS */
 .brief-card{background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:12px}
@@ -84,13 +92,6 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
 .brief-reason{color:var(--muted)}
 .brief-mantra{margin-top:12px;color:var(--purple);font-style:italic;font-size:12px;line-height:1.6}
 .grade-badge{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;margin-bottom:8px}
-
-/* SIGNALS TAB */
-.signal-entry{background:var(--bg3);border-radius:6px;padding:10px;margin-bottom:8px;border-left:3px solid var(--blue)}
-.signal-entry.BUY{border-left-color:var(--green)}
-.signal-entry.SELL{border-left-color:var(--red)}
-.signal-entry.HOLD{border-left-color:var(--yellow)}
-.signal-action-label{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600}
 
 /* CHART */
 .equity-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px;font-family:'IBM Plex Mono',monospace}
@@ -138,7 +139,7 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
   <!-- TABS -->
   <div class="tabs">
     <button class="tab active" onclick="switchTab('trades')">TRADES</button>
-    <button class="tab" onclick="switchTab('signals')">SIGNALS</button>
+    <button class="tab" onclick="switchTab('auto')">AUTO ⚡</button>
     <button class="tab" onclick="switchTab('briefings')">BRIEFINGS</button>
     <button class="tab" onclick="switchTab('analytics')">ANALYTICS</button>
   </div>
@@ -178,14 +179,29 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
     </div>
   </div>
 
-  <!-- ═══ SIGNALS TAB ═══ -->
-  <div class="tab-panel" id="tab-signals">
+  <!-- ═══ AUTO TAB ═══ -->
+  <div class="tab-panel" id="tab-auto">
+    <div class="auto-stats" id="autoStats">
+      <div class="stat-card"><div class="stat-label">TOTAL SCANNED</div><div class="stat-value" style="color:var(--purple)" id="autoStatScanned">--</div></div>
+      <div class="stat-card"><div class="stat-label">EXECUTED</div><div class="stat-value up" id="autoStatExecuted">--</div></div>
+      <div class="stat-card"><div class="stat-label">GATED</div><div class="stat-value" style="color:var(--muted)" id="autoStatGated">--</div></div>
+      <div class="stat-card"><div class="stat-label">EXEC RATE</div><div class="stat-value" style="color:var(--yellow)" id="autoStatRate">--</div></div>
+    </div>
+
+    <div class="auto-filter-bar">
+      <button class="filter-btn active" id="afAll" onclick="setAutoFilter('all')">ALL SIGNALS</button>
+      <button class="filter-btn" id="afExecuted" onclick="setAutoFilter('executed')">EXECUTED</button>
+      <button class="filter-btn" id="afGated" onclick="setAutoFilter('gated')">GATED</button>
+      <input class="search-input" id="autoSearchInput" placeholder="Search ticker..." oninput="renderAutoLog()" style="max-width:150px">
+    </div>
+
     <div class="panel">
       <div class="panel-title">
-        <span>Claude AI Signals</span>
-        <span id="signalCountLabel" style="color:var(--muted)">Loading...</span>
+        <span>Scanner Activity Log</span>
+        <span id="autoCountLabel" style="color:var(--muted)">Loading...</span>
       </div>
-      <div id="signalLog"><div class="empty-state"><span class="spinner"></span>Loading signals...</div></div>
+      <div id="autoLog"><div class="empty-state"><span class="spinner"></span>Loading scanner activity...</div></div>
+      <div class="pagination" id="autoPagination"></div>
     </div>
   </div>
 
@@ -228,16 +244,14 @@ body{font-family:'IBM Plex Sans',sans-serif;color:#e6edf3}
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════
-// CONFIGURATION
-// ═══════════════════════════════════════════════════════════
 const BACKEND = "https://extraordinary-mandazi-a05e7e.netlify.app/.netlify/functions";
 
-// State
-let allTrades = [];
+let allTrades  = [];
 let allSignals = [];
-let currentFilter = 'all';
-let currentPage = 1;
+let currentFilter     = 'all';
+let currentAutoFilter = 'all';
+let currentPage     = 1;
+let currentAutoPage = 1;
 const PAGE_SIZE = 20;
 
 // ── CLOCK ─────────────────────────────────────────────────
@@ -246,10 +260,8 @@ setInterval(clock, 1000); clock();
 
 // ── TABS ──────────────────────────────────────────────────
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    const tabs = ['trades','signals','briefings','analytics'];
-    t.classList.toggle('active', tabs[i] === name);
-  });
+  const tabs = ['trades','auto','briefings','analytics'];
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', tabs[i] === name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
 }
@@ -261,7 +273,10 @@ function toast(msg, type='info') {
   setTimeout(() => e.className = 'alert', 5000);
 }
 
-// ── FILTER ────────────────────────────────────────────────
+// ══════════════════════════════════════════
+// TRADES TAB
+// ══════════════════════════════════════════
+
 function setFilter(f) {
   currentFilter = f; currentPage = 1;
   ['All','Buy','Sell','Auto','Open'].forEach(x => {
@@ -280,24 +295,21 @@ function getFilteredTrades() {
   if (currentFilter === 'auto') trades = trades.filter(t => t.source === 'auto' || t.automated);
   if (currentFilter === 'open') trades = trades.filter(t => t.realizedPnl == null);
   const sort = document.getElementById('sortSelect')?.value || 'newest';
-  if (sort === 'newest') trades.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-  if (sort === 'oldest') trades.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+  if (sort === 'newest')   trades.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  if (sort === 'oldest')   trades.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
   if (sort === 'pnl_desc') trades.sort((a,b) => (b.realizedPnl||0) - (a.realizedPnl||0));
   if (sort === 'pnl_asc')  trades.sort((a,b) => (a.realizedPnl||0) - (b.realizedPnl||0));
   if (sort === 'conf')     trades.sort((a,b) => (b.confidence||0) - (a.confidence||0));
   return trades;
 }
 
-// ── RENDER TRADES ─────────────────────────────────────────
 function renderTradesPage() {
   const filtered = getFilteredTrades();
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   if (currentPage > totalPages) currentPage = totalPages;
   const start = (currentPage - 1) * PAGE_SIZE;
   const page = filtered.slice(start, start + PAGE_SIZE);
-
   document.getElementById('tradeCountLabel').textContent = `${filtered.length} trade${filtered.length !== 1 ? 's' : ''}`;
-
   const log = document.getElementById('tradeLog');
   if (!page.length) {
     log.innerHTML = `<div class="empty-state">No trades match this filter</div>`;
@@ -305,7 +317,7 @@ function renderTradesPage() {
     return;
   }
   log.innerHTML = page.map(t => renderTradeEntry(t)).join('');
-  renderPagination(totalPages);
+  renderPagination('tradePagination', totalPages, currentPage, n => { currentPage = n; renderTradesPage(); });
 }
 
 function renderTradeEntry(t) {
@@ -339,44 +351,22 @@ function renderTradeEntry(t) {
   </div>`;
 }
 
-function renderPagination(totalPages) {
-  const pag = document.getElementById('tradePagination');
-  if (totalPages <= 1) { pag.innerHTML = ''; return; }
-  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>◀</button>`;
-  for (let i = 1; i <= totalPages; i++) {
-    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
-      html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
-    } else if (Math.abs(i - currentPage) === 2) {
-      html += `<span style="color:var(--muted);font-size:10px;padding:0 4px">…</span>`;
-    }
-  }
-  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>▶</button>`;
-  pag.innerHTML = html;
-}
-
-function goPage(n) { currentPage = n; renderTradesPage(); window.scrollTo(0, 0); }
-
-// ── COMPUTE STATS ─────────────────────────────────────────
 function computeStats(trades) {
   const closed = trades.filter(t => t.realizedPnl != null);
   const wins = closed.filter(t => t.realizedPnl > 0);
   const totalPnl = closed.reduce((s, t) => s + (t.realizedPnl || 0), 0);
   const autoCount = trades.filter(t => t.source === 'auto' || t.automated).length;
-
   document.getElementById('statTotal').textContent = trades.length;
-  document.getElementById('statWinRate').textContent = closed.length
-    ? Math.round((wins.length / closed.length) * 100) + '%'
-    : '--';
+  document.getElementById('statWinRate').textContent = closed.length ? Math.round((wins.length / closed.length) * 100) + '%' : '--';
   const pnlEl = document.getElementById('statPnl');
   pnlEl.textContent = closed.length ? (totalPnl >= 0 ? '+' : '') + '$' + Math.abs(totalPnl).toFixed(0) : '--';
   pnlEl.className = 'stat-value ' + (totalPnl >= 0 ? 'up' : 'down');
   document.getElementById('statAuto').textContent = autoCount;
 }
 
-// ── LOAD TRADES ───────────────────────────────────────────
 async function loadTrades() {
   try {
-    const r = await fetch(`${BACKEND}/get-trades?limit=100`);
+    const r = await fetch(`${BACKEND}/get-trades?limit=200`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
     allTrades = d.trades || [];
@@ -390,58 +380,168 @@ async function loadTrades() {
   }
 }
 
-// ── LOAD SIGNALS ──────────────────────────────────────────
+// ══════════════════════════════════════════
+// AUTO TAB
+// ══════════════════════════════════════════
+
+function setAutoFilter(f) {
+  currentAutoFilter = f; currentAutoPage = 1;
+  document.getElementById('afAll').classList.toggle('active', f === 'all');
+  document.getElementById('afExecuted').classList.toggle('active', f === 'executed');
+  document.getElementById('afGated').classList.toggle('active', f === 'gated');
+  renderAutoLog();
+}
+
+function getFilteredSignals() {
+  let sigs = [...allSignals];
+  const search = (document.getElementById('autoSearchInput')?.value || '').toUpperCase().trim();
+  if (currentAutoFilter === 'executed') {
+    sigs = sigs.filter(s => s.type !== 'scan_event' && s.executed === true);
+  } else if (currentAutoFilter === 'gated') {
+    sigs = sigs.filter(s => s.type !== 'scan_event' && (s.gated === true || s.executed === false));
+  }
+  if (search) sigs = sigs.filter(s => s.type === 'scan_event'
+    ? (s.scanSummary || '').toUpperCase().includes(search) || (s.executedSymbols || []).join(' ').toUpperCase().includes(search)
+    : (s.symbol || s.ticker || '').toUpperCase().includes(search));
+  sigs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  return sigs;
+}
+
+function renderAutoLog() {
+  const filtered = getFilteredSignals();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  if (currentAutoPage > totalPages) currentAutoPage = totalPages;
+  const start = (currentAutoPage - 1) * PAGE_SIZE;
+  const page = filtered.slice(start, start + PAGE_SIZE);
+
+  // Stats — based on scan_events and signals separately
+  const scanEvents = allSignals.filter(s => s.type === 'scan_event' && !s.skipped);
+  const signals    = allSignals.filter(s => s.type !== 'scan_event');
+  const executed   = signals.filter(s => s.executed === true).length;
+  const gated      = signals.filter(s => s.gated === true || s.executed === false).length;
+  document.getElementById('autoStatScanned').textContent  = scanEvents.length + ' scans';
+  document.getElementById('autoStatExecuted').textContent = executed;
+  document.getElementById('autoStatGated').textContent    = gated;
+  const totalSig = executed + gated;
+  document.getElementById('autoStatRate').textContent = totalSig > 0 ? Math.round((executed/totalSig)*100) + '%' : '--';
+  document.getElementById('autoCountLabel').textContent = `${filtered.length} entr${filtered.length !== 1 ? 'ies' : 'y'}`;
+
+  const log = document.getElementById('autoLog');
+  if (!page.length) {
+    log.innerHTML = `<div class="empty-state">No scanner activity yet — scanner runs every 30 min during market hours (9:30AM–4PM EDT Mon–Fri)</div>`;
+    document.getElementById('autoPagination').innerHTML = '';
+    return;
+  }
+  log.innerHTML = page.map(s => s.type === 'scan_event' ? renderScanEvent(s) : renderSignalEntry(s)).join('');
+  renderPagination('autoPagination', totalPages, currentAutoPage, n => { currentAutoPage = n; renderAutoLog(); });
+}
+
+function renderScanEvent(s) {
+  const time = s.timestamp ? new Date(s.timestamp).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour:'2-digit', minute:'2-digit' }) : '--';
+  const date = s.timestamp ? new Date(s.timestamp).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'2-digit' }) : '--';
+  const biasColor = s.marketBias === 'BULLISH' ? 'var(--green)' : s.marketBias === 'BEARISH' ? 'var(--red)' : 'var(--yellow)';
+  const isSkipped = s.skipped;
+  const borderColor = isSkipped ? 'var(--border)' : s.tradesExecuted > 0 ? 'var(--purple)' : 'var(--blue)';
+
+  return `<div class="trade-entry" style="border-left-color:${borderColor};${isSkipped ? 'opacity:0.6' : ''}">
+    <div class="trade-meta">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--blue)">
+        ◈ SCAN RUN
+        ${s.scanTime ? `<span style="font-weight:400;color:var(--muted);font-size:10px"> — ${s.scanTime} ET</span>` : ''}
+      </span>
+      <span class="badge" style="background:var(--bg);color:${biasColor};border:1px solid ${biasColor}">${isSkipped ? 'SKIPPED' : s.marketBias || 'N/A'}</span>
+    </div>
+    <div class="trade-detail" style="margin-top:4px">
+      ${isSkipped && s.skipReason ? `<span style="color:var(--muted)">${s.skipReason}</span>` : s.scanSummary || ''}
+    </div>
+    <div class="trade-meta" style="margin-top:6px">
+      <div class="trade-badges">
+        <span class="badge badge-auto">AUTO SCANNER</span>
+        ${!isSkipped ? `<span class="badge" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${s.tickersScanned || 0} tickers</span>` : ''}
+        ${!isSkipped ? `<span class="badge" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${s.setupsFound || 0} setups</span>` : ''}
+        ${s.tradesExecuted > 0 ? `<span class="badge badge-executed">${s.tradesExecuted} executed</span>` : ''}
+        ${s.setupsGated > 0 ? `<span class="badge badge-gated">${s.setupsGated} gated</span>` : ''}
+        ${s.executedSymbols?.length ? `<span class="badge" style="background:var(--bg);color:var(--green);border:1px solid var(--green)">${s.executedSymbols.join(', ')}</span>` : ''}
+      </div>
+      <span class="trade-time">${date} ${time} EDT</span>
+    </div>
+  </div>`;
+}
+
+function renderSignalEntry(s) {
+  const action  = (s.action || s.side || 'BUY').toUpperCase();
+  const symbol  = s.symbol || s.ticker || '?';
+  const isExec  = s.executed === true;
+  const isGated = !isExec;
+  const time = s.timestamp ? new Date(s.timestamp).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour:'2-digit', minute:'2-digit' }) : '--';
+  const date = s.timestamp ? new Date(s.timestamp).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'2-digit' }) : '--';
+  const borderClass = isGated ? 'gated' : (action === 'SELL' ? 'sell' : 'auto');
+  const actionColor = action === 'BUY' ? 'var(--green)' : action === 'SELL' ? 'var(--red)' : 'var(--yellow)';
+
+  return `<div class="trade-entry ${borderClass}">
+    <div class="trade-meta">
+      <span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:${actionColor}">${action}</span>
+        <span class="trade-sym" style="margin-left:8px">${symbol}</span>
+        ${s.price ? `<span style="font-size:10px;color:var(--muted);margin-left:4px">@ $${parseFloat(s.price).toFixed(2)}</span>` : ''}
+      </span>
+      <span class="badge ${isExec ? 'badge-executed' : 'badge-gated'}">${isExec ? '✓ EXECUTED' : '✗ GATED'}</span>
+    </div>
+    <div class="trade-detail" style="margin-top:4px">
+      ${isGated && s.gatedReason ? `<span style="color:var(--red);font-size:10px">Gate: ${s.gatedReason}</span><br>` : ''}
+      ${s.reasoning || 'Scanner signal'}
+    </div>
+    <div class="trade-meta" style="margin-top:6px">
+      <div class="trade-badges">
+        <span class="badge badge-auto">AUTO SCANNER</span>
+        ${s.confidence != null ? `<span class="badge badge-conf">${s.confidence}% CONF</span>` : ''}
+        ${s.riskReward ? `<span class="badge" style="background:var(--bg);color:var(--blue);border:1px solid var(--blue)">R:R ${s.riskReward}</span>` : ''}
+        ${s.setupType ? `<span class="badge" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${s.setupType}</span>` : ''}
+        ${s.marketBias ? `<span class="badge" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${s.marketBias}</span>` : ''}
+      </div>
+      <span class="trade-time">${date} ${time} EDT</span>
+    </div>
+  </div>`;
+}
+
 async function loadSignals() {
   try {
     const r = await fetch(`${BACKEND}/log-signal`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
-    allSignals = d.signals || d.entries || [];
-    renderSignals();
+    // Combine signals from signal-log with auto trades from trade-journal
+    const sigLogEntries = (d.signals || d.entries || []).filter(s => s.source === 'auto' || s.automated);
+    // Also pull in auto trades from allTrades that might not be in signal-log
+    const tradeSignals = allTrades
+      .filter(t => (t.source === 'auto' || t.automated) && !sigLogEntries.find(s => s.orderId === t.orderId))
+      .map(t => ({ ...t, executed: true, gated: false, ticker: t.symbol }));
+    // Merge and deduplicate by orderId / timestamp+symbol
+    const seen = new Set();
+    allSignals = [...sigLogEntries, ...tradeSignals].filter(s => {
+      const key = s.orderId || `${s.timestamp}-${s.symbol || s.ticker}`;
+      if (seen.has(key)) return false;
+      seen.add(key); return true;
+    });
+    renderAutoLog();
   } catch(e) {
-    // Signals endpoint may return 405 on GET — try parsing from trades as fallback
-    const signalFallback = allTrades.filter(t => t.confidence != null);
-    allSignals = signalFallback;
-    renderSignals();
+    // Fallback: derive from auto trades only
+    allSignals = allTrades
+      .filter(t => t.source === 'auto' || t.automated)
+      .map(t => ({ ...t, executed: true, gated: false, ticker: t.symbol }));
+    renderAutoLog();
   }
 }
 
-function renderSignals() {
-  const log = document.getElementById('signalLog');
-  document.getElementById('signalCountLabel').textContent = `${allSignals.length} signal${allSignals.length !== 1 ? 's' : ''}`;
-  if (!allSignals.length) {
-    log.innerHTML = `<div class="empty-state">No signals logged yet — signals appear after Claude analyzes tickers</div>`;
-    return;
-  }
-  log.innerHTML = allSignals.slice(0, 50).map(s => {
-    const action = s.action || s.side?.toUpperCase() || 'HOLD';
-    const time = s.timestamp ? new Date(s.timestamp).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour:'2-digit', minute:'2-digit' }) : '--';
-    const date = s.timestamp ? new Date(s.timestamp).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '--';
-    return `<div class="signal-entry ${action}">
-      <div class="trade-meta">
-        <span><span class="signal-action-label ${action === 'BUY' ? 'up' : action === 'SELL' ? 'down' : ''}" style="${action === 'HOLD' ? 'color:var(--yellow)' : ''}">${action}</span>
-          <span class="trade-sym" style="margin-left:8px">${s.symbol || s.ticker || '?'}</span></span>
-        <span class="trade-time">${date} ${time} EST</span>
-      </div>
-      <div class="trade-detail" style="margin-top:4px">${s.reasoning || s.reason || 'Signal logged by scanner'}</div>
-      <div class="trade-badges" style="margin-top:6px">
-        ${s.confidence != null ? `<span class="badge badge-conf">${s.confidence}% CONF</span>` : ''}
-        ${s.setupType ? `<span class="badge" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${s.setupType}</span>` : ''}
-        ${s.keyRisk ? `<span class="badge" style="background:var(--bg);color:var(--red);border:1px solid var(--red)">⚠ ${s.keyRisk}</span>` : ''}
-        ${s.executed ? `<span class="badge badge-auto">EXECUTED</span>` : `<span class="badge badge-open">SKIPPED</span>`}
-      </div>
-    </div>`;
-  }).join('');
-}
+// ══════════════════════════════════════════
+// BRIEFINGS TAB
+// ══════════════════════════════════════════
 
-// ── LOAD BRIEFINGS ────────────────────────────────────────
 async function loadBriefings() {
   try {
     const r = await fetch(`${BACKEND}/get-briefing?type=both`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
 
-    // Morning briefing
     const mb = document.getElementById('morningBriefing');
     if (d.morning) {
       const b = d.morning.briefing || d.morning;
@@ -468,7 +568,6 @@ async function loadBriefings() {
       mb.innerHTML = `<div class="empty-state">No morning briefing yet — generated at 9AM EST on market days</div>`;
     }
 
-    // EOD debrief
     const eod = document.getElementById('eodDebrief');
     if (d.eod) {
       const b = d.eod.debrief || d.eod;
@@ -489,12 +588,14 @@ async function loadBriefings() {
   }
 }
 
-// ── ANALYTICS ─────────────────────────────────────────────
+// ══════════════════════════════════════════
+// ANALYTICS TAB
+// ══════════════════════════════════════════
+
 function renderAnalytics() {
   const closed = allTrades.filter(t => t.realizedPnl != null);
   if (!closed.length) return;
 
-  // P&L by ticker
   const byTicker = {};
   closed.forEach(t => {
     if (!byTicker[t.symbol]) byTicker[t.symbol] = { pnl: 0, count: 0 };
@@ -512,8 +613,7 @@ function renderAnalytics() {
     </div>`;
   }).join('') || '<div class="empty-state">No closed trades</div>';
 
-  // Confidence vs outcome
-  const confBuckets = {'60-69':[],'70-79':[],'80-89':[],'90+':[]} ;
+  const confBuckets = {'60-69':[],'70-79':[],'80-89':[],'90+':[]};
   closed.forEach(t => {
     const c = t.confidence || 0;
     const bucket = c >= 90 ? '90+' : c >= 80 ? '80-89' : c >= 70 ? '70-79' : c >= 60 ? '60-69' : null;
@@ -529,7 +629,6 @@ function renderAnalytics() {
     </div>`;
   }).join('') || '<div class="empty-state">Not enough data</div>';
 
-  // Setup breakdown
   const bySetup = {};
   allTrades.forEach(t => {
     const s = t.setupType || 'UNCLASSIFIED';
@@ -549,7 +648,25 @@ function renderAnalytics() {
     }).join('') || '<div class="empty-state">No setup data</div>';
 }
 
-// ── EXPORT CSV ────────────────────────────────────────────
+// ══════════════════════════════════════════
+// SHARED HELPERS
+// ══════════════════════════════════════════
+
+function renderPagination(containerId, totalPages, page, onPage) {
+  const pag = document.getElementById(containerId);
+  if (totalPages <= 1) { pag.innerHTML = ''; return; }
+  let html = `<button class="page-btn" onclick="(${onPage.toString()})(${page-1})" ${page===1?'disabled':''}>◀</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || Math.abs(i - page) <= 1) {
+      html += `<button class="page-btn ${i===page?'active':''}" onclick="(${onPage.toString()})(${i})">${i}</button>`;
+    } else if (Math.abs(i - page) === 2) {
+      html += `<span style="color:var(--muted);font-size:10px;padding:0 4px">…</span>`;
+    }
+  }
+  html += `<button class="page-btn" onclick="(${onPage.toString()})(${page+1})" ${page===totalPages?'disabled':''}>▶</button>`;
+  pag.innerHTML = html;
+}
+
 function exportCSV() {
   if (!allTrades.length) { toast('No trades to export', 'warn'); return; }
   const headers = ['Date','Time','Symbol','Side','Qty','Price','Confidence','SetupType','P&L','Source','Reasoning'];
@@ -578,13 +695,13 @@ function exportCSV() {
   toast('CSV exported ✓', 'success');
 }
 
-// ── LOAD ALL ──────────────────────────────────────────────
 async function loadAll() {
   document.getElementById('dot').className = 'live-dot stale';
   document.getElementById('refreshBtn').textContent = '⟳ LOADING...';
   document.getElementById('refreshBtn').disabled = true;
   try {
-    await Promise.all([loadTrades(), loadBriefings(), loadSignals()]);
+    await Promise.all([loadTrades(), loadBriefings()]);
+    await loadSignals(); // depends on allTrades being loaded first
     renderAnalytics();
     toast('Journal updated ✓', 'success');
   } catch(e) {
@@ -595,7 +712,6 @@ async function loadAll() {
   }
 }
 
-// Init
 loadAll();
 </script>
 </body>
